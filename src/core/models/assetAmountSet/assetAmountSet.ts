@@ -64,11 +64,13 @@ export class AssetAmountSet {
     return new AssetAmountSet(assetsAmount);
   }
 
-  private assetAmountMap = new Map<string, AssetAmount>(
-    this.assets.map((a) => [a.assetInfo.spectrumId, a]),
-  );
+  private assetAmountMap: Map<string, AssetAmount>;
 
-  constructor(private assets: AssetAmount[]) {}
+  constructor(private assets: AssetAmount[]) {
+    this.assetAmountMap = new Map<string, AssetAmount>(
+      this.assets.map((a) => [a.assetInfo.spectrumId, a]),
+    );
+  }
 
   get(asset: AssetInfo): AssetAmount | undefined {
     return this.assetAmountMap.get(asset.spectrumId);
