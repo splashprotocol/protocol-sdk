@@ -1,3 +1,4 @@
-import { AssetAmount } from './core/models/assetAmount/AssetAmount';
+import { adaAssetInfo } from './core/models/assetInfo/adaAssetInfo';
+import { spfAssetInfo } from './core/models/assetInfo/spfAssetInfo';
 
-console.log(AssetAmount);
+console.log(adaAssetInfo, spfAssetInfo);

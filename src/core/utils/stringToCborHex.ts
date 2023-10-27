@@ -5,4 +5,4 @@ import { bytesToHex } from './bytesToHex';
 import { stringToBytes } from './stringToBytes';
 
 export const stringToCborHex = (str: string): CborHexString =>
-  bytesToHex(encode(stringToBytes(str)));
+  bytesToHex(encode(stringToBytes(str).buffer));

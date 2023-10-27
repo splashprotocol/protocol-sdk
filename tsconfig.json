@@ -2,10 +2,9 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "typeRoots": ["src/@types"],
+    "lib": ["es2017", "es2019", "DOM.Iterable", "DOM", "esnext"],
+    "typeRoots": ["node_modules/@types", "src/types"],
     "skipLibCheck": true,
-    "types": ["vite/client"],
     "esModuleInterop": true,
 
     /* Bundler mode */
@@ -24,14 +23,10 @@
     "allowSyntheticDefaultImports": true,
     "allowJs": true
   },
-
   "include": [
     "src/**/*.ts",
-    "src/**/*.tsx",
+    "src/**/*.spec.ts",
     "types/**/*.d.ts",
-    "vite-env.d.ts",
   ],
-
-  "excluded": ["**/*.wasm", "node_modules"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "excluded": ["node_modules"],
 }
