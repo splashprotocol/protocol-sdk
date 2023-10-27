@@ -2,11 +2,24 @@ import { adaAssetInfo } from '../assetInfo/adaAssetInfo';
 import { AssetInfo } from '../assetInfo/AssetInfo';
 import { spfAssetInfo } from '../assetInfo/spfAssetInfo';
 
+/**
+ * representation of asset info with some amount
+ */
 export class AssetAmount {
+  /**
+   * creates assetAmount with ada asset info
+   * @param {bigint} amount
+   * @returns {AssetAmount}
+   */
   static adaAssetAmount(amount: bigint) {
     return new AssetAmount(amount, adaAssetInfo);
   }
 
+  /**
+   * creates assetAmount with spf asset info
+   * @param {bigint} amount
+   * @returns {AssetAmount}
+   */
   static spfAssetAmount(amount: bigint) {
     return new AssetAmount(amount, spfAssetInfo);
   }
@@ -16,10 +29,20 @@ export class AssetAmount {
     public assetInfo: AssetInfo,
   ) {}
 
+  /**
+   * Creates new asset amount instance with specified amount and same assetInfo
+   * @param {bigint} amount
+   * @returns {AssetAmount}
+   */
   withAmount(amount: bigint): AssetAmount {
     return new AssetAmount(amount, this.assetInfo);
   }
 
+  /**
+   * Returns true if current asset amount greater than param
+   * @param {AssetAmount | bigint} assetAmount
+   * @returns {boolean}
+   */
   gt(assetAmount: AssetAmount | bigint): boolean {
     this.assetAssetAmount(assetAmount, `compare`);
 
@@ -30,6 +53,11 @@ export class AssetAmount {
     }
   }
 
+  /**
+   * Returns true if current asset amount greater or equals than param
+   * @param {AssetAmount | bigint} assetAmount
+   * @returns {boolean}
+   */
   gte(assetAmount: AssetAmount | bigint): boolean {
     this.assetAssetAmount(assetAmount, `compare`);
 
@@ -40,6 +68,11 @@ export class AssetAmount {
     }
   }
 
+  /**
+   * Returns true if current asset amount lower than param
+   * @param {AssetAmount | bigint} assetAmount
+   * @returns {boolean}
+   */
   lt(assetAmount: AssetAmount | bigint): boolean {
     this.assetAssetAmount(assetAmount, `compare`);
 
@@ -50,6 +83,11 @@ export class AssetAmount {
     }
   }
 
+  /**
+   * Returns true if current asset amount lower or equals than param
+   * @param {AssetAmount | bigint} assetAmount
+   * @returns {boolean}
+   */
   lte(assetAmount: AssetAmount | bigint): boolean {
     this.assetAssetAmount(assetAmount, `compare`);
 
@@ -60,6 +98,11 @@ export class AssetAmount {
     }
   }
 
+  /**
+   * sum two asset info with same assetInfo
+   * @param {bigint | AssetAmount} assetAmount
+   * @returns {AssetAmount}
+   */
   plus(assetAmount: bigint | AssetAmount): AssetAmount {
     this.assetAssetAmount(assetAmount, 'sum');
     if (typeof assetAmount === 'bigint') {
@@ -68,6 +111,11 @@ export class AssetAmount {
     return this.withAmount(this.amount + assetAmount.amount);
   }
 
+  /**
+   * subtract param from current assetAmount with same asset info
+   * @param {bigint | AssetAmount} assetAmount
+   * @returns {AssetAmount}
+   */
   minus(assetAmount: bigint | AssetAmount): AssetAmount {
     this.assetAssetAmount(assetAmount, 'minus');
 
