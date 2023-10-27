@@ -167,7 +167,7 @@ export class AssetAmountSet {
 
       for (const assetAmount of assetAmounts) {
         wAssets.insert(
-          assetAmount.assetInfo.toWasmName(),
+          assetAmount.assetInfo.wasmName,
           BigNum.from_str(assetAmount.amount.toString()),
         );
       }
