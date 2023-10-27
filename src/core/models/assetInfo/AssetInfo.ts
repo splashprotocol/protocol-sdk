@@ -26,11 +26,11 @@ export class AssetInfo {
     private assetName: AssetName,
   ) {}
 
-  toWasmName() {
+  get wasmName() {
     return this.assetName;
   }
 
-  toWasmPolicyId() {
+  get wasmPolicyId() {
     if (!this.policyId) {
       throw new Error('ada has no wasm script hash');
     }
