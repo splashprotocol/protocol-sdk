@@ -40,6 +40,8 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
-    "setupFiles": ["./jest/mocks.js"]
+    "setupFiles": [
+      "./jest/mocks.js"
+    ]
   }
 }

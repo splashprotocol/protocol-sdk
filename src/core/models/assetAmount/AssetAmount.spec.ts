@@ -1,4 +1,8 @@
-import { AssetAmount } from './AssetAmount.ts';
+import { adaAssetInfo } from '../assetInfo/adaAssetInfo.ts';
+import { AssetInfo } from '../assetInfo/AssetInfo.ts';
+
 test('Encode/decode Value', () => {
-  expect(AssetAmount).toBe(AssetAmount);
+  expect(adaAssetInfo.spectrumId).toBe(
+    AssetInfo.fromNameString('', '').spectrumId,
+  );
 });

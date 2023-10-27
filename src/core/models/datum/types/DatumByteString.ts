@@ -1,7 +1,7 @@
 import { PlutusData } from '@emurgo/cardano-serialization-lib-browser';
 
-import { bytesToHex } from '../../../utils/bytesToHex';
-import { hexToBytes } from '../../../utils/hexToBytes';
+import { bytesToHex } from '../../../utils/bytesToHex/bytesToHex.ts';
+import { hexToBytes } from '../../../utils/hexToBytes/hexToBytes.ts';
 import { DatumType } from '../common/DatumType';
 
 export const DatumByteString: DatumType<string> = {

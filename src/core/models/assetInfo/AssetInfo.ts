@@ -4,9 +4,9 @@ import {
 } from '@emurgo/cardano-serialization-lib-browser';
 
 import { CborHexString, HexString } from '../../types/types';
-import { bytesToString } from '../../utils/bytesToString';
-import { hexToCborHex } from '../../utils/hexToCborHex';
-import { stringToCborHex } from '../../utils/stringToCborHex';
+import { bytesToString } from '../../utils/bytesToString/bytesToString.ts';
+import { hexToCborHex } from '../../utils/hexToCborHex/hexToCborHex.ts';
+import { stringToCborHex } from '../../utils/stringToCborHex/stringToCborHex.ts';
 
 export class AssetInfo {
   static fromNameString(policyId: HexString, name: string): AssetInfo {
