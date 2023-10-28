@@ -5,8 +5,15 @@ import {
   PlutusList,
 } from '@emurgo/cardano-serialization-lib-browser';
 
-import { DatumType } from '../common/DatumType';
+import { DatumType } from '../../common/DatumType.ts';
 
+/**
+ * Optional data representation in datum
+ * @example {"constructor":0,"fields":[{"int":1}?]} where {"int":1}? is optional
+ * @param {DatumType<T>} datumType
+ * @returns {DatumType<T | undefined>}
+ * @constructor
+ */
 export const DatumOptionalType = <T>(
   datumType: DatumType<T>,
 ): DatumType<T | undefined> => {
