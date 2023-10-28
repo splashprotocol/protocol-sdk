@@ -10,7 +10,7 @@ import { DatumType } from '../../common/DatumType.ts';
  * @example  {"int": <number>}
  * @type {{serialize(value: bigint): PlutusData, deserialize(pd: PlutusData): bigint}}
  */
-export const BigIntDatumType: DatumType<bigint> = {
+export const SpectrumBigIntDatumType: DatumType<bigint> = {
   serialize(value: bigint): PlutusData {
     return PlutusData.new_integer(WasmBigInt.from_str(value.toString()));
   },

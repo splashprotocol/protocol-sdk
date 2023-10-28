@@ -14,7 +14,7 @@ import { DatumType } from '../../common/DatumType.ts';
  * @returns {DatumType<T | undefined>}
  * @constructor
  */
-export const DatumOptionalType = <T>(
+export const SpectrumDatumOptionalType = <T>(
   datumType: DatumType<T>,
 ): DatumType<T | undefined> => {
   return {

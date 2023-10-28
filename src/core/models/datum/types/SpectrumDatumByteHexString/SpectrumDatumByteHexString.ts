@@ -9,7 +9,7 @@ import { DatumType } from '../../common/DatumType.ts';
  * @example {"bytes": <encodedString>}
  * @type {{serialize(value: string): PlutusData, deserialize(pd: PlutusData): string}}
  */
-export const DatumByteHexString: DatumType<string> = {
+export const SpectrumDatumByteHexString: DatumType<string> = {
   serialize(value: string): PlutusData {
     return PlutusData.new_bytes(hexToBytes(value));
   },
