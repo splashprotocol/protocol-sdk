@@ -12,11 +12,24 @@ import { adaAssetInfo } from '../assetInfo/adaAssetInfo';
 import { AssetInfo } from '../assetInfo/AssetInfo';
 import { spfAssetInfo } from '../assetInfo/spfAssetInfo';
 
+/**
+ * Wasn Value structure wrapper
+ */
 export class AssetAmountSet {
+  /**
+   * Creates a valid instance from cbor hex string
+   * @param {CborHexString} cborHex
+   * @returns {AssetAmountSet}
+   */
   static fromCborHex(cborHex: CborHexString): AssetAmountSet {
     return this.fromWasmValue(Value.from_hex(cborHex));
   }
 
+  /**
+   * Creates a valid instance from wasm Value structure
+   * @param {Value} value
+   * @returns {AssetAmountSet}
+   */
   static fromWasmValue(value: Value): AssetAmountSet {
     const adaAssetAmount = AssetAmount.adaAssetAmount(
       BigInt(value.coin().to_str()),
@@ -60,6 +73,11 @@ export class AssetAmountSet {
     return this.fromAssetAmountArray([adaAssetAmount].concat(assetsAmount));
   }
 
+  /**
+   * Creates a valid instance from assetAmount collection
+   * @param {AssetAmount[]} assetsAmount
+   * @returns {AssetAmountSet}
+   */
   static fromAssetAmountArray(assetsAmount: AssetAmount[]): AssetAmountSet {
     return new AssetAmountSet(assetsAmount);
   }
@@ -72,18 +90,36 @@ export class AssetAmountSet {
     );
   }
 
+  /**
+   * Returns AssetAmount or undefined by assetInfo
+   * @param {AssetInfo} asset
+   * @returns {AssetAmount | undefined}
+   */
   get(asset: AssetInfo): AssetAmount | undefined {
     return this.assetAmountMap.get(asset.spectrumId);
   }
 
+  /**
+   * Returns available ada value
+   * @returns {AssetAmount | undefined}
+   */
   getAda(): AssetAmount | undefined {
     return this.assetAmountMap.get(adaAssetInfo.spectrumId);
   }
 
+  /**
+   * Returns available spf value
+   * @returns {AssetAmount | undefined}
+   */
   getSpf(): AssetAmount | undefined {
     return this.assetAmountMap.get(spfAssetInfo.spectrumId);
   }
 
+  /**
+   * Sum two assetAmountSet
+   * @param {AssetAmountSet | AssetAmount[]} assetAmountSet
+   * @returns {AssetAmountSet}
+   */
   plus(assetAmountSet: AssetAmountSet | AssetAmount[]): AssetAmountSet {
     const toSum: AssetAmountSet =
       assetAmountSet instanceof AssetAmountSet
@@ -104,6 +140,11 @@ export class AssetAmountSet {
     return AssetAmountSet.fromAssetAmountArray(Array.from(resultMap.values()));
   }
 
+  /**
+   * Subtract  asset amount set argument from current asset amount set. Value of assets can't be lower than 0
+   * @param {AssetAmountSet | AssetAmount[]} assetAmountSet
+   * @returns {AssetAmountSet}
+   */
   minus(assetAmountSet: AssetAmountSet | AssetAmount[]): AssetAmountSet {
     const toSubtract: AssetAmountSet =
       assetAmountSet instanceof AssetAmountSet
@@ -124,6 +165,11 @@ export class AssetAmountSet {
     return AssetAmountSet.fromAssetAmountArray(Array.from(resultMap.values()));
   }
 
+  /**
+   * Returns true if structure has enough assets for subtract
+   * @param {AssetAmountSet | AssetAmount[]} assetAmountSet
+   * @returns {boolean}
+   */
   isAssetsEnough(assetAmountSet: AssetAmountSet | AssetAmount[]): boolean {
     const toCompare: AssetAmountSet =
       assetAmountSet instanceof AssetAmountSet
@@ -140,10 +186,18 @@ export class AssetAmountSet {
     return true;
   }
 
+  /**
+   * Returns asset amount collection
+   * @returns {AssetAmount[]}
+   */
   toAssetAmountArray(): AssetAmount[] {
     return this.assets;
   }
 
+  /**
+   * Returns Wasm Value representation
+   * @returns {Value}
+   */
   toWasmValue(): Value {
     const groupedAssetsByPolicyId = this.assets
       .filter((asset) => asset.assetInfo.spectrumId !== adaAssetInfo.spectrumId)
@@ -188,6 +242,10 @@ export class AssetAmountSet {
     return wValue;
   }
 
+  /**
+   * Returns valid cbor hex string representation
+   * @returns {CborHexString}
+   */
   toCborHex(): CborHexString {
     return this.toWasmValue().to_hex();
   }
