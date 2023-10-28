@@ -1,4 +1,6 @@
 import {
+  BigNum,
+  ConstrPlutusData,
   PlutusData,
   PlutusList,
 } from '@emurgo/cardano-serialization-lib-browser';
@@ -6,11 +8,38 @@ import {
 import { Dictionary } from '../../types/types.ts';
 import { DatumType } from './common/DatumType.ts';
 
+export interface DatumPostHandler {
+  readonly serialize: (pl: PlutusList) => PlutusData;
+  readonly deserialize: (pd: PlutusData) => PlutusList | undefined;
+}
+
+/**
+ * Default pd posthandlers
+ * @type {{serialize: (pl: PlutusList) => PlutusData, deserialize: (pd: PlutusData) => PlutusList | undefined}}
+ */
+export const defaultDatumPostHandler: DatumPostHandler = {
+  serialize: (pl: PlutusList) => PlutusData.new_list(pl),
+  deserialize: (pd: PlutusData) => pd.as_list(),
+};
+
+/**
+ * Spectrum pd posthandlers
+ * @type {{serialize: (pl: PlutusList) => PlutusData, deserialize: (pd: PlutusData) => PlutusList | undefined}}
+ */
+export const spectrumDatumPostHandler: DatumPostHandler = {
+  serialize: (pl: PlutusList) =>
+    PlutusData.new_constr_plutus_data(ConstrPlutusData.new(BigNum.zero(), pl)),
+  deserialize: (pd: PlutusData) => pd.as_constr_plutus_data()?.data(),
+};
+
 /**
  * Representation of datum
  */
 export class Datum<T extends Dictionary<[number, DatumType<any>]>> {
-  constructor(public schema: T) {}
+  constructor(
+    public schema: T,
+    private postHandler: DatumPostHandler = defaultDatumPostHandler,
+  ) {}
 
   serialize(value: {
     [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
@@ -28,13 +57,13 @@ export class Datum<T extends Dictionary<[number, DatumType<any>]>> {
       }
     }
 
-    return PlutusData.new_list(plutusList);
+    return this.postHandler.serialize(plutusList);
   }
 
   deserialize(pd: PlutusData): {
     [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
   } {
-    const plutusList = pd.as_list();
+    const plutusList = this.postHandler.deserialize(pd);
 
     if (!plutusList) {
       throw new Error('Deserialization error. no list in plutus data');
