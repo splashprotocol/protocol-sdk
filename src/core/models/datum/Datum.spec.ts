@@ -7,19 +7,19 @@ import {
 
 //
 import { bytesToHex } from '../../utils/bytesToHex/bytesToHex.ts';
-import { Datum, spectrumDatumPostHandler } from './Datum.ts';
+import { DatumSchema, spectrumDatumPostHandler } from './DatumSchema.ts';
 import { SpectrumBigIntDatumType } from './types/SpectrumBigIntDatumType/SpectrumBigIntDatumType.ts';
 import { SpectrumDatumByteHexString } from './types/SpectrumDatumByteHexString/SpectrumDatumByteHexString.ts';
 
 test('it should creates a valid instance of Datum from params', () => {
-  const datum = new Datum(
+  const datum = new DatumSchema(
     {
       amount: [0, SpectrumBigIntDatumType],
     },
     spectrumDatumPostHandler,
   );
 
-  expect(datum).toBeInstanceOf(Datum);
+  expect(datum).toBeInstanceOf(DatumSchema);
   expect(datum.schema.amount).toEqual([0, SpectrumBigIntDatumType]);
 });
 
@@ -27,26 +27,31 @@ test('it should converts objects to PlutusData structure', () => {
   const expectedBigInt = 1n;
   const expectedHex =
     '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
-  const datum = new Datum(
+  const datumSchema = new DatumSchema(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
     },
     spectrumDatumPostHandler,
   );
-  const pd = datum.serialize({ amount: expectedBigInt, asset: expectedHex });
+  const datum = datumSchema.fromData({
+    amount: expectedBigInt,
+    asset: expectedHex,
+  });
 
-  expect(pd).toBeInstanceOf(PlutusData);
+  expect(datum.wasm).toBeInstanceOf(PlutusData);
   expect(
-    BigInt(pd.as_constr_plutus_data()?.data().get(0).as_integer()?.to_str()!),
+    BigInt(
+      datum.wasm.as_constr_plutus_data()?.data().get(0).as_integer()?.to_str()!,
+    ),
   ).toBe(expectedBigInt);
   expect(
-    bytesToHex(pd.as_constr_plutus_data()?.data().get(1).as_bytes()!),
+    bytesToHex(datum.wasm.as_constr_plutus_data()?.data().get(1).as_bytes()!),
   ).toBe(expectedHex);
 });
 
 test('it should throws error on incorrect data', () => {
-  const datum = new Datum(
+  const datumSchema = new DatumSchema(
     {
       amount: [0, SpectrumBigIntDatumType],
     },
@@ -54,7 +59,7 @@ test('it should throws error on incorrect data', () => {
   );
 
   try {
-    datum.serialize({ amount: null as any });
+    datumSchema.fromData({ amount: null as any });
   } catch (e) {
     expect(e).toBeInstanceOf(Error);
   }
@@ -64,7 +69,7 @@ test('it should converts PlutusData structure to object', () => {
   const expectedBigInt = 1n;
   const expectedHex =
     '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
-  const datum = new Datum(
+  const datumSchema = new DatumSchema(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
@@ -76,20 +81,20 @@ test('it should converts PlutusData structure to object', () => {
   plutusList.add(SpectrumBigIntDatumType.serialize(expectedBigInt));
   plutusList.add(SpectrumDatumByteHexString.serialize(expectedHex));
 
-  const deserializationResult = datum.deserialize(
+  const datum = datumSchema.fromWasm(
     PlutusData.new_constr_plutus_data(
       ConstrPlutusData.new(BigNum.zero(), plutusList),
     ),
   );
 
-  expect(deserializationResult).toEqual({
+  expect(datum.data).toEqual({
     amount: expectedBigInt,
     asset: expectedHex,
   });
 });
 
 test('it should throws deserialization error with invalid plutus data', () => {
-  const datum = new Datum(
+  const datumSchema = new DatumSchema(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
@@ -98,7 +103,7 @@ test('it should throws deserialization error with invalid plutus data', () => {
   );
 
   try {
-    datum.deserialize(PlutusData.new_bytes(Uint8Array.from([])));
+    datumSchema.fromWasm(PlutusData.new_bytes(Uint8Array.from([])));
   } catch (e) {
     expect(e).toBeInstanceOf(Error);
   }

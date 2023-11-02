@@ -5,7 +5,7 @@ import {
   PlutusList,
 } from '@emurgo/cardano-serialization-lib-browser';
 
-import { Dictionary } from '../../types/types.ts';
+import { CborHexString, Dictionary } from '../../types/types.ts';
 import { DatumType } from './common/DatumType.ts';
 
 export interface DatumPostHandler {
@@ -35,13 +35,27 @@ export const spectrumDatumPostHandler: DatumPostHandler = {
 /**
  * Representation of datum
  */
-export class Datum<T extends Dictionary<[number, DatumType<any>]>> {
+export class Datum<T> {
+  private constructor(
+    public readonly wasm: PlutusData,
+    public readonly data: T,
+  ) {}
+
+  get cbor(): CborHexString {
+    return this.wasm.to_hex();
+  }
+}
+
+/**
+ * Representation of datum schema
+ */
+export class DatumSchema<T extends Dictionary<[number, DatumType<any>]>> {
   constructor(
     public schema: T,
     private postHandler: DatumPostHandler = defaultDatumPostHandler,
   ) {}
 
-  serialize(value: {
+  private serialize(value: {
     [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
   }): PlutusData {
     const plutusList = PlutusList.new();
@@ -60,7 +74,7 @@ export class Datum<T extends Dictionary<[number, DatumType<any>]>> {
     return this.postHandler.serialize(plutusList);
   }
 
-  deserialize(pd: PlutusData): {
+  private deserialize(pd: PlutusData): {
     [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
   } {
     const plutusList = this.postHandler.deserialize(pd);
@@ -94,5 +108,31 @@ export class Datum<T extends Dictionary<[number, DatumType<any>]>> {
     }
 
     return res;
+  }
+
+  fromWasm(pd: PlutusData): Datum<{
+    [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
+  }> {
+    //@ts-ignore
+    return new Datum(pd, this.deserialize(pd));
+  }
+
+  fromCborHex(cborDatum: CborHexString): Datum<{
+    [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
+  }> {
+    //@ts-ignore
+    return new Datum(
+      PlutusData.from_hex(cborDatum),
+      this.deserialize(PlutusData.from_hex(cborDatum)),
+    );
+  }
+
+  fromData(data: {
+    [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
+  }): Datum<{
+    [key in keyof T]: T[key][1] extends DatumType<infer U> ? U : never;
+  }> {
+    //@ts-ignore
+    return new Datum(this.serialize(data), data);
   }
 }
