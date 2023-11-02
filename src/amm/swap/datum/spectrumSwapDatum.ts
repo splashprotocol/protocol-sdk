@@ -1,14 +1,14 @@
 import {
-  DatumSchema,
+  DatumConstructor,
   spectrumDatumPostHandler,
-} from '../../../core/models/datum/DatumSchema.ts';
+} from '../../../core/models/datum/DatumConstructor.ts';
 import { SpectrumAssetInfoDatumType } from '../../../core/models/datum/types/SpectrumAssetInfoDatumType/SpectrumAssetInfoDatumType.ts';
 import { SpectrumBigIntDatumType } from '../../../core/models/datum/types/SpectrumBigIntDatumType/SpectrumBigIntDatumType.ts';
 import { SpectrumDatumByteHexString } from '../../../core/models/datum/types/SpectrumDatumByteHexString/SpectrumDatumByteHexString.ts';
 import { SpectrumIntDatumType } from '../../../core/models/datum/types/SpectrumIntDatumType/SpectrumIntDatumType.ts';
 import { SpectrumDatumOptionalType } from '../../../core/models/datum/types/StectrumDatumOptionalType/SpectrumDatumOptionalType.ts';
 
-export const SpectrumSwapDatum = new DatumSchema(
+export const SpectrumSwapDatum = new DatumConstructor(
   {
     // Base asset info
     base: [0, SpectrumAssetInfoDatumType],

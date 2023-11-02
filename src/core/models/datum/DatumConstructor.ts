@@ -36,6 +36,14 @@ export const spectrumDatumPostHandler: DatumPostHandler = {
  * Representation of datum
  */
 export class Datum<T> {
+  /**
+   * It returns datum structure with empty value. method should be valuable if you don't want to use our datum schema class but want to ouse output structure
+   * @param {PlutusData} wasm
+   * @returns {Datum<{}>}
+   */
+  stub(wasm: PlutusData) {
+    return new Datum(wasm, {});
+  }
   private constructor(
     public readonly wasm: PlutusData,
     public readonly data: T,
@@ -47,9 +55,9 @@ export class Datum<T> {
 }
 
 /**
- * Representation of datum schema
+ * Representation of datum factory
  */
-export class DatumSchema<T extends Dictionary<[number, DatumType<any>]>> {
+export class DatumConstructor<T extends Dictionary<[number, DatumType<any>]>> {
   constructor(
     public schema: T,
     private postHandler: DatumPostHandler = defaultDatumPostHandler,

@@ -1,13 +1,13 @@
 import {
-  DatumSchema,
+  DatumConstructor,
   spectrumDatumPostHandler,
-} from '../../../core/models/datum/DatumSchema.ts';
+} from '../../../core/models/datum/DatumConstructor.ts';
 import { SpectrumAssetInfoDatumType } from '../../../core/models/datum/types/SpectrumAssetInfoDatumType/SpectrumAssetInfoDatumType.ts';
 import { SpectrumDatumByteHexString } from '../../../core/models/datum/types/SpectrumDatumByteHexString/SpectrumDatumByteHexString.ts';
 import { SpectrumDatumListType } from '../../../core/models/datum/types/SpectrumDatumListType/SpectrumDatumListType.ts';
 import { SpectrumIntDatumType } from '../../../core/models/datum/types/SpectrumIntDatumType/SpectrumIntDatumType.ts';
 
-export const SpectrumPoolDatum = new DatumSchema(
+export const SpectrumPoolDatum = new DatumConstructor(
   {
     // nft asset info
     nft: [0, SpectrumAssetInfoDatumType],

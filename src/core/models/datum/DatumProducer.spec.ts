@@ -7,19 +7,22 @@ import {
 
 //
 import { bytesToHex } from '../../utils/bytesToHex/bytesToHex.ts';
-import { DatumSchema, spectrumDatumPostHandler } from './DatumSchema.ts';
+import {
+  DatumConstructor,
+  spectrumDatumPostHandler,
+} from './DatumConstructor.ts';
 import { SpectrumBigIntDatumType } from './types/SpectrumBigIntDatumType/SpectrumBigIntDatumType.ts';
 import { SpectrumDatumByteHexString } from './types/SpectrumDatumByteHexString/SpectrumDatumByteHexString.ts';
 
 test('it should creates a valid instance of Datum from params', () => {
-  const datum = new DatumSchema(
+  const datum = new DatumConstructor(
     {
       amount: [0, SpectrumBigIntDatumType],
     },
     spectrumDatumPostHandler,
   );
 
-  expect(datum).toBeInstanceOf(DatumSchema);
+  expect(datum).toBeInstanceOf(DatumConstructor);
   expect(datum.schema.amount).toEqual([0, SpectrumBigIntDatumType]);
 });
 
@@ -27,7 +30,7 @@ test('it should converts objects to PlutusData structure', () => {
   const expectedBigInt = 1n;
   const expectedHex =
     '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
-  const datumSchema = new DatumSchema(
+  const datumSchema = new DatumConstructor(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
@@ -51,7 +54,7 @@ test('it should converts objects to PlutusData structure', () => {
 });
 
 test('it should throws error on incorrect data', () => {
-  const datumSchema = new DatumSchema(
+  const datumSchema = new DatumConstructor(
     {
       amount: [0, SpectrumBigIntDatumType],
     },
@@ -69,7 +72,7 @@ test('it should converts PlutusData structure to object', () => {
   const expectedBigInt = 1n;
   const expectedHex =
     '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
-  const datumSchema = new DatumSchema(
+  const datumSchema = new DatumConstructor(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
@@ -94,7 +97,7 @@ test('it should converts PlutusData structure to object', () => {
 });
 
 test('it should throws deserialization error with invalid plutus data', () => {
-  const datumSchema = new DatumSchema(
+  const datumSchema = new DatumConstructor(
     {
       amount: [0, SpectrumBigIntDatumType],
       asset: [1, SpectrumDatumByteHexString],
