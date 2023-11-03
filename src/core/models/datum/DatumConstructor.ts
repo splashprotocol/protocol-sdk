@@ -41,7 +41,7 @@ export class Datum<T> {
    * @param {PlutusData} wasm
    * @returns {Datum<{}>}
    */
-  stub(wasm: PlutusData) {
+  static stub(wasm: PlutusData) {
     return new Datum(wasm, {});
   }
   private constructor(
