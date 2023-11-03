@@ -49,7 +49,7 @@ export class Datum<T> {
     public readonly data: T,
   ) {}
 
-  get cbor(): CborHexString {
+  get CborHex(): CborHexString {
     return this.wasm.to_hex();
   }
 }
