@@ -1,0 +1,33 @@
+import { CborHexString } from '../types/types.ts';
+
+interface Paging {
+  readonly offset: number;
+  readonly limit: number;
+}
+
+export interface CardanoCIP30WalletContext {
+  getUtxos(
+    amount?: CborHexString,
+    paginate?: Paging,
+  ): Promise<CborHexString[] | undefined>;
+  getCollateral(params?: {
+    amount?: CborHexString;
+  }): Promise<CborHexString[] | undefined>;
+  experimental: {
+    getCollateral(params: {
+      amount?: CborHexString;
+    }): Promise<CborHexString[] | undefined>;
+  };
+  getChangeAddress(): Promise<CborHexString>;
+  getBalance(): Promise<CborHexString>;
+  getUsedAddresses(paginate?: Paging): Promise<CborHexString[]>;
+  getUnusedAddresses(paginate?: Paging): Promise<CborHexString[]>;
+  signTx(tx: CborHexString, partialSign?: boolean): Promise<CborHexString>;
+  getNetworkId(): Promise<number>;
+  submitTx(tx: CborHexString): Promise<string>;
+}
+export interface CardanoCIP30WalletBridge {
+  enable(): Promise<CardanoCIP30WalletContext>;
+  isEnabled(): Promise<boolean>;
+  experimental?: any;
+}

@@ -1,5 +1,11 @@
 import { Explorer } from './core/explorer/Explorer.ts';
 import { ProtocolParams } from './core/types/ProtocolParams.ts';
+import { CardanoCIP30WalletBridge } from './core/wallet/CardanoCIP30WalletBridge.ts';
+import { Wallet } from './core/wallet/Wallet.ts';
+
+export interface Extra {
+  readonly wallet?: Wallet | CardanoCIP30WalletBridge;
+}
 
 let _explorer: Explorer | undefined;
 
