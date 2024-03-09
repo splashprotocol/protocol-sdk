@@ -27,9 +27,9 @@ export interface Extra {
  * Wallet representation
  */
 export class Wallet {
-  private context: Promise<CardanoCIP30WalletContext> | undefined;
-
-  private bridge: Promise<CardanoCIP30WalletBridge> | undefined;
+  // private context: Promise<CardanoCIP30WalletContext> | undefined;
+  //
+  // private bridge: Promise<CardanoCIP30WalletBridge> | undefined;
 
   /**
    * Creates wallet structure from wallet bridge
@@ -42,7 +42,8 @@ export class Wallet {
     private extra?: Extra,
   ) {}
 
-  private async assertBridge(): Promise<CardanoCIP30WalletBridge> {
+  async assertBridge(): Promise<CardanoCIP30WalletBridge> {
+    return null as any;
     // if (!this.getWalletBridge) {
     //   return Promise.reject(new Error(`getWalletBridge is not a function`));
     // }
@@ -62,6 +63,7 @@ export class Wallet {
   }
 
   private async assertContext(): Promise<CardanoCIP30WalletContext> {
+    return null as any;
     // if (!this.context) {
     //   this.context = await this.assertBridge().enable();
     // }
