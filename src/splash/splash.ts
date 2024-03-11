@@ -57,5 +57,3 @@ export class Splash<O extends Dictionary<Operation<any>>> {
 }
 
 const a = Splash.new();
-
-a.newTx().payToAddress('', 2);
