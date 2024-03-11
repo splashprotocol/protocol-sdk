@@ -12,18 +12,30 @@ export const defaultOperations = {
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {
   [key in keyof O]: (...args: Parameters<O[key]>) => TxBuilder<O>;
 } & {
+  queue: ReturnType<Operation<any>>[];
   complete(): Promise<any>;
 };
 
 export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
-  constructor(private network: Network) {}
+  constructor(public network: Network) {}
 
   newTx(): TxBuilder<typeof defaultOperations & O> {
     //@ts-ignore
-    return {
-      complete(): Promise<any> {
-        return Promise.resolve();
-      },
-    };
+    return Object.entries(defaultOperations).reduce<TxBuilder<any>>(
+      (acc, [name, op]) =>
+        ({
+          ...acc,
+          [name]: function (...args: any[]) {
+            //@ts-ignore
+            return { ...this, queue: [op(...args)] };
+          },
+        }) as any,
+      {
+        queue: [],
+        complete(): Promise<any> {
+          return Promise.resolve();
+        },
+      } as any,
+    );
   }
 }
