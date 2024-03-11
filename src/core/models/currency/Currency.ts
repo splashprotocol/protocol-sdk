@@ -1,0 +1,216 @@
+import {
+  math,
+  normalizeAmount,
+  toBigNumRepresentation,
+  toNumberRepresentation,
+} from '../../utils/math/math.ts';
+import { adaAssetInfo } from '../assetInfo/adaAssetInfo.ts';
+import { AssetInfo } from '../assetInfo/AssetInfo.ts';
+import { spfAssetInfo } from '../assetInfo/spfAssetInfo.ts';
+
+export class Currency {
+  /**
+   * Creates currency instance with ada asset info
+   * @param {bigint} amount
+   * @returns {Currency}
+   */
+  static ada(amount: bigint) {
+    return new Currency(amount, adaAssetInfo);
+  }
+
+  /**
+   * Creates currency instance with spf asset info
+   * @param {bigint} amount
+   * @returns {Currency}
+   */
+  static spf(amount: bigint) {
+    return new Currency(amount, spfAssetInfo);
+  }
+
+  /**
+   * Creates currency instance with splash asset info
+   * @param {bigint} amount
+   * @returns {Currency}
+   */
+  static splash(amount: bigint) {
+    return new Currency(amount, spfAssetInfo);
+  }
+
+  /**
+   * Creates currency instance
+   * @param {bigint} amount
+   * @param {AssetInfo} assetInfo
+   */
+  static new(amount: bigint, assetInfo: AssetInfo) {
+    return new Currency(amount, assetInfo);
+  }
+
+  private constructor(
+    public amount: bigint,
+    public asset: AssetInfo,
+  ) {}
+
+  /**
+   * Creates new currency instance with specified amount and same assetInfo
+   * @param {bigint} amount
+   * @returns {Currency}
+   */
+  withAmount(amount: bigint): Currency {
+    return new Currency(amount, this.asset);
+  }
+
+  /**
+   * Returns true if current currency amount greater than param
+   * @param {Currency | bigint} currency
+   * @returns {boolean}
+   */
+  gt(currency: Currency | bigint): boolean {
+    this.assertCurrency(currency, `compare (gt)`);
+
+    if (typeof currency === 'bigint') {
+      return this.amount > currency;
+    } else {
+      return this.amount > currency.amount;
+    }
+  }
+
+  /**
+   * Returns true if current currency amount greater or equals than param
+   * @param {Currency | bigint} currency
+   * @returns {boolean}
+   */
+  gte(currency: Currency | bigint): boolean {
+    this.assertCurrency(currency, `compare (gte)`);
+
+    if (typeof currency === 'bigint') {
+      return this.amount >= currency;
+    } else {
+      return this.amount >= currency.amount;
+    }
+  }
+
+  /**
+   * Returns true if current currency amount lower than param
+   * @param {Currency | bigint} currency
+   * @returns {boolean}
+   */
+  lt(currency: Currency | bigint): boolean {
+    this.assertCurrency(currency, `compare (lt)`);
+
+    if (typeof currency === 'bigint') {
+      return this.amount < currency;
+    } else {
+      return this.amount < currency.amount;
+    }
+  }
+
+  /**
+   * Returns true if current currency amount lower or equals than param
+   * @param {Currency | bigint} currency
+   * @returns {boolean}
+   */
+  lte(currency: Currency | bigint): boolean {
+    this.assertCurrency(currency, `compare (lte)`);
+
+    if (typeof currency === 'bigint') {
+      return this.amount <= currency;
+    } else {
+      return this.amount <= currency.amount;
+    }
+  }
+
+  /**
+   * Returns true if current currency amount equals params
+   * @param {Currency | bigint} currency
+   * @returns {bigint}
+   */
+  eq(currency: Currency | bigint): boolean {
+    this.assertCurrency(currency, `compare (eq)`);
+
+    if (typeof currency === 'bigint') {
+      return this.amount === currency;
+    } else {
+      return this.amount === currency.amount;
+    }
+  }
+
+  /**
+   * sum two currency with same assetInfo
+   * @param {bigint | Currency} currency
+   * @returns {Currency}
+   */
+  plus(currency: bigint | Currency): Currency {
+    this.assertCurrency(currency, 'sum');
+    if (typeof currency === 'bigint') {
+      return this.withAmount(this.amount + currency);
+    }
+    return this.withAmount(this.amount + currency.amount);
+  }
+
+  /**
+   * subtract param from current currency amount with same asset info
+   * @param {bigint | Currency} currency
+   * @returns {Currency}
+   */
+  minus(currency: bigint | Currency): Currency {
+    this.assertCurrency(currency, 'minus');
+
+    const amountToMinus: bigint =
+      typeof currency === 'bigint' ? currency : currency.amount;
+
+    if (this.gte(amountToMinus)) {
+      return this.withAmount(this.amount - amountToMinus);
+    }
+
+    throw new Error(`result of minus is lower than 0. ${this.asset.subject}`);
+  }
+
+  /**
+   * calculates percent of current amount
+   * @param {number} pct
+   * @returns {Currency}
+   */
+  percent(pct: number): Currency {
+    if (this.amount === 0n) {
+      return this;
+    }
+    const fmtAmount = this.toString();
+    const newAmount = math.evaluate(`${fmtAmount} / 100 * ${pct}`).toFixed();
+
+    return new Currency(
+      toBigNumRepresentation(
+        normalizeAmount(newAmount, this.asset.decimals),
+        this.asset.decimals,
+      ),
+      this.asset,
+    );
+  }
+
+  /**
+   * Returns string representation of Currency
+   */
+  toString(): string {
+    return toNumberRepresentation(this.amount, this.asset.decimals);
+  }
+
+  /**
+   * Returns number representation of Currency
+   */
+  toNumber(): number {
+    return Number(this.toString());
+  }
+
+  private assertCurrency(
+    currency: Currency | bigint,
+    operationName: string,
+  ): void {
+    if (typeof currency === 'bigint') {
+      return;
+    }
+    if (this.asset.subject !== currency.asset.subject) {
+      throw new Error(
+        `can't ${operationName} currencies with different asset info. ${this.asset.splashId} and ${currency.asset.splashId}`,
+      );
+    }
+  }
+}

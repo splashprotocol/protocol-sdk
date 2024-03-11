@@ -1,0 +1,23 @@
+import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
+
+import { bytesToHex } from '../../../../utils/bytesToHex/bytesToHex.ts';
+import { hexToBytes } from '../../../../utils/hexToBytes/hexToBytes.ts';
+import { BytesDataType } from './BytesDataType.ts';
+
+test('it should serialize hex string type to PlutusData representation', () => {
+  const hexStr = '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
+  const hexStrDatum = BytesDataType(hexStr);
+
+  expect(hexStrDatum).toBeInstanceOf(PlutusData);
+  expect(bytesToHex(hexStrDatum.as_bytes()!)).toBe(hexStr);
+});
+
+test('it should deserialize PlutusData representation to hex string', () => {
+  const expectedHexStr =
+    '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
+  const hexStrDatum = PlutusData.new_bytes(hexToBytes(expectedHexStr));
+  const strResult = BytesDataType.deserialize(hexStrDatum);
+
+  expect(typeof strResult).toBe('string');
+  expect(strResult).toBe(expectedHexStr);
+});

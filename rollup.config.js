@@ -8,7 +8,7 @@ import multiEntry from 'rollup-plugin-multi-entry';
 export default [
   {
     treeshake: false,
-    input: 'src/index.ts',
+    input: ['src/index.ts', 'src/dao.ts', 'src/core.ts'],
     output: {
       dir: 'build',
       declarationDir: 'build',

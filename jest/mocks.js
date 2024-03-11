@@ -3,3 +3,8 @@ jest.mock(
   () => require('@emurgo/cardano-serialization-lib-nodejs'),
   { virtual: true },
 );
+jest.mock(
+  '@dcspark/cardano-multiplatform-lib-browser',
+  () => require('@dcspark/cardano-multiplatform-lib-nodejs'),
+  { virtual: true },
+);

@@ -6,10 +6,11 @@ import { SpectrumSwapDatum } from './spectrumSwapDatum.ts';
 const datumValue = {
   base: adaAssetInfo,
   quote: spfAssetInfo,
-  poolNft: AssetInfo.fromNameCborHex(
-    'a80022230c821a52e426d2fdb096e7d967b5ab25d350d469a7603dbf',
-    '4b5350465f4144415f4e4654',
-  ),
+  poolNft: AssetInfo.new({
+    policyId: 'a80022230c821a52e426d2fdb096e7d967b5ab25d350d469a7603dbf',
+    name: '4b5350465f4144415f4e4654',
+    type: 'cbor',
+  }),
   feeNum: 997,
   feePerTokenDen: 100000000000000000n,
   feePerTokenNum: 27050563454219895n,

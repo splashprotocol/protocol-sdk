@@ -2,32 +2,52 @@
   "name": "@whalepools/protocol-sdk",
   "version": "1.0.0",
   "description": "",
-  "main": "build/index.js",
-  "typings": "build/index.d.ts",
-  "module": "build/index.js",
+  "exports": {
+    ".": "./build/index.js",
+    "./*": "./build/*.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "build/index.d.ts"
+      ],
+      "operations": [
+        "buid/core.d.ts"
+      ],
+      "dao": [
+        "build/dao.d.ts"
+      ]
+    }
+  },
   "scripts": {
-    "start": "rollup",
-    "build": "tsc && cross-env NODE_OPTIONS=--max-old-space-size=8192 vite build"
+    "build": " rollup -c rollup.config.js",
+    "test": "jest",
+    "dev:code": "rollup -c rollup.config.js --watch",
+    "dev:test": "jest --watch",
+    "dev": "npm run dev:code && npm run dev:test"
   },
   "type": "module",
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@dcspark/cardano-multiplatform-lib-browser": "^5.1.0",
+    "@dcspark/cardano-multiplatform-lib-nodejs": "^5.1.0",
     "@emurgo/cardano-serialization-lib-browser": "^11.5.0",
-    "@rollup/plugin-json": "^6.1.0",
-    "@types/jest": "^29.5.6",
-    "axios": "^1.6.0",
+    "axios": "^1.6.7",
     "cbor-x": "^1.5.4",
     "js-encoding-utils": "^0.7.3",
+    "mathjs": "^12.4.0",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
     "@emurgo/cardano-serialization-lib-nodejs": "^11.5.0",
     "@rollup/plugin-commonjs": "^25.0.7",
     "@rollup/plugin-inject": "^5.0.5",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-typescript": "^11.1.5",
     "@rollup/plugin-wasm": "^6.2.2",
+    "@types/jest": "^29.5.6",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
     "eslint": "^8.52.0",
