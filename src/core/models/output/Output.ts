@@ -1,30 +1,29 @@
 import {
   Address,
-  BigNum,
-  DataCost,
-  min_ada_for_output,
+  DatumOption,
+  min_ada_required,
+  PlutusData,
   TransactionOutput,
-} from '@emurgo/cardano-serialization-lib-browser';
+} from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { getProtocolParams } from '../../../init.ts';
+import { ProtocolParams } from '../../types/ProtocolParams.ts';
 import { Bech32String, CborHexString } from '../../types/types.ts';
-import { AssetAmount } from '../assetAmount/AssetAmount.ts';
-import { AssetAmountSet } from '../assetAmountSet/AssetAmountSet.ts';
-import { Datum } from '../datum/DatumConstructor.ts';
+import { Currencies } from '../currencies/Currencies.ts';
+import { Currency } from '../currency/Currency.ts';
 
 const INSUFFICIENT_BYTES = 2;
 
 /**
  * It creates wasm transaction output representation
  * @param {Bech32String} address
- * @param {AssetAmountSet} assetAmountSet
- * @param {Datum<any>} datum
+ * @param {Currencies} currencies
+ * @param {Datum<any>} data
  * @returns {TransactionOutput}
  */
 export const toWasmOutput = (
   address: Bech32String,
-  assetAmountSet: AssetAmountSet,
-  datum?: Datum<any>,
+  currencies: Currencies,
+  data?: PlutusData,
 ): TransactionOutput => {
   let wasmAddress: Address;
   try {
@@ -32,64 +31,31 @@ export const toWasmOutput = (
   } catch (e) {
     throw new Error(`Invalid address format. ${address} isn't bech32`);
   }
-  const wasmValue = assetAmountSet.toWasmValue();
+  const wasmValue = currencies.toWasmValue();
 
-  const transactionOutput = TransactionOutput.new(wasmAddress, wasmValue);
-  if (datum) {
-    transactionOutput.set_plutus_data(datum.wasm);
+  if (data) {
+    return TransactionOutput.new(
+      wasmAddress,
+      wasmValue,
+      DatumOption.new_datum(data),
+    );
+  } else {
+    return TransactionOutput.new(wasmAddress, wasmValue);
   }
-
-  return transactionOutput;
 };
+
+export interface OutputParams {
+  readonly address: Bech32String;
+  readonly value: Currencies | Currency[];
+  readonly data?: PlutusData;
+}
 
 /**
  * Representation on transaction output
  */
-export class Output<D extends Datum<any> | undefined> {
-  /**
-   * Creates output without datum
-   * @param {Bech32String} address
-   * @param {AssetAmountSet} userAssetAmountSet
-   * @returns {Output<undefined>}
-   */
-  static async createWithoutDatum(
-    address: Bech32String,
-    userAssetAmountSet: AssetAmountSet,
-  ): Promise<Output<undefined>> {
-    return getProtocolParams().then(
-      ({ coinsPerUtxoByte, minUTxOValue }) =>
-        new Output(
-          coinsPerUtxoByte,
-          minUTxOValue,
-          address,
-          userAssetAmountSet,
-          undefined,
-        ),
-    );
-  }
-
-  /**
-   * Creates output with datum
-   * @param {Bech32String} address
-   * @param {AssetAmountSet} userAssetAmountSet
-   * @param {D} datum
-   * @returns {Output<D>}
-   */
-  static async createWithDatum<D extends Datum<any>>(
-    address: Bech32String,
-    userAssetAmountSet: AssetAmountSet,
-    datum: D,
-  ): Promise<Output<D>> {
-    return getProtocolParams().then(
-      ({ coinsPerUtxoByte, minUTxOValue }) =>
-        new Output(
-          coinsPerUtxoByte,
-          minUTxOValue,
-          address,
-          userAssetAmountSet,
-          datum,
-        ),
-    );
+export class Output {
+  static new(pParams: ProtocolParams, params: OutputParams): Output {
+    return new Output(pParams.coinsPerUtxoByte, pParams.minUTxOValue, params);
   }
 
   /**
@@ -99,62 +65,82 @@ export class Output<D extends Datum<any> | undefined> {
   public wasm: TransactionOutput;
 
   /**
-   * AssetAmountSet that includes min required ada
-   * @type {AssetAmountSet}
+   * Currencies that includes min required ada
+   * @type {Currencies}
    */
-  public totalAssetAmountSet: AssetAmountSet;
+  public totalValue: Currencies;
 
   /**
    * Min required ada for output
-   * @type {AssetAmount}
+   * @type {Currency}
    */
-  public minAdaRequired: AssetAmount;
+  public minAdaRequired: Currency;
+
+  /**
+   * user Currencies
+   * @type {Currencies}
+   */
+  public userValue: Currencies;
+
+  /**
+   * Output datum
+   * @type {PlutusData}
+   */
+  public data: PlutusData | undefined;
+
+  /**
+   * Output address
+   * @type {Bech32String}
+   */
+  public address: Bech32String;
 
   private constructor(
     coinsPerUtxoByte: bigint,
     minUtxoValue: bigint,
-    public readonly address: Bech32String,
-    public readonly userAssetAmountSet: AssetAmountSet,
-    public readonly datum: D,
+    { value, address, data }: OutputParams,
   ) {
+    const normalizedCurrencies: Currencies =
+      value instanceof Currencies ? value : Currencies.new(value || []);
     const outputExceptMinAdaRequired = toWasmOutput(
       address,
-      userAssetAmountSet,
-      datum,
+      normalizedCurrencies,
+      data,
     );
-    const dataCost = DataCost.new_coins_per_byte(
-      BigNum.from_str(coinsPerUtxoByte.toString()),
-    );
-    const minAdaRequiredAmount =
-      BigInt(
-        min_ada_for_output(outputExceptMinAdaRequired, dataCost).to_str(),
-      ) + BigInt(Number(coinsPerUtxoByte) * INSUFFICIENT_BYTES);
 
-    const minAdaRequired = AssetAmount.adaAssetAmount(minAdaRequiredAmount);
-    const userAda =
-      userAssetAmountSet.getAda() || AssetAmount.adaAssetAmount(0n);
+    let minAdaRequiredAmount =
+      BigInt(
+        min_ada_required(
+          outputExceptMinAdaRequired,
+          coinsPerUtxoByte,
+        ).toString(),
+      ) + BigInt(Number(coinsPerUtxoByte) * INSUFFICIENT_BYTES);
+    minAdaRequiredAmount =
+      minAdaRequiredAmount >= minUtxoValue
+        ? minAdaRequiredAmount
+        : minUtxoValue;
+
+    const minAdaRequired = Currency.ada(minAdaRequiredAmount);
+    const userAda = normalizedCurrencies.ada || Currency.ada(0n);
 
     this.minAdaRequired = minAdaRequired;
+    this.address = address;
+    this.userValue = normalizedCurrencies;
+    this.data = data;
+
     if (userAda.gte(minAdaRequired)) {
       this.wasm = outputExceptMinAdaRequired;
-      this.totalAssetAmountSet = userAssetAmountSet;
+      this.totalValue = normalizedCurrencies;
     } else {
       const additionalAda = minAdaRequired.minus(userAda);
-      const totalAssetAmountSet = userAssetAmountSet.plus(
-        AssetAmountSet.fromAssetAmountArray([additionalAda]),
+      const totalCurrencies = normalizedCurrencies.plus(
+        Currencies.new([additionalAda]),
       );
-      this.wasm = toWasmOutput(address, totalAssetAmountSet, datum);
-      this.totalAssetAmountSet = totalAssetAmountSet;
-    }
-
-    if (this.totalAssetAmountSet.getAda()?.lt(minUtxoValue)) {
-      throw new Error(
-        `Utxo is too small. Minimum ada value in utxo is ${minUtxoValue}`,
-      );
+      this.wasm = toWasmOutput(address, totalCurrencies, data);
+      this.totalValue = totalCurrencies;
     }
   }
 
   get cborHex(): CborHexString {
-    return this.wasm.to_hex();
+    return this.wasm.to_cbor_hex();
   }
 }

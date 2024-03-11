@@ -8,6 +8,7 @@ import {
 import { Network } from '../../../core/types/Network.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
+import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
   mainnet: 'https://api.splash.trade/platform-api/v1/',
@@ -75,5 +76,34 @@ export class SplashApi implements Api {
     return this.assetsMetadataPromise!.then((assetsMetadata) => {
       return assetsMetadata[assetId];
     });
+  }
+
+  async getProtocolParams(): Promise<ProtocolParams> {
+    return fetch(
+      `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`,
+    )
+      .then((res) => res.json())
+      .then((res) => res.pparams)
+      .then((data: RawProtocolParams) => ({
+        network: this.network,
+        protocolVersion: data.protocolVersion,
+        collateralPercentage: data.collateralPercentage,
+        maxCollateralInputs: data.maxCollateralInputs,
+        maxTxExecutionUnits: {
+          memory: BigInt(data.maxTxExecutionUnits.memory),
+          steps: BigInt(data.maxTxExecutionUnits.steps),
+        },
+        executionUnitPrices: {
+          priceMemory: data.executionUnitPrices.priceMemory,
+          priceSteps: data.executionUnitPrices.priceSteps,
+        },
+        costModels: data.costModels,
+        coinsPerUtxoByte: BigInt(data.coinsPerUtxoByte),
+        maxTxSize: BigInt(data.maxTxSize),
+        txFeeFixed: BigInt(data.txFeeFixed),
+        txFeePerByte: BigInt(data.txFeePerByte),
+        minUTxOValue: BigInt(data.minUTxOValue),
+        maxValueSize: BigInt(data.maxValueSize),
+      }));
   }
 }

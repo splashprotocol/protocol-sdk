@@ -239,7 +239,7 @@ export class Currencies {
    * Returns currencies collection
    * @returns {Currency[]}
    */
-  toAssetAmountArray(): Currency[] {
+  toArray(): Currency[] {
     return this.currencies;
   }
 
