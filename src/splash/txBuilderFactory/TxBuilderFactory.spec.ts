@@ -28,12 +28,19 @@ test('it should be immutable', () => {
   const tx2Builder = tx1Builder.payToAddress(expectedAddress, [
     Currency.ada(2000000n),
   ]);
+  const tx3Builder = tx2Builder.payToAddress(expectedAddress, [
+    Currency.ada(2000000n),
+  ]);
 
   expect(tx1Builder.payToContract).toBeInstanceOf(Function);
   expect(tx1Builder.payToAddress).toBeInstanceOf(Function);
   expect(tx1Builder.queue.length).toBe(0);
 
   expect(tx2Builder.payToContract).toBeInstanceOf(Function);
-  expect(tx1Builder.payToAddress).toBeInstanceOf(Function);
+  expect(tx2Builder.payToAddress).toBeInstanceOf(Function);
   expect(tx2Builder.queue.length).toBe(1);
+
+  expect(tx3Builder.payToContract).toBeInstanceOf(Function);
+  expect(tx3Builder.payToAddress).toBeInstanceOf(Function);
+  expect(tx3Builder.queue.length).toBe(2);
 });

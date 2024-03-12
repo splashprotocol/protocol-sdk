@@ -1,12 +1,14 @@
 import { Network } from '../../core/types/Network.ts';
 import { Dictionary } from '../../core/types/types.ts';
 import { Operation } from './operations/common/Operation.ts';
+import { deposit } from './operations/deposit/deposit.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
 
 export const defaultOperations = {
   payToAddress,
   payToContract,
+  deposit,
 };
 
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {
@@ -27,7 +29,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           ...acc,
           [name]: function (...args: any[]) {
             //@ts-ignore
-            return { ...this, queue: [op(...args)] };
+            return { ...this, queue: this.queue.concat(op(...args)) };
           },
         }) as any,
       {

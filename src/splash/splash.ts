@@ -1,4 +1,6 @@
 import { Api } from '../core/api/Api.ts';
+import { AmmPool } from '../core/models/ammPool/AmmPool.ts';
+import { Currency } from '../core/models/currency/Currency.ts';
 import { Network } from '../core/types/Network.ts';
 import { Dictionary } from '../core/types/types.ts';
 import { ApiWrapper } from './api/ApiWrapper.ts';
@@ -56,4 +58,6 @@ export class Splash<O extends Dictionary<Operation<any>>> {
   }
 }
 
-const a = Splash.new();
+const splash = Splash.new();
+
+splash.newTx().deposit(new AmmPool(), [Currency.ada(100n), Currency.spf(100n)]);
