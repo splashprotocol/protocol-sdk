@@ -22,8 +22,10 @@ export class ApiWrapper {
    * @param {AssetId} assetId
    * @returns {Promise<AssetMetadata>}
    */
-  getMetadata(assetId: AssetId): Promise<AssetMetadata> {
-    return this.api.getAssetMetadata(assetId);
+  getMetadata(assetId: AssetId): Promise<AssetMetadata | undefined> {
+    return this.includeMetadata
+      ? this.api.getAssetMetadata(assetId)
+      : Promise.resolve(undefined);
   }
 
   /**
@@ -40,12 +42,8 @@ export class ApiWrapper {
         Promise.all(
           pools.map((rawCfmmPool) => {
             return Promise.all([
-              this.includeMetadata
-                ? this.getMetadata(rawCfmmPool.pool.x.asset)
-                : Promise.resolve(undefined),
-              this.includeMetadata
-                ? this.getMetadata(rawCfmmPool.pool.y.asset)
-                : Promise.resolve(undefined),
+              this.getMetadata(rawCfmmPool.pool.x.asset),
+              this.getMetadata(rawCfmmPool.pool.y.asset),
             ]).then(([xMetadata, yMetadata]) =>
               mapPawPoolToCfmmPool(
                 {
