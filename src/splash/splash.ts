@@ -1,10 +1,10 @@
 import { Api } from '../core/api/Api.ts';
+import { CardanoCIP30WalletBridge } from '../core/types/CardanoCIP30WalletBridge.ts';
 import { Network } from '../core/types/Network.ts';
 import { Dictionary } from '../core/types/types.ts';
 import { ApiWrapper } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
 import { TxBuilderFactory } from './txBuilderFactory/TxBuilderFactory.ts';
-import { WalletManager } from './walletManager/WalletManager.ts';
 
 export interface SplashConfig<O extends Dictionary<Operation<any>>> {
   readonly includesMetadata?: boolean;
@@ -33,17 +33,12 @@ export class Splash<O extends Dictionary<Operation<any>>> {
    */
   public readonly api: ApiWrapper;
 
-  /**
-   * Splash wallet manager
-   * @type {WalletManager}
-   */
-  public readonly wallet: WalletManager;
+  public wallet?: CardanoCIP30WalletBridge;
 
   private readonly txBuilderFactory: TxBuilderFactory<O>;
 
   private constructor(api: Api, network: Network, config?: SplashConfig<O>) {
-    this.api = new ApiWrapper(api, config?.includesMetadata);
-    this.wallet = new WalletManager(network);
+    this.api = new ApiWrapper(this, api, this.wallet, config?.includesMetadata);
     this.txBuilderFactory = new TxBuilderFactory(network);
   }
 
@@ -54,4 +49,19 @@ export class Splash<O extends Dictionary<Operation<any>>> {
   newTx(): ReturnType<typeof this.txBuilderFactory.newTx> {
     return this.txBuilderFactory.newTx();
   }
+
+  selectWallet(wallet?: CardanoCIP30WalletBridge): void {
+    this.wallet = wallet;
+  }
 }
+
+// splash.api
+//   .getBalance()
+//   .getPositions()
+//   .getLocks()
+//   .getPools()
+//   .getMetadata()
+//   .getAdaBalance();
+//
+// splash.selectWallet().wallet.newTx();
+// splash.selectWallet().wallet.onWallet;

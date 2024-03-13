@@ -7,6 +7,6 @@ export type PoolType = 'cfmm' | 'weight';
 export interface Pool<T extends PoolType> {
   readonly id: PoolId;
   readonly nft: AssetInfo;
-  readonly lp: Currency;
+  readonly lq: Currency;
   readonly type: T;
 }

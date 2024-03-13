@@ -7,6 +7,8 @@ export const usd = AssetInfo.new(
     type: 'raw',
   },
   {
+    name: 'usd',
+    policyId: '',
     decimals: 2,
     ticker: '$',
   },

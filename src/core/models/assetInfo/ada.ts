@@ -7,6 +7,8 @@ export const ada = AssetInfo.new(
     type: 'base16',
   },
   {
+    name: 'ADA',
+    policyId: '',
     decimals: 6,
     ticker: 'ADA',
   },

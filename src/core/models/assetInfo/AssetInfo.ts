@@ -33,6 +33,8 @@ export type AssetInfoParams =
   | AssetInfoBase16Params;
 
 export interface AssetInfoMetadata {
+  readonly policyId: string;
+  readonly name: string;
   readonly ticker?: string;
   readonly description?: string;
   readonly url?: string;

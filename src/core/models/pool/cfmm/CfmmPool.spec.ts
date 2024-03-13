@@ -28,7 +28,7 @@ const cfmmPool = CfmmPool.new(
       name: 'SPF_ADA_NFT',
       type: 'raw',
     }),
-    lp: Currency.new(
+    lq: Currency.new(
       651595813869n,
       AssetInfo.new({
         policyId: '74f47c99ac793c29280575b08fe20c7fb75543bff5b1581f7c162e7c',

@@ -11,7 +11,7 @@ import { CfmmPoolType } from './common/CfmmPoolType.ts';
 
 export interface CfmmPoolConfig {
   readonly nft: AssetInfo;
-  readonly lp: Currency;
+  readonly lq: Currency;
   readonly totalX: Currency;
   readonly totalY: Currency;
   readonly xFee: bigint;
@@ -35,10 +35,9 @@ export class CfmmPool implements Pool<'cfmm'> {
   /**
    * Creates new instanceof pool
    * @param {CfmmPoolConfig} config
-   * @param {Splash} splash
    * @returns {CfmmPool}
    */
-  static new(config: CfmmPoolConfig, splash: Splash<{}>): CfmmPool {
+  static new(config: CfmmPoolConfig, splash: Splash<any>): CfmmPool {
     return new CfmmPool(config, splash);
   }
 
@@ -64,7 +63,7 @@ export class CfmmPool implements Pool<'cfmm'> {
    * Pool lp amount and info
    * @type {Currency}
    */
-  readonly lp: Currency;
+  readonly lq: Currency;
 
   /**
    * Pool x amount and info with treasuryX
@@ -173,7 +172,7 @@ export class CfmmPool implements Pool<'cfmm'> {
   private constructor(
     {
       nft,
-      lp,
+      lq,
       totalX,
       totalY,
       xFee,
@@ -193,7 +192,7 @@ export class CfmmPool implements Pool<'cfmm'> {
   ) {
     this.nft = nft;
     this.id = nft.splashId;
-    this.lp = lp;
+    this.lq = lq;
     this.totalX = totalX;
     this.totalY = totalY;
     this.treasuryX = totalX.withAmount(treasuryX);
@@ -206,7 +205,7 @@ export class CfmmPool implements Pool<'cfmm'> {
     this.cfmmType = cfmmType;
     this.feeDenominator = cfmmType === 'default' ? 1000n : 100000n;
     this.lqBound = Currency.ada(lpBound);
-    this.supplyLP = EMISSION_LP - this.lp.amount;
+    this.supplyLP = EMISSION_LP - this.lq.amount;
     this.tvlADA = this.toCurrencyOrUndefined(tvlADA, ada);
     this.tvlUSD = this.toCurrencyOrUndefined(tvlUSD, usd);
     this.volumeADA = this.toCurrencyOrUndefined(volumeADA, ada);
@@ -215,26 +214,16 @@ export class CfmmPool implements Pool<'cfmm'> {
   }
 
   /**
-   * Deposit currencies to pool
-   * @param {Currency} x
-   * @param {Currency} y
-   * @returns {Promise<any>}
-   */
-  deposit([x, y]: [Currency, Currency]) {
-    return this.splash.newTx().cfmmDeposit(this, [x, y]).complete();
-  }
-
-  /**
    * Converts given lp amount to x/y assets
    * @param {Currency | bigint} lp
    * @returns {[Currency, Currency]}
    */
   convertLpToXY(lp: Currency | bigint): [Currency, Currency] {
-    const normalizedLp = lp instanceof Currency ? lp : this.lp.withAmount(lp);
+    const normalizedLp = lp instanceof Currency ? lp : this.lq.withAmount(lp);
 
-    if (normalizedLp.asset.splashId !== this.lp.asset.splashId) {
+    if (normalizedLp.asset.splashId !== this.lq.asset.splashId) {
       throw new Error(
-        `provided value is not lp token. \n Expected: ${this.lp.asset.splashId} \n Received: ${normalizedLp.asset.splashId}`,
+        `provided value is not lp token. \n Expected: ${this.lq.asset.splashId} \n Received: ${normalizedLp.asset.splashId}`,
       );
     }
 
@@ -268,5 +257,15 @@ export class CfmmPool implements Pool<'cfmm'> {
               .toFixed(),
           );
     return Currency.new(amount, assetInfo);
+  }
+
+  /**
+   * Deposit assets to current pool
+   * @param {Currency} x
+   * @param {Currency} y
+   * @returns {Promise<any>}
+   */
+  deposit([x, y]: [Currency, Currency]) {
+    return this.splash.newTx().cfmmDeposit(this, [x, y]).complete();
   }
 }

@@ -8,6 +8,7 @@ import {
 import { Network } from '../../../core/types/Network.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
+import { stringToHex } from '../../../core/utils/stringToHex/stringToHex.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
@@ -15,6 +16,8 @@ const mapNetworkToUrl: { [key in Network]: string } = {
   preprod: 'https://test-api9.spectrum.fi/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
+
+const METADATA_CACHE_DURATION = 300_000;
 
 export class SplashApi implements Api {
   /**
@@ -31,6 +34,8 @@ export class SplashApi implements Api {
   }
 
   private assetsMetadataPromise: Promise<Dictionary<AssetMetadata>> | undefined;
+
+  private assetsMetadataLastUpdateTime?: number;
 
   private constructor(public network: ProtocolParams['network']) {}
 
@@ -56,7 +61,11 @@ export class SplashApi implements Api {
    * @returns {Promise<GetAssetMetadataResponse>}
    */
   async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
-    if (!this.assetsMetadataPromise) {
+    const timeToUpdate = this.assetsMetadataLastUpdateTime
+      ? Date.now() - this.assetsMetadataLastUpdateTime > METADATA_CACHE_DURATION
+      : true;
+
+    if (!this.assetsMetadataPromise || timeToUpdate) {
       this.assetsMetadataPromise = fetch(
         'https://spectrum.fi/cardano-token-list.json',
       )
@@ -66,7 +75,7 @@ export class SplashApi implements Api {
           assets.reduce<Dictionary<AssetMetadata>>(
             (acc, asset) => ({
               ...acc,
-              [assetId]: asset,
+              [`${asset.policyId}.${stringToHex(asset.name)}`]: asset,
             }),
             {},
           ),

@@ -34,7 +34,7 @@ export const cfmmDeposit: Operation<[CfmmPool, [Currency, Currency]]> =
       pool.nft,
       x.asset,
       y.asset,
-      pool.lp.asset,
+      pool.lq.asset,
       100n,
       '',
       undefined,
