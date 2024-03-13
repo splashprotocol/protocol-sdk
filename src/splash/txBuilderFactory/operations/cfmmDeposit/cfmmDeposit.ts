@@ -1,6 +1,6 @@
-import { AmmPool } from '../../../../core/models/ammPool/AmmPool.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
+import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
 import { Operation } from '../common/Operation.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
 
@@ -27,14 +27,14 @@ const DepositData = Data.Tuple([
   Data.Optional(Data.Bytes),
 ]);
 
-export const deposit: Operation<[AmmPool, [Currency, Currency]]> =
-  (ammPool, [x, y]) =>
+export const cfmmDeposit: Operation<[CfmmPool, [Currency, Currency]]> =
+  (pool, [x, y]) =>
   (context) => {
     const data = DepositData([
-      ammPool.id.asset,
+      pool.nft,
       x.asset,
       y.asset,
-      ammPool.lq.asset,
+      pool.lp.asset,
       100n,
       '',
       undefined,

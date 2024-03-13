@@ -4,7 +4,7 @@ import {
   PlutusDataList,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { spfAssetInfo } from '../../../assetInfo/spfAssetInfo.ts';
+import { spf } from '../../../assetInfo/spf.ts';
 import { AssetInfoDataType } from '../AssetInfoDataType/AssetInfoDataType.ts';
 import { IntegerDataType } from '../IntegerDataType/IntegerDataType.ts';
 import { TupleDataType } from './TupleDataType.ts';
@@ -26,14 +26,12 @@ test('it should serialize a tuple for datum2', () => {
 
   const expectedDataList = PlutusDataList.new();
   expectedDataList.add(IntegerDataType(1));
-  expectedDataList.add(AssetInfoDataType(spfAssetInfo));
+  expectedDataList.add(AssetInfoDataType(spf));
   const expectedResult = PlutusData.new_constr_plutus_data(
     ConstrPlutusData.new(0n, expectedDataList),
   );
 
-  expect(datum1([1, spfAssetInfo]).to_cbor_hex()).toBe(
-    expectedResult.to_cbor_hex(),
-  );
+  expect(datum1([1, spf]).to_cbor_hex()).toBe(expectedResult.to_cbor_hex());
 });
 
 test('it should deserialize a tuple for datum1', () => {
@@ -53,12 +51,12 @@ test('it should deserialize a tuple for datum2', () => {
 
   const dataListToCompare = PlutusDataList.new();
   dataListToCompare.add(IntegerDataType(1));
-  dataListToCompare.add(AssetInfoDataType(spfAssetInfo));
+  dataListToCompare.add(AssetInfoDataType(spf));
   const datumToCompare = PlutusData.new_constr_plutus_data(
     ConstrPlutusData.new(0n, dataListToCompare),
   );
   const deserializedDatum = datum1.deserialize(datumToCompare);
 
   expect(deserializedDatum[0]).toBe(1);
-  expect(deserializedDatum[1].splashId).toBe(spfAssetInfo.splashId);
+  expect(deserializedDatum[1].splashId).toBe(spf.splashId);
 });

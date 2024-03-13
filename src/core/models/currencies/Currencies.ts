@@ -7,9 +7,9 @@ import {
 
 import { AssetMetadata } from '../../api/types/common/AssetMetadata.ts';
 import { CborHexString, Dictionary } from '../../types/types.ts';
-import { adaAssetInfo } from '../assetInfo/adaAssetInfo.ts';
+import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
-import { spfAssetInfo } from '../assetInfo/spfAssetInfo.ts';
+import { spf } from '../assetInfo/spf.ts';
 import { Currency } from '../currency/Currency.ts';
 
 export interface CurrenciesCborParams {
@@ -145,7 +145,7 @@ export class Currencies {
    * @returns {Currency | undefined}
    */
   get ada(): Currency | undefined {
-    return this.currencyMap.get(adaAssetInfo.splashId);
+    return this.currencyMap.get(ada.splashId);
   }
 
   /**
@@ -153,7 +153,7 @@ export class Currencies {
    * @returns {Currency | undefined}
    */
   get spf(): Currency | undefined {
-    return this.currencyMap.get(spfAssetInfo.splashId);
+    return this.currencyMap.get(spf.splashId);
   }
 
   /**
@@ -161,7 +161,7 @@ export class Currencies {
    * @returns {Currency | undefined}
    */
   get splash(): Currency | undefined {
-    return this.currencyMap.get(spfAssetInfo.splashId);
+    return this.currencyMap.get(spf.splashId);
   }
 
   /**
@@ -249,7 +249,7 @@ export class Currencies {
    */
   toWasmValue(): Value {
     const groupedAssetsByPolicyId = this.currencies
-      .filter((asset) => asset.asset.splashId !== adaAssetInfo.splashId)
+      .filter((asset) => asset.asset.splashId !== ada.splashId)
       .reduce<Map<string, Currency[]>>((acc, item) => {
         if (!acc.has(item.asset.policyId)) {
           acc.set(item.asset.policyId, []);

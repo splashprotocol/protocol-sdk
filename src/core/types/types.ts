@@ -11,3 +11,5 @@ export type AssetId = string;
 
 /* Pool identified. It is Asset identifier for nft asset */
 export type PoolId = string;
+
+export type percent = number;

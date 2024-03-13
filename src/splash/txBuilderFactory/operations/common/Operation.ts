@@ -11,6 +11,8 @@ export interface OperationContext {
   readonly nContext: NetworkContext;
   readonly userAddress: Bech32String;
   readonly network: Network;
+  readonly needCollateral?: boolean;
+  readonly markNeedCollateral: () => void;
 }
 
 export type Operation<P extends any[]> = (

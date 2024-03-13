@@ -4,9 +4,9 @@ import {
   toBigNumRepresentation,
   toNumberRepresentation,
 } from '../../utils/math/math.ts';
-import { adaAssetInfo } from '../assetInfo/adaAssetInfo.ts';
+import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
-import { spfAssetInfo } from '../assetInfo/spfAssetInfo.ts';
+import { spf } from '../assetInfo/spf.ts';
 
 export class Currency {
   /**
@@ -14,8 +14,8 @@ export class Currency {
    * @param {bigint} amount
    * @returns {Currency}
    */
-  static ada(amount: bigint) {
-    return new Currency(amount, adaAssetInfo);
+  static ada(amount: bigint): Currency {
+    return new Currency(amount, ada);
   }
 
   /**
@@ -23,8 +23,8 @@ export class Currency {
    * @param {bigint} amount
    * @returns {Currency}
    */
-  static spf(amount: bigint) {
-    return new Currency(amount, spfAssetInfo);
+  static spf(amount: bigint): Currency {
+    return new Currency(amount, spf);
   }
 
   /**
@@ -32,8 +32,8 @@ export class Currency {
    * @param {bigint} amount
    * @returns {Currency}
    */
-  static splash(amount: bigint) {
-    return new Currency(amount, spfAssetInfo);
+  static splash(amount: bigint): Currency {
+    return new Currency(amount, spf);
   }
 
   /**

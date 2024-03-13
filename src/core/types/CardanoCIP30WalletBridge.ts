@@ -1,4 +1,4 @@
-import { CborHexString } from '../types/types.ts';
+import { CborHexString } from './types.ts';
 
 interface Paging {
   readonly offset: number;

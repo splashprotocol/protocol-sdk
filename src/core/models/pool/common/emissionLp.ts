@@ -1,0 +1,1 @@
+export const EMISSION_LP = 9223372036854775807n;

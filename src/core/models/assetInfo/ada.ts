@@ -1,6 +1,6 @@
 import { AssetInfo } from './AssetInfo';
 
-export const adaAssetInfo = AssetInfo.new(
+export const ada = AssetInfo.new(
   {
     name: '',
     policyId: '',
