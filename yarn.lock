@@ -349,16 +349,6 @@
   resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-5.1.0.tgz#b8a854111da1ec43228496eb4dece83781c8dab1"
   integrity sha512-SWf9O7Rnd/a3vNndc8UYApv3lu/qki3vxDYWX3MeDDiE5MjntJiG6JDEe30JOvZphvTt53MAdwJNvAeHiDj8AA==
 
-"@emurgo/cardano-serialization-lib-browser@^11.5.0":
-  version "11.5.0"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-browser/-/cardano-serialization-lib-browser-11.5.0.tgz#f2d15b538add436e0aa8b67a1d00ca654a680006"
-  integrity sha512-qchOJ9NYDUz10tzs5r5QhP9hK0p+ZOlRiBwPdTAxqAYLw/8emYBkQQLaS8T1DF6EkeudyrgS00ym5Trw1fo4iA==
-
-"@emurgo/cardano-serialization-lib-nodejs@^11.5.0":
-  version "11.5.0"
-  resolved "https://registry.yarnpkg.com/@emurgo/cardano-serialization-lib-nodejs/-/cardano-serialization-lib-nodejs-11.5.0.tgz#0662e2a17d7d1e944f8cdb86396133c8edaec059"
-  integrity sha512-IlVABlRgo9XaTR1NunwZpWcxnfEv04ba2l1vkUz4S1W7Jt36F4CtffP+jPeqBZGnAe+fnUwo0XjIJC3ZTNToNQ==
-
 "@eslint-community/eslint-utils@^4.2.0":
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz#a23514e8fb9af1269d5f7788aa556798d61c6b59"
