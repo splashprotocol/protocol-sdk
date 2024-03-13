@@ -237,7 +237,7 @@ export class CfmmPool implements Pool<'cfmm'> {
     value: number | bigint | Currency | undefined,
     assetInfo: AssetInfo,
   ): Currency | undefined {
-    if (value === undefined) {
+    if (!value) {
       return undefined;
     }
     if (value instanceof Currency) {
