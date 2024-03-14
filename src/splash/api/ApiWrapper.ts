@@ -1,9 +1,9 @@
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
+import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
-import { CardanoCIP30WalletBridge } from '../../core/types/CardanoCIP30WalletBridge.ts';
-import { AssetId } from '../../core/types/types.ts';
+import { AssetId, Dictionary } from '../../core/types/types.ts';
 import { Splash } from '../splash.ts';
 import { mapPawPoolToCfmmPool } from './splash/mappers/mapPawPoolToCfmmPool.ts';
 
@@ -11,10 +11,25 @@ export class ApiWrapper {
   constructor(
     private splash: Splash<any>,
     private api: Api,
-    private wallet?: CardanoCIP30WalletBridge,
     private includeMetadata?: boolean,
-  ) {
-    console.log(this.api, this.wallet, this.includeMetadata);
+  ) {}
+
+  /**
+   * Get current wallet balance
+   * @returns {Promise<Currencies>}
+   */
+  getBalance(): Promise<Currencies> {
+    if (!this.splash.wallet) {
+      console.warn('wallet is not connected');
+      return Promise.resolve().then(() => Currencies.empty);
+    }
+
+    return Promise.all([
+      this.getAssetsMetadata(),
+      this.splash.wallet.enable().then((ctx) => ctx.getBalance()),
+    ]).then(([metadata, cborBalance]) => {
+      return Currencies.new(cborBalance, metadata);
+    });
   }
 
   /**
@@ -22,10 +37,20 @@ export class ApiWrapper {
    * @param {AssetId} assetId
    * @returns {Promise<AssetMetadata>}
    */
-  getMetadata(assetId: AssetId): Promise<AssetMetadata | undefined> {
+  getAssetMetadata(assetId: AssetId): Promise<AssetMetadata | undefined> {
     return this.includeMetadata
       ? this.api.getAssetMetadata(assetId)
       : Promise.resolve(undefined);
+  }
+
+  /**
+   * Returns all available assets metadata
+   * @returns {Promise<AssetMetadata>}
+   */
+  getAssetsMetadata(): Promise<Dictionary<AssetMetadata>> {
+    return this.includeMetadata
+      ? this.api.getAssetsMetadata()
+      : Promise.resolve({});
   }
 
   /**
@@ -35,27 +60,20 @@ export class ApiWrapper {
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,
   ): Promise<CfmmPool[]> {
-    return this.api
-      .getSplashPools(params)
-      .then((pools) => pools.filter((p) => p.pool.poolType === 'cfmm'))
-      .then((pools) =>
-        Promise.all(
-          pools.map((rawCfmmPool) => {
-            return Promise.all([
-              this.getMetadata(rawCfmmPool.pool.x.asset),
-              this.getMetadata(rawCfmmPool.pool.y.asset),
-            ]).then(([xMetadata, yMetadata]) =>
-              mapPawPoolToCfmmPool(
-                {
-                  rawCfmmPool,
-                  xMetadata,
-                  yMetadata,
-                },
-                this.splash,
-              ),
-            );
-          }),
+    return Promise.all([
+      this.api.getSplashPools(params),
+      this.getAssetsMetadata(),
+    ]).then(([pools, metadata]) => {
+      return pools.map((rawCfmmPool) =>
+        mapPawPoolToCfmmPool(
+          {
+            rawCfmmPool,
+            xMetadata: metadata[rawCfmmPool.pool.x.asset],
+            yMetadata: metadata[rawCfmmPool.pool.y.asset],
+          },
+          this.splash,
         ),
       );
+    });
   }
 }

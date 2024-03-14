@@ -4,9 +4,12 @@ import {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { AssetId, CborHexString, HexString } from '../../types/types';
+import { cborHexToHex } from '../../utils/cborHexToHex/cborHexToHex.ts';
 import { cborHexToString } from '../../utils/cborHexToString/cborHexToString.ts';
 import { hexToCborHex } from '../../utils/hexToCborHex/hexToCborHex.ts';
+import { hexToString } from '../../utils/hexToString/hexToString.ts';
 import { stringToCborHex } from '../../utils/stringToCborHex/stringToCborHex.ts';
+import { stringToHex } from '../../utils/stringToHex/stringToHex.ts';
 
 export interface AssetInfoBaseParams {
   readonly policyId: string;
@@ -32,6 +35,13 @@ export type AssetInfoParams =
   | AssetInfoStringParams
   | AssetInfoBase16Params;
 
+interface AssetInfoPrivateParams {
+  readonly policyId: string;
+  readonly name: string;
+  readonly nameBase16: HexString;
+  readonly nameCbor: CborHexString;
+}
+
 export interface AssetInfoMetadata {
   readonly policyId: string;
   readonly name: string;
@@ -47,8 +57,65 @@ export interface AssetInfoMetadata {
  */
 export class AssetInfo {
   /**
+   * Usd asset info
+   * @type {AssetInfo}
+   */
+  static usd: AssetInfo = AssetInfo.new(
+    {
+      policyId: '',
+      name: 'usd',
+      type: 'raw',
+    },
+    {
+      name: 'usd',
+      policyId: '',
+      decimals: 2,
+      ticker: '$',
+    },
+  );
+
+  /**
+   * Splash asset info
+   * @type {AssetInfo}
+   */
+  static splash: AssetInfo = AssetInfo.new({
+    policyId: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75',
+    name: '43535046',
+    type: 'cbor',
+  });
+
+  /**
+   * Spf asset info
+   * @type {AssetInfo}
+   */
+  static spf: AssetInfo = AssetInfo.new({
+    policyId: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75',
+    name: '43535046',
+    type: 'cbor',
+  });
+
+  /**
+   * Ada asset info
+   * @type {AssetInfo}
+   */
+  static ada: AssetInfo = AssetInfo.new(
+    {
+      name: '',
+      policyId: '',
+      type: 'base16',
+    },
+    {
+      name: 'ADA',
+      policyId: '',
+      decimals: 6,
+      ticker: 'ADA',
+    },
+  );
+
+  /**
    * Creates an instance of AssetInfo from specified params
    * @param {AssetInfoParams} params
+   * @param {AssetInfoMetadata | undefined} metadata
    * @returns {AssetInfo}
    */
   static new(
@@ -58,33 +125,80 @@ export class AssetInfo {
     switch (type) {
       case 'raw':
         return new AssetInfo(
-          policyId,
-          AssetName.from_cbor_hex(stringToCborHex(name)),
+          {
+            policyId,
+            name,
+            nameCbor: stringToCborHex(name),
+            nameBase16: stringToHex(name),
+          },
+
           metadata,
         );
       case 'base16':
         return new AssetInfo(
-          policyId,
-          AssetName.from_cbor_hex(hexToCborHex(name)),
+          {
+            policyId,
+            name: hexToString(name),
+            nameCbor: hexToCborHex(name),
+            nameBase16: name,
+          },
           metadata,
         );
       case 'cbor':
-        return new AssetInfo(policyId, AssetName.from_cbor_hex(name), metadata);
+        return new AssetInfo(
+          {
+            policyId,
+            name: cborHexToString(name),
+            nameBase16: cborHexToHex(name),
+            nameCbor: name,
+          },
+          metadata,
+        );
     }
   }
 
+  /**
+   * Asset policyId
+   * @type {HexString}
+   */
+  public policyId: HexString;
+
+  /**
+   * Asset name
+   * @type {string}
+   */
+  public name: string;
+
+  /**
+   * Asset name in base16
+   * @type {HexString}
+   * @private
+   */
+  public nameBase16: HexString;
+
+  /**
+   * Asset name in cbor
+   * @type {CborHexString}
+   * @private
+   */
+  public nameCbor: CborHexString;
+
   private constructor(
-    public policyId: HexString,
-    private assetName: AssetName,
+    { policyId, nameBase16, nameCbor, name }: AssetInfoPrivateParams,
     private metadata?: AssetInfoMetadata,
-  ) {}
+  ) {
+    this.policyId = policyId;
+    this.name = name;
+    this.nameBase16 = nameBase16;
+    this.nameCbor = nameCbor;
+  }
 
   /**
    * Returns cardano serlib assetName representation
    * @returns {AssetName}
    */
   get wasmName() {
-    return this.assetName;
+    return AssetName.from_cbor_hex(this.nameCbor);
   }
 
   /**
@@ -96,30 +210,6 @@ export class AssetInfo {
       throw new Error('ada has no wasm script hash');
     }
     return ScriptHash.from_hex(this.policyId);
-  }
-
-  /**
-   * Returns name string
-   * @returns {string}
-   */
-  get name(): string {
-    return cborHexToString(this.assetName.to_cbor_hex());
-  }
-
-  /**
-   * Returns name hex representation
-   * @returns {HexString}
-   */
-  get nameBase16(): HexString {
-    return this.assetName.to_js_value();
-  }
-
-  /**
-   * Returns name cbor hex representation
-   * @returns {HexString}
-   */
-  get nameCbor(): HexString {
-    return this.assetName.to_cbor_hex();
   }
 
   /**

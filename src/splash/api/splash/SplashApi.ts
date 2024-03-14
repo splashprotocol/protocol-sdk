@@ -1,6 +1,7 @@
 import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
+import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
@@ -56,16 +57,16 @@ export class SplashApi implements Api {
   }
 
   /**
-   * Returns asset metadata by asset id
-   * @param {AssetId} assetId
-   * @returns {Promise<GetAssetMetadataResponse>}
+   * Returns all available assets metadata
+   * @returns {Promise<GetAssetsMetadataResponse>}
    */
-  async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
+  getAssetsMetadata(): Promise<GetAssetsMetadataResponse> {
     const timeToUpdate = this.assetsMetadataLastUpdateTime
       ? Date.now() - this.assetsMetadataLastUpdateTime > METADATA_CACHE_DURATION
       : true;
 
     if (!this.assetsMetadataPromise || timeToUpdate) {
+      this.assetsMetadataLastUpdateTime = Date.now();
       this.assetsMetadataPromise = fetch(
         'https://spectrum.fi/cardano-token-list.json',
       )
@@ -82,7 +83,16 @@ export class SplashApi implements Api {
         );
     }
 
-    return this.assetsMetadataPromise!.then((assetsMetadata) => {
+    return this.assetsMetadataPromise!;
+  }
+
+  /**
+   * Returns asset metadata by asset id
+   * @param {AssetId} assetId
+   * @returns {Promise<GetAssetMetadataResponse>}
+   */
+  async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
+    return this.getAssetsMetadata().then((assetsMetadata) => {
       return assetsMetadata[assetId];
     });
   }

@@ -4,8 +4,8 @@ import {
   NetworkId,
   PlutusData,
   ScriptHash,
+  SingleOutputBuilderResult,
 } from '@dcspark/cardano-multiplatform-lib-browser';
-import { SingleOutputBuilderResult } from '@dcspark/cardano-multiplatform-lib-nodejs';
 
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';

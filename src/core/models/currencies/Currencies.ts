@@ -29,6 +29,12 @@ export interface CurrenciesArrayParams {
  */
 export class Currencies {
   /**
+   * empty currencies structure
+   * @returns {Currencies}
+   */
+  static empty = this.fromCurrencyArray([]);
+
+  /**
    * Produce Currencies structure instance
    * @param {CborHexString | Currency[] | Value} value
    * @param {Dictionary<AssetMetadata> | undefined} metadata
@@ -134,34 +140,34 @@ export class Currencies {
   /**
    * Returns Currency or undefined by assetInfo
    * @param {AssetInfo} asset
-   * @returns {Currency | undefined}
+   * @returns {Currency}
    */
-  get(asset: AssetInfo): Currency | undefined {
-    return this.currencyMap.get(asset.splashId);
+  get(asset: AssetInfo): Currency {
+    return this.currencyMap.get(asset.splashId) || Currency.new(0n, asset);
   }
 
   /**
    * Returns available ada value
-   * @returns {Currency | undefined}
+   * @returns {Currency}
    */
-  get ada(): Currency | undefined {
-    return this.currencyMap.get(ada.splashId);
+  get ada(): Currency {
+    return this.currencyMap.get(ada.splashId) || Currency.ada(0n);
   }
 
   /**
    * Returns available spf value
-   * @returns {Currency | undefined}
+   * @returns {Currency}
    */
-  get spf(): Currency | undefined {
-    return this.currencyMap.get(spf.splashId);
+  get spf(): Currency {
+    return this.currencyMap.get(spf.splashId) || Currency.spf(0n);
   }
 
   /**
    * Returns available splash value
-   * @returns {Currency | undefined}
+   * @returns {Currency}
    */
-  get splash(): Currency | undefined {
-    return this.currencyMap.get(spf.splashId);
+  get splash(): Currency {
+    return this.currencyMap.get(spf.splashId) || Currency.splash(0n);
   }
 
   /**

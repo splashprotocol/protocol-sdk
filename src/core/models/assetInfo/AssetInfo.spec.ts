@@ -21,6 +21,8 @@ const assetInfoWithMetadata = AssetInfo.new(
     type: 'raw',
   },
   {
+    name: assetName,
+    policyId: assetPolicyId,
     ticker: 'Ticker',
     description: 'spectrum finance token',
     url: 'https://spectrum.fi',
@@ -61,7 +63,7 @@ test('it should returns valid policy id', () => {
 
 test('it should returns valid spectrum Id', () => {
   expect(assetInfoWithoutMetadata.splashId).toBe(
-    `${assetPolicyId}.${assetName}`,
+    `${assetPolicyId}.${stringToHex(assetName)}`,
   );
 });
 
@@ -98,9 +100,41 @@ test('it should returns asset logo', () => {
 
 test('it should add metadata to asset info', () => {
   const withMetadata = assetInfoWithoutMetadata.withMetadata({
+    name: assetInfoWithoutMetadata.name,
+    policyId: assetInfoWithoutMetadata.policyId,
     decimals: 6,
   });
 
   expect(assetInfoWithoutMetadata.decimals).toBe(0);
   expect(withMetadata.decimals).toBe(6);
+});
+
+test('it should create same asset by usign different params', () => {
+  const asset1 = AssetInfo.new({
+    policyId: '',
+    type: 'raw',
+    name: '',
+  });
+  const asset2 = AssetInfo.new({
+    policyId: '',
+    type: 'base16',
+    name: '',
+  });
+  const asset3 = AssetInfo.new({
+    policyId: '',
+    type: 'cbor',
+    name: '40',
+  });
+
+  expect(asset1.name).toBe(asset2.name);
+  expect(asset1.name).toBe(asset3.name);
+  expect(asset2.name).toBe(asset3.name);
+
+  expect(asset1.nameCbor).toBe(asset2.nameCbor);
+  expect(asset1.nameCbor).toBe(asset3.nameCbor);
+  expect(asset2.nameCbor).toBe(asset3.nameCbor);
+
+  expect(asset1.nameBase16).toBe(asset2.nameBase16);
+  expect(asset1.nameBase16).toBe(asset3.nameBase16);
+  expect(asset2.nameBase16).toBe(asset3.nameBase16);
 });
