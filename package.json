@@ -6,9 +6,9 @@
   "types": "build/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "build": " rollup -c rollup.config.js",
+    "build": " parcel build",
     "test": "jest",
-    "dev:code": "rollup -c rollup.config.js --watch",
+    "dev:code": "parcel watch",
     "dev:test": "jest --watch",
     "dev": "npm run dev:code && npm run dev:test"
   },
@@ -26,12 +26,6 @@
     "@dcspark/cardano-multiplatform-lib-nodejs": "^5.1.0",
     "@parcel/packager-ts": "2.12.0",
     "@parcel/transformer-typescript-types": "2.12.0",
-    "@rollup/plugin-commonjs": "^25.0.7",
-    "@rollup/plugin-inject": "^5.0.5",
-    "@rollup/plugin-json": "^6.1.0",
-    "@rollup/plugin-node-resolve": "^15.2.3",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "@rollup/plugin-wasm": "^6.2.2",
     "@types/jest": "^29.5.6",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",
@@ -43,8 +37,6 @@
     "jest-node-exports-resolver": "^1.1.6",
     "parcel": "^2.12.0",
     "prettier": "^3.0.3",
-    "rollup": "^4.1.4",
-    "rollup-plugin-multi-entry": "^2.1.0",
     "ts-jest": "^29.1.1"
   },
   "jest": {
