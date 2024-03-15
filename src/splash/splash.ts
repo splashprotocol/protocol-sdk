@@ -37,7 +37,11 @@ export class Splash<O extends Dictionary<Operation<any>>> {
 
   private readonly txBuilderFactory: TxBuilderFactory<O>;
 
-  private constructor(api: Api, network: Network, config?: SplashConfig<O>) {
+  private constructor(
+    api: Api,
+    public network: Network,
+    config?: SplashConfig<O>,
+  ) {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
     this.txBuilderFactory = new TxBuilderFactory(network);
   }

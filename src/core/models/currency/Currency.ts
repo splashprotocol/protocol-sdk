@@ -7,6 +7,8 @@ import {
 import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { spf } from '../assetInfo/spf.ts';
+import { AssetInfoMismatchError } from './errors/AssetInfoMismatchError.ts';
+import { ValueLowerThanZeroError } from './errors/ValueLowerThanZeroError.ts';
 
 export class Currency {
   /**
@@ -162,7 +164,9 @@ export class Currency {
       return this.withAmount(this.amount - amountToMinus);
     }
 
-    throw new Error(`result of minus is lower than 0. ${this.asset.subject}`);
+    throw new ValueLowerThanZeroError(
+      `result of minus is lower than 0. ${this.asset.subject}`,
+    );
   }
 
   /**
@@ -208,7 +212,7 @@ export class Currency {
       return;
     }
     if (this.asset.subject !== currency.asset.subject) {
-      throw new Error(
+      throw new AssetInfoMismatchError(
         `can't ${operationName} currencies with different asset info. ${this.asset.splashId} and ${currency.asset.splashId}`,
       );
     }

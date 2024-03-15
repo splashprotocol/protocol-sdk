@@ -5,6 +5,7 @@ import {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { DataType, toDataType } from '../../common/DataType.ts';
+import { SerializationError } from '../../common/SerializationError.ts';
 
 export function TupleDataType<T1 extends DataType<any>>(
   types: [T1],
@@ -192,7 +193,7 @@ export function TupleDataType(typeList: DataType<any>[]): DataType<any> {
   return toDataType({
     serialize(value: any[]) {
       if (typeList.length !== value.length) {
-        throw new Error('data length is invalid');
+        throw new SerializationError('data length is invalid');
       }
 
       const pl = PlutusDataList.new();

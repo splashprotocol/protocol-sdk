@@ -4,6 +4,7 @@ import {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { DataType, toDataType } from '../../common/DataType.ts';
+import { DeserializationError } from '../../common/DeserializationError.ts';
 
 export const ListDataType = <T>(datumType: DataType<T>): DataType<T[]> => {
   return toDataType({
@@ -17,7 +18,7 @@ export const ListDataType = <T>(datumType: DataType<T>): DataType<T[]> => {
       const plutusList = datum.as_list();
 
       if (!plutusList) {
-        throw new Error('plutus data doesn`t contain list');
+        throw new DeserializationError('plutus data doesn`t contain list');
       }
 
       const res: T[] = [];

@@ -11,6 +11,7 @@ import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { spf } from '../assetInfo/spf.ts';
 import { Currency } from '../currency/Currency.ts';
+import { MinuendEqualsZeroError } from './errors/MinuendEqualsZeroError.ts';
 
 export interface CurrenciesCborParams {
   readonly value: CborHexString;
@@ -212,7 +213,7 @@ export class Currencies {
       if (map.has(splashId)) {
         map.set(splashId, map.get(splashId)!.minus(item));
       } else {
-        throw new Error(`minuend is equals zero. ${splashId}`);
+        throw new MinuendEqualsZeroError(`minuend is equals zero. ${splashId}`);
       }
       return map;
     }, new Map(this.currencyMap.entries()));

@@ -25,6 +25,8 @@ export * from './core/utils/stringToCborBytes/stringToCborBytes.ts';
 export * from './core/utils/stringToCborHex/stringToCborHex.ts';
 export * from './core/utils/stringToHex/stringToHex.ts';
 export * from './splash/api/ApiWrapper.ts';
+export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
+export * from './splash/api/common/errors/WalletEnablingError.ts';
 export * from './splash/api/splash/SplashApi.ts';
 export * from './splash/splash.ts';
 export * from './splash/txBuilderFactory/TxBuilderFactory.ts';
