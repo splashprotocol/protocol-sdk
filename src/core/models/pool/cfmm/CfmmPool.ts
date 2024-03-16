@@ -35,6 +35,7 @@ export class CfmmPool implements Pool<'cfmm'> {
   /**
    * Creates new instanceof pool
    * @param {CfmmPoolConfig} config
+   * @param {Splash} splash
    * @returns {CfmmPool}
    */
   static new(config: CfmmPoolConfig, splash: Splash<any>): CfmmPool {
@@ -218,7 +219,7 @@ export class CfmmPool implements Pool<'cfmm'> {
    * @param {Currency | bigint} lp
    * @returns {[Currency, Currency]}
    */
-  convertLpToXY(lp: Currency | bigint): [Currency, Currency] {
+  convertLpToAssets(lp: Currency | bigint): { x: Currency; y: Currency } {
     const normalizedLp = lp instanceof Currency ? lp : this.lq.withAmount(lp);
 
     if (normalizedLp.asset.splashId !== this.lq.asset.splashId) {
@@ -227,10 +228,14 @@ export class CfmmPool implements Pool<'cfmm'> {
       );
     }
 
-    return [
-      this.x.withAmount((normalizedLp.amount * this.x.amount) / this.supplyLP),
-      this.y.withAmount((normalizedLp.amount * this.y.amount) / this.supplyLP),
-    ];
+    return {
+      x: this.x.withAmount(
+        (normalizedLp.amount * this.x.amount) / this.supplyLP,
+      ),
+      y: this.y.withAmount(
+        (normalizedLp.amount * this.y.amount) / this.supplyLP,
+      ),
+    };
   }
 
   private toCurrencyOrUndefined(
@@ -265,7 +270,7 @@ export class CfmmPool implements Pool<'cfmm'> {
    * @param {Currency} y
    * @returns {Promise<any>}
    */
-  deposit([x, y]: [Currency, Currency]) {
+  deposit([x, y]: [Currency, Currency]): Promise<any> {
     return this.splash.newTx().cfmmDeposit(this, [x, y]).complete();
   }
 }

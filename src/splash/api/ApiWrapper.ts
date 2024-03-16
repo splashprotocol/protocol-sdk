@@ -4,6 +4,7 @@ import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
+import { Currency } from '../../core/models/currency/Currency.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
 import { AssetId, Dictionary } from '../../core/types/types.ts';
@@ -24,7 +25,7 @@ export class ApiWrapper {
   ) {}
 
   /**
-   * Get current wallet balance
+   * Returns current wallet balance
    * @returns {Promise<Currencies>}
    */
   async getBalance(): Promise<Currencies> {
@@ -36,6 +37,30 @@ export class ApiWrapper {
     ]).then(([metadata, cborBalance]) => {
       return Currencies.new(cborBalance, metadata);
     });
+  }
+
+  /**
+   * Returns current wallet ada balance
+   * @returns {Promise<Currency>}
+   */
+  async getAdaBalance(): Promise<Currency> {
+    return this.getBalance().then((balance) => balance.ada);
+  }
+
+  /**
+   * Returns current wallet splash balance
+   * @returns {Promise<Currency>}
+   */
+  async getSplashBalance(): Promise<Currency> {
+    return this.getBalance().then((balance) => balance.splash);
+  }
+
+  /**
+   * Returns current wallet spf balance
+   * @returns {Promise<Currency>}
+   */
+  async getSpfBalance(): Promise<Currency> {
+    return this.getBalance().then((balance) => balance.spf);
   }
 
   /**

@@ -5,6 +5,7 @@ import { Dictionary } from '../core/types/types.ts';
 import { ApiWrapper } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
 import { TxBuilderFactory } from './txBuilderFactory/TxBuilderFactory.ts';
+import { Utils } from './utils/Utils.ts';
 
 export interface SplashConfig<O extends Dictionary<Operation<any>>> {
   readonly includesMetadata?: boolean;
@@ -33,6 +34,12 @@ export class Splash<O extends Dictionary<Operation<any>>> {
    */
   public readonly api: ApiWrapper;
 
+  /**
+   * Splash utils
+   * @type {Utils}
+   */
+  public readonly utils: Utils = new Utils(this);
+
   public wallet?: CardanoCIP30WalletBridge;
 
   private readonly txBuilderFactory: TxBuilderFactory<O>;
@@ -58,14 +65,3 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     this.wallet = wallet;
   }
 }
-
-// splash.api
-//   .getBalance()
-//   .getPositions()
-//   .getLocks()
-//   .getPools()
-//   .getMetadata()
-//   .getAdaBalance();
-//
-// splash.selectWallet().wallet.newTx();
-// splash.selectWallet().wallet.onWallet;

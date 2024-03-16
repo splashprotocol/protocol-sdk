@@ -1,6 +1,6 @@
 import { AssetInfo } from '../models/assetInfo/AssetInfo.ts';
 import { Currency } from '../models/currency/Currency.ts';
-import { PoolId } from './types.ts';
+import { Dictionary, PoolId } from './types.ts';
 
 export type PoolType = 'cfmm' | 'weight';
 
@@ -9,4 +9,6 @@ export interface Pool<T extends PoolType> {
   readonly nft: AssetInfo;
   readonly lq: Currency;
   readonly type: T;
+  readonly deposit: (...args: any) => Promise<any>;
+  readonly convertLpToAssets: (lq: Currency) => Dictionary<Currency>;
 }
