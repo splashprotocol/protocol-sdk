@@ -62,6 +62,14 @@ export class Currency {
   }
 
   /**
+   * Returns true if amount is greater than 0
+   * @returns {boolean}
+   */
+  isPositive(): boolean {
+    return this.gt(0n);
+  }
+
+  /**
    * Returns true if current currency amount greater than param
    * @param {Currency | bigint} currency
    * @returns {boolean}

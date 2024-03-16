@@ -88,12 +88,19 @@ export class Position<P extends Pool<any>> {
    */
   public readonly stakedAssets: ReturnType<P['convertLpToAssets']>;
 
+  /**
+   * Returns true if user has no lq for this pool
+   * @type {boolean}
+   */
+  public empty: boolean;
+
   private constructor(
     { pool, lq }: PositionParams<P>,
     public splash: Splash<{}>,
   ) {
     this.assertLq(pool, lq);
     this.pool = pool;
+    this.empty = !lq.isPositive();
 
     this.lq = lq;
     this.assets = this.pool.convertLpToAssets(this.lq) as ReturnType<

@@ -159,3 +159,15 @@ test('it should calculate valid percent of amount', () => {
   expect(adaAssetAmount.percent(60).amount).toBe(0n);
   expect(adaAssetAmount.percent(200).amount).toBe(2n);
 });
+
+test('it should return true for isPositive with amount > 0', () => {
+  const adaAssetAmount = Currency.new(1n, ada);
+
+  expect(adaAssetAmount.isPositive()).toBe(true);
+});
+
+test('it should return false for isPositive with amount = 0', () => {
+  const adaAssetAmount = Currency.new(0n, ada);
+
+  expect(adaAssetAmount.isPositive()).toBe(false);
+});

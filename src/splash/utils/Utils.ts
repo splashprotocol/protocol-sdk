@@ -12,6 +12,10 @@ import {
   SelectLqAssetBalanceResult,
 } from './types/selectLqAssetBalance.ts';
 import {
+  SelectPositionOrEmptyParams,
+  SelectPositionOrEmptyResult,
+} from './types/selectPositionOrEmpty.ts';
+import {
   SelectPositionsParams,
   SelectPositionsResult,
 } from './types/selectPositions.ts';
@@ -71,14 +75,35 @@ export class Utils {
     pools,
     balance,
   }: SelectPositionsParams): SelectPositionsResult {
-    return pools.map((pool) =>
-      Position.new(
-        {
-          pool,
-          lq: balance.get(pool.lq.asset),
-        },
-        this.splash,
-      ),
+    return pools
+      .filter((pool) => balance.get(pool.lq.asset).amount !== 0n)
+      .map((pool) =>
+        Position.new(
+          {
+            pool,
+            lq: balance.get(pool.lq.asset),
+          },
+          this.splash,
+        ),
+      );
+  }
+
+  /**
+   * Returns Position or EmptyPosition from pool and balance
+   * @param {CfmmPool} pool
+   * @param {Currencies} balance
+   * @returns {SelectPositionOrEmptyResult}
+   */
+  selectPositionOrEmpty({
+    pool,
+    balance,
+  }: SelectPositionOrEmptyParams): SelectPositionOrEmptyResult {
+    return Position.new(
+      {
+        pool,
+        lq: balance.get(pool.lq.asset),
+      },
+      this.splash,
     );
   }
 }
