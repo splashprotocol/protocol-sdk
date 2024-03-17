@@ -6,7 +6,7 @@ import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSpl
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
-import { AssetId, Dictionary } from '../../core/types/types.ts';
+import { Dictionary } from '../../core/types/types.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
 import { NoWalletError } from './common/errors/NoWalletError.ts';
@@ -14,14 +14,51 @@ import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
 import { mapPawPoolToCfmmPool } from './common/mappers/mapPawPoolToCfmmPool.ts';
 
+export interface MetadataConfig {
+  // Update time in milliseconds: Default 300_000
+  readonly updateTime: number;
+  // Default metadata value. Field will be useful with ssr
+  readonly defaultValue?: Dictionary<AssetMetadata>;
+}
+
+const DEFAULT_UPDATE_TIME = 300_000;
+
 export class ApiWrapper {
   private contextPromise: Promise<CardanoCIP30WalletContext> | undefined;
+
+  private assetsMetadataCache: Promise<Dictionary<AssetMetadata>> | undefined;
+
+  private assetsMetadataLastUpdateTime?: number;
+
+  private includeMetadata: boolean;
+
+  private metadataUpdateTime: number;
 
   constructor(
     private splash: Splash<any>,
     private api: Api,
-    private includeMetadata?: boolean,
-  ) {}
+    metadataConfig?: MetadataConfig | boolean,
+  ) {
+    const normalizedMetadataConfig = this.normalizeConfig(metadataConfig);
+
+    if (!normalizedMetadataConfig) {
+      this.includeMetadata = false;
+      this.metadataUpdateTime = DEFAULT_UPDATE_TIME;
+      return;
+    }
+
+    this.includeMetadata = true;
+    this.metadataUpdateTime = normalizedMetadataConfig.updateTime;
+
+    if (normalizedMetadataConfig.defaultValue) {
+      this.assetsMetadataLastUpdateTime = Date.now();
+      this.assetsMetadataCache = Promise.resolve(
+        normalizedMetadataConfig.defaultValue,
+      );
+    } else {
+      this.getAssetsMetadata();
+    }
+  }
 
   /**
    * Returns current wallet balance
@@ -39,24 +76,23 @@ export class ApiWrapper {
   }
 
   /**
-   * Returns asset metadata by id
-   * @param {AssetId} assetId
-   * @returns {Promise<AssetMetadata>}
-   */
-  getAssetMetadata(assetId: AssetId): Promise<AssetMetadata | undefined> {
-    return this.includeMetadata
-      ? this.api.getAssetMetadata(assetId)
-      : Promise.resolve(undefined);
-  }
-
-  /**
    * Returns all available assets metadata
    * @returns {Promise<AssetMetadata>}
    */
   getAssetsMetadata(): Promise<Dictionary<AssetMetadata>> {
-    return this.includeMetadata
-      ? this.api.getAssetsMetadata()
-      : Promise.resolve({});
+    if (!this.includeMetadata) {
+      return Promise.resolve({});
+    }
+    const timeToUpdate = this.assetsMetadataLastUpdateTime
+      ? Date.now() - this.assetsMetadataLastUpdateTime > this.metadataUpdateTime
+      : true;
+
+    if (!this.assetsMetadataCache || timeToUpdate) {
+      this.assetsMetadataLastUpdateTime = Date.now();
+      this.assetsMetadataCache = this.api.getAssetsMetadata();
+    }
+
+    return this.assetsMetadataCache!;
   }
 
   /**
@@ -139,5 +175,19 @@ export class ApiWrapper {
     if (this.contextPromise) {
       this.contextPromise = undefined;
     }
+  }
+
+  private normalizeConfig(
+    metadataConfig?: MetadataConfig | boolean,
+  ): MetadataConfig | undefined {
+    if (!metadataConfig) {
+      return undefined;
+    }
+    return metadataConfig instanceof Object
+      ? {
+          updateTime: metadataConfig.updateTime || DEFAULT_UPDATE_TIME,
+          defaultValue: metadataConfig.defaultValue,
+        }
+      : { updateTime: DEFAULT_UPDATE_TIME };
   }
 }

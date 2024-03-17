@@ -18,8 +18,6 @@ const mapNetworkToUrl: { [key in Network]: string } = {
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
 
-const METADATA_CACHE_DURATION = 300_000;
-
 export class SplashApi implements Api {
   /**
    * Create splash api instance using network name
@@ -33,11 +31,6 @@ export class SplashApi implements Api {
   private get url() {
     return mapNetworkToUrl[this.network];
   }
-
-  private assetsMetadataPromise: Promise<Dictionary<AssetMetadata>> | undefined;
-
-  private assetsMetadataLastUpdateTime?: number;
-
   private constructor(public network: ProtocolParams['network']) {}
 
   /**
@@ -60,30 +53,19 @@ export class SplashApi implements Api {
    * Returns all available assets metadata
    * @returns {Promise<GetAssetsMetadataResponse>}
    */
-  getAssetsMetadata(): Promise<GetAssetsMetadataResponse> {
-    const timeToUpdate = this.assetsMetadataLastUpdateTime
-      ? Date.now() - this.assetsMetadataLastUpdateTime > METADATA_CACHE_DURATION
-      : true;
-
-    if (!this.assetsMetadataPromise || timeToUpdate) {
-      this.assetsMetadataLastUpdateTime = Date.now();
-      this.assetsMetadataPromise = fetch(
-        'https://spectrum.fi/cardano-token-list.json',
-      )
-        .then((res) => res.json())
-        .then((data) => data.tokens)
-        .then((assets: AssetMetadata[]) =>
-          assets.reduce<Dictionary<AssetMetadata>>(
-            (acc, asset) => ({
-              ...acc,
-              [`${asset.policyId}.${stringToHex(asset.name)}`]: asset,
-            }),
-            {},
-          ),
-        );
-    }
-
-    return this.assetsMetadataPromise!;
+  async getAssetsMetadata(): Promise<GetAssetsMetadataResponse> {
+    return fetch('https://spectrum.fi/cardano-token-list.json')
+      .then((res) => res.json())
+      .then((data) => data.tokens)
+      .then((assets: AssetMetadata[]) =>
+        assets.reduce<Dictionary<AssetMetadata>>(
+          (acc, asset) => ({
+            ...acc,
+            [`${asset.policyId}.${stringToHex(asset.name)}`]: asset,
+          }),
+          {},
+        ),
+      );
   }
 
   /**

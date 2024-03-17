@@ -29,5 +29,6 @@ export interface CardanoCIP30WalletContext {
 export interface CardanoCIP30WalletBridge {
   enable(): Promise<CardanoCIP30WalletContext>;
   isEnabled(): Promise<boolean>;
-  experimental?: any;
+  readonly experimental?: any;
+  readonly name: string;
 }

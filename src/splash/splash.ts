@@ -2,13 +2,13 @@ import { Api } from '../core/api/Api.ts';
 import { CardanoCIP30WalletBridge } from '../core/types/CardanoCIP30WalletBridge.ts';
 import { Network } from '../core/types/Network.ts';
 import { Dictionary } from '../core/types/types.ts';
-import { ApiWrapper } from './api/ApiWrapper.ts';
+import { ApiWrapper, MetadataConfig } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
 import { TxBuilderFactory } from './txBuilderFactory/TxBuilderFactory.ts';
 import { Utils } from './utils/Utils.ts';
 
 export interface SplashConfig<O extends Dictionary<Operation<any>>> {
-  readonly includesMetadata?: boolean;
+  readonly includesMetadata?: MetadataConfig | boolean;
   readonly operations?: O;
 }
 

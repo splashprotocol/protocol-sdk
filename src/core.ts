@@ -5,6 +5,7 @@ export * from './core/api/types/getSplashPools/getSplashPools.ts';
 export * from './core/models/assetInfo/ada.ts';
 export * from './core/models/assetInfo/AssetInfo.ts';
 export * from './core/models/assetInfo/spf.ts';
+export * from './core/models/currencies/Currencies.ts';
 export * from './core/models/currency/Currency.ts';
 export * from './core/types/types.ts';
 export * from './core/utils/bytesToCborBytes/bytesToCborBytes.ts';
