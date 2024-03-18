@@ -64,7 +64,7 @@ export class SplashApi implements Api {
             ...acc,
             [`${asset.policyId}.${stringToHex(asset.name)}`]: {
               ...asset,
-              logo: `https://spectrum.fi/${asset.logo}`,
+              logo: `https://spectrum.fi${asset.logo}`,
             },
           }),
           {
