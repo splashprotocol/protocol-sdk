@@ -10,6 +10,8 @@
 
 # production
 /build
+/docs
+/.parcel-cache
 
 # locales
 /src/i18n/locales
