@@ -13,3 +13,15 @@ export type AssetId = string;
 export type PoolId = string;
 
 export type percent = number;
+
+export type uint = number;
+
+/**
+ * Timestamp with milliseconds
+ */
+export type lts = number;
+
+/**
+ * Timestamp with seconds
+ */
+export type ts = number;
