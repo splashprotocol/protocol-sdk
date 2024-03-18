@@ -10,7 +10,8 @@
     "test": "jest",
     "dev:code": "parcel watch",
     "dev:test": "jest --watch",
-    "dev": "npm run dev:code && npm run dev:test"
+    "dev": "npm run dev:code && npm run dev:test",
+    "doc": "typedoc src/index.ts"
   },
   "type": "module",
   "author": "",
