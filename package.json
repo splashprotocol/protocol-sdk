@@ -37,7 +37,8 @@
     "jest-node-exports-resolver": "^1.1.6",
     "parcel": "^2.12.0",
     "prettier": "^3.0.3",
-    "ts-jest": "^29.1.1"
+    "ts-jest": "^29.1.1",
+    "typedoc": "^0.25.12"
   },
   "jest": {
     "preset": "ts-jest",
