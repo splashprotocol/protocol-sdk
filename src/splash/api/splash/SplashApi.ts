@@ -6,6 +6,7 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
+import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
@@ -61,9 +62,21 @@ export class SplashApi implements Api {
         assets.reduce<Dictionary<AssetMetadata>>(
           (acc, asset) => ({
             ...acc,
-            [`${asset.policyId}.${stringToHex(asset.name)}`]: asset,
+            [`${asset.policyId}.${stringToHex(asset.name)}`]: {
+              ...asset,
+              logo: `https://spectrum.fi/${asset.logo}`,
+            },
           }),
-          {},
+          {
+            [ada.splashId]: {
+              decimals: ada.decimals,
+              description: ada.description,
+              ticker: ada.ticker,
+              name: ada.name,
+              policyId: ada.policyId,
+              logo: '',
+            },
+          },
         ),
       );
   }

@@ -105,7 +105,7 @@ export class AssetInfo {
       type: 'base16',
     },
     {
-      name: 'ADA',
+      name: '',
       policyId: '',
       decimals: 6,
       ticker: 'ADA',
