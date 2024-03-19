@@ -7,10 +7,20 @@ import {
 import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { spf } from '../assetInfo/spf.ts';
+import { usd } from '../assetInfo/usd.ts';
 import { AssetInfoMismatchError } from './errors/AssetInfoMismatchError.ts';
 import { ValueLowerThanZeroError } from './errors/ValueLowerThanZeroError.ts';
 
 export class Currency {
+  /**
+   * Creates currency instance with usd asset info
+   * @param {bigint} amount
+   * @returns {Currency}
+   */
+  static usd(amount: bigint): Currency {
+    return new Currency(amount, usd);
+  }
+
   /**
    * Creates currency instance with ada asset info
    * @param {bigint} amount

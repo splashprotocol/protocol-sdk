@@ -12,7 +12,9 @@ import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkE
 import { NoWalletError } from './common/errors/NoWalletError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
-import { mapPawPoolToCfmmPool } from './common/mappers/mapPawPoolToCfmmPool.ts';
+import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
+import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+import { ProtocolStats } from './common/types/ProtocolStats.ts';
 
 export interface MetadataConfig {
   // Update time in milliseconds: Default 300_000
@@ -58,6 +60,10 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  async getProtocolStats(): Promise<ProtocolStats> {
+    return this.api.getProtocolStats().then(mapRawProtocolStatsToProtocolStats);
   }
 
   /**
@@ -107,7 +113,7 @@ export class ApiWrapper {
       this.getAssetsMetadata(),
     ]).then(([pools, metadata]) => {
       return pools.map((rawCfmmPool) =>
-        mapPawPoolToCfmmPool(
+        mapRawPoolToCfmmPool(
           {
             rawCfmmPool,
             xMetadata: metadata[rawCfmmPool.pool.x.asset],

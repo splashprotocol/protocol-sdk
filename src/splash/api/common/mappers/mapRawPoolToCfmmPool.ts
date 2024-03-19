@@ -25,7 +25,7 @@ export interface MapPawPoolToCfmmPoolConfig {
   readonly rawCfmmPool: RawSplashPool;
 }
 
-export const mapPawPoolToCfmmPool = (
+export const mapRawPoolToCfmmPool = (
   { rawCfmmPool, xMetadata, yMetadata }: MapPawPoolToCfmmPoolConfig,
   splash: Splash<any>,
 ): CfmmPool => {

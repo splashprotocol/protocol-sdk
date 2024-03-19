@@ -2,6 +2,7 @@ import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
+import { GetProtocolStatsResponse } from '../../../core/api/types/getProtocolStats/getProtocolStats.ts';
 import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
@@ -32,6 +33,14 @@ export class SplashApi implements Api {
     return mapNetworkToUrl[this.network];
   }
   private constructor(public network: ProtocolParams['network']) {}
+
+  /**
+   * Returns all protocol stats
+   * @returns {Promise<GetProtocolStatsResponse>}
+   */
+  async getProtocolStats(): Promise<GetProtocolStatsResponse> {
+    return fetch(`${this.url}platform/stats`).then((res) => res.json());
+  }
 
   /**
    * Returns all splash DEx liquidity pools
