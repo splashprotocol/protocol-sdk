@@ -3,7 +3,12 @@ import {
   ScriptHash,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { AssetId, CborHexString, HexString } from '../../types/types';
+import {
+  AssetId,
+  AssetSubject,
+  CborHexString,
+  HexString,
+} from '../../types/types';
 import { cborHexToHex } from '../../utils/cborHexToHex/cborHexToHex.ts';
 import { cborHexToString } from '../../utils/cborHexToString/cborHexToString.ts';
 import { hexToCborHex } from '../../utils/hexToCborHex/hexToCborHex.ts';
@@ -45,6 +50,7 @@ interface AssetInfoPrivateParams {
 export interface AssetInfoMetadata {
   readonly policyId: string;
   readonly name: string;
+  readonly subject: AssetSubject;
   readonly ticker?: string;
   readonly description?: string;
   readonly url?: string;
@@ -69,6 +75,7 @@ export class AssetInfo {
     {
       name: 'usd',
       policyId: '',
+      subject: 'usd',
       decimals: 2,
       ticker: '$',
     },
@@ -107,6 +114,7 @@ export class AssetInfo {
     {
       name: '',
       policyId: '',
+      subject: '',
       decimals: 6,
       ticker: 'ADA',
     },

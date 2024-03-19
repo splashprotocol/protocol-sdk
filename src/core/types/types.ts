@@ -9,6 +9,9 @@ export type Dictionary<T> = { [key: string]: T };
 /* Asset identifier. Has ${policyId}.${base16Name} structure */
 export type AssetId = string;
 
+/* Asset identifier. Has ${policyId}${base16Name} structure */
+export type AssetSubject = string;
+
 /* Pool identified. It is Asset identifier for nft asset */
 export type PoolId = string;
 

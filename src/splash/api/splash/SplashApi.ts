@@ -10,7 +10,6 @@ import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
-import { stringToHex } from '../../../core/utils/stringToHex/stringToHex.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
@@ -62,13 +61,19 @@ export class SplashApi implements Api {
         assets.reduce<Dictionary<AssetMetadata>>(
           (acc, asset) => ({
             ...acc,
-            [`${asset.policyId}.${stringToHex(asset.name)}`]: {
+            [asset.subject
+              ? [
+                  asset.subject.slice(0, 56),
+                  asset.subject.slice(56, asset.subject.length),
+                ].join('.')
+              : '.']: {
               ...asset,
               logo: `https://spectrum.fi${asset.logo}`,
             },
           }),
           {
             [ada.splashId]: {
+              subject: ada.subject,
               decimals: ada.decimals,
               description: ada.description,
               ticker: ada.ticker,
