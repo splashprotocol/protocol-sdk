@@ -1,5 +1,5 @@
-import { Splash } from '../splash.ts';
-import { SplashApi } from './splash/SplashApi.ts';
+import { Splash } from '../../splash.ts';
+import { SplashApi } from '../splash/SplashApi.ts';
 
 const splash = Splash.new(SplashApi.new('mainnet'), 'mainnet', {
   includesMetadata: true,
