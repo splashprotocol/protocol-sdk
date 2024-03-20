@@ -77,7 +77,7 @@ export class SplashApi implements Api {
                 ].join('.')
               : '.']: {
               ...asset,
-              logo: `https://spectrum.fi${asset.logo}`,
+              logo: asset.logo ? `https://spectrum.fi${asset.logo}` : undefined,
             },
           }),
           {
