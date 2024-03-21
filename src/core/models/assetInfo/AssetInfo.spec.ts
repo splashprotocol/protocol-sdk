@@ -21,6 +21,7 @@ const assetInfoWithMetadata = AssetInfo.new(
     type: 'raw',
   },
   {
+    subject: `${assetPolicyId}${stringToHex(assetName)}`,
     name: assetName,
     policyId: assetPolicyId,
     ticker: 'Ticker',
@@ -103,6 +104,7 @@ test('it should add metadata to asset info', () => {
     name: assetInfoWithoutMetadata.name,
     policyId: assetInfoWithoutMetadata.policyId,
     decimals: 6,
+    subject: assetInfoWithMetadata.subject,
   });
 
   expect(assetInfoWithoutMetadata.decimals).toBe(0);
