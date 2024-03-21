@@ -48,6 +48,9 @@ export * from './core/models/pool/common/emissionLp.ts';
 // CORE_MODELS_POSITION
 export * from './core/models/position/Position.ts';
 
+// CORE_MODELS_PRICE
+export * from './core/models/price/Price.ts';
+
 // CORE_MODELS_TRANSACTION
 // export * from './core/models/transaction/Transaction.ts';
 
