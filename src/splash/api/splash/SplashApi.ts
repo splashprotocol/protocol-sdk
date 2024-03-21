@@ -2,6 +2,7 @@ import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
+import { GetPairsResponse } from '../../../core/api/types/getPairs/getPairs.ts';
 import { GetProtocolStatsResponse } from '../../../core/api/types/getProtocolStats/getProtocolStats.ts';
 import {
   GetSplashPoolsParams,
@@ -33,6 +34,12 @@ export class SplashApi implements Api {
     return mapNetworkToUrl[this.network];
   }
   private constructor(public network: ProtocolParams['network']) {}
+
+  async getPairs(): Promise<GetPairsResponse> {
+    return fetch(`http://195.201.9.29:8091/v2/trading-view/pair-list`).then(
+      (res) => res.json(),
+    );
+  }
 
   /**
    * Returns all protocol stats

@@ -2,10 +2,12 @@
 export * from './core/api/Api.ts';
 export * from './core/api/types/common/AssetMetadata.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
+export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
 export * from './core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
+export * from './core/api/types/getPairs/getPairs.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
 
@@ -44,6 +46,9 @@ export * from './core/models/output/Output.ts';
 export * from './core/models/pool/cfmm/CfmmPool.ts';
 export * from './core/models/pool/cfmm/common/CfmmPoolType.ts';
 export * from './core/models/pool/common/emissionLp.ts';
+
+// CORE_MODELS_PAIR
+export * from './core/models/pair/Pair.ts';
 
 // CORE_MODELS_POSITION
 export * from './core/models/position/Position.ts';
@@ -86,8 +91,8 @@ export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
 export * from './splash/api/common/errors/NoWalletError.ts';
 export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
+export * from './splash/api/common/mappers/mapRawPairToPair.ts';
 export * from './splash/api/common/mappers/mapRawPoolToCfmmPool.ts';
-export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 export * from './splash/api/common/types/ProtocolStats.ts';
 

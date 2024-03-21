@@ -4,6 +4,7 @@ import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
+import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
 import { Dictionary } from '../../core/types/types.ts';
@@ -12,6 +13,7 @@ import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkE
 import { NoWalletError } from './common/errors/NoWalletError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
+import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 import { ProtocolStats } from './common/types/ProtocolStats.ts';
@@ -62,6 +64,28 @@ export class ApiWrapper {
     }
   }
 
+  /**
+   * Returns available pair list
+   * @return {Promise<Pair[]>}
+   */
+  async getPairs(): Promise<Pair[]> {
+    return Promise.all([this.api.getPairs(), this.getAssetsMetadata()]).then(
+      ([pools, metadata]) => {
+        return pools.map((rawPair) =>
+          mapRawPairToPair({
+            rawPair,
+            baseMetadata: metadata[rawPair.base],
+            quoteMetadata: metadata[rawPair.quote],
+          }),
+        );
+      },
+    );
+  }
+
+  /**
+   * Returns protocol stats
+   * @return {Promise<ProtocolStats>}
+   */
   async getProtocolStats(): Promise<ProtocolStats> {
     return this.api.getProtocolStats().then(mapRawProtocolStatsToProtocolStats);
   }

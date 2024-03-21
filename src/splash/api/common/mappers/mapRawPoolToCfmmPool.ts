@@ -19,14 +19,14 @@ const mapVersionToCfmmType = (
   }
 };
 
-export interface MapPawPoolToCfmmPoolConfig {
+export interface MapRawPoolToCfmmPoolConfig {
   readonly xMetadata?: AssetMetadata;
   readonly yMetadata?: AssetMetadata;
   readonly rawCfmmPool: RawSplashPool;
 }
 
 export const mapRawPoolToCfmmPool = (
-  { rawCfmmPool, xMetadata, yMetadata }: MapPawPoolToCfmmPoolConfig,
+  { rawCfmmPool, xMetadata, yMetadata }: MapRawPoolToCfmmPoolConfig,
   splash: Splash<any>,
 ): CfmmPool => {
   const [nftPolicyId, nftBase16Name] = rawCfmmPool.pool.id.split('.');
