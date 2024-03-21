@@ -1,6 +1,7 @@
 import {
   getDecimalsCount,
   normalizeAmount,
+  toBigNumRepresentation,
   toNumberRepresentation,
 } from './math.ts';
 
@@ -28,4 +29,11 @@ test('it should returns string representation decimals count', () => {
 
 test('it should returns normalized amount ', () => {
   expect(normalizeAmount('0.00145', 3)).toBe('0.001');
+  expect(normalizeAmount('0.01', 3)).toBe('0.01');
+});
+
+test('it should returns valid bigint representation of string with fractions', () => {
+  const number = '123.123';
+  expect(toBigNumRepresentation(number, 3)).toBe(123123n);
+  expect(toBigNumRepresentation(number, 5)).toBe(12312300n);
 });

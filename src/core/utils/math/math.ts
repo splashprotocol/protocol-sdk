@@ -49,10 +49,11 @@ export function toBigNumRepresentation(
   }
 
   const toConvert = math.format(
-    math.evaluate!(`${input} * 10^${decimals || 0}`),
+    math.evaluate!(
+      `${Number(input).toFixed(decimals || 0)} * 10^${decimals || 0}`,
+    ),
     formatOptions,
   );
-  console.log(toConvert);
   return BigInt(toConvert);
 }
 
