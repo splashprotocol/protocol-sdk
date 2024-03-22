@@ -2,6 +2,7 @@
 export * from './core/api/Api.ts';
 export * from './core/api/types/common/AssetMetadata.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
+export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawSplashPool.ts';

@@ -1,6 +1,10 @@
 import { AssetId } from '../types/types.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from './types/getAssetsMetadata/getAssetsMetadata.ts';
+import {
+  GetOrderBookParams,
+  GetOrderBookResponse,
+} from './types/getOrderBook/getOrderBook.ts';
 import { GetPairsResponse } from './types/getPairs/getPairs.ts';
 import { GetProtocolStatsResponse } from './types/getProtocolStats/getProtocolStats.ts';
 import {
@@ -23,4 +27,6 @@ export interface Api {
   getProtocolStats(): Promise<GetProtocolStatsResponse>;
 
   getPairs(): Promise<GetPairsResponse>;
+
+  getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
 }

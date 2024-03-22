@@ -2,6 +2,10 @@ import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
+import {
+  GetOrderBookParams,
+  GetOrderBookResponse,
+} from '../../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetPairsResponse } from '../../../core/api/types/getPairs/getPairs.ts';
 import { GetProtocolStatsResponse } from '../../../core/api/types/getProtocolStats/getProtocolStats.ts';
 import {
@@ -34,6 +38,15 @@ export class SplashApi implements Api {
     return mapNetworkToUrl[this.network];
   }
   private constructor(public network: ProtocolParams['network']) {}
+
+  async getOrderBook({
+    base,
+    quote,
+  }: GetOrderBookParams): Promise<GetOrderBookResponse> {
+    return fetch(
+      `http://195.201.9.29:8091/v1/trading-view/order-book?base=${base.splashId}&quote=${quote.splashId}`,
+    ).then((res) => res.json());
+  }
 
   async getPairs(): Promise<GetPairsResponse> {
     return fetch(`http://195.201.9.29:8091/v2/trading-view/pair-list`).then(
