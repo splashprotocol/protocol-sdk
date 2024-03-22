@@ -2,6 +2,7 @@ import { NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
+import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
@@ -13,9 +14,11 @@ import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkE
 import { NoWalletError } from './common/errors/NoWalletError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
+import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOrderBook.ts';
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+import { OrderBook } from './common/types/OrderBook.ts';
 import { ProtocolStats } from './common/types/ProtocolStats.ts';
 
 export interface MetadataConfig {
@@ -62,6 +65,24 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  /**
+   * Returns current order book by pair
+   * @param {GetOrderBookParams} params
+   * @return {Promise<OrderBook>}
+   */
+  async getOrderBook(params: GetOrderBookParams): Promise<OrderBook> {
+    return Promise.all([
+      this.api.getOrderBook(params),
+      this.getAssetsMetadata(),
+    ]).then(([orderBook, metadata]) => {
+      return mapRawOrderBookToOrderBook({
+        rawOrderBook: orderBook,
+        baseMetadata: metadata[orderBook.pair.base],
+        quoteMetadata: metadata[orderBook.pair.quote],
+      });
+    });
   }
 
   /**

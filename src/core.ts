@@ -92,9 +92,11 @@ export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
 export * from './splash/api/common/errors/NoWalletError.ts';
 export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
+export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
 export * from './splash/api/common/mappers/mapRawPoolToCfmmPool.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+export * from './splash/api/common/types/OrderBook.ts';
 export * from './splash/api/common/types/ProtocolStats.ts';
 
 // SPLASH_API_SPLASH
