@@ -1,4 +1,4 @@
-import { NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
+import { Address, NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
@@ -65,6 +65,16 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  /**
+   * Returns active wallet address
+   * @return {Promise<string>}
+   */
+  async getActiveAddress(): Promise<string> {
+    return this.getWalletContext()
+      .then((ctx) => this.handleCIP30WalletError(ctx.getChangeAddress()))
+      .then((cborAddressHex) => Address.from_hex(cborAddressHex).to_bech32());
   }
 
   /**
