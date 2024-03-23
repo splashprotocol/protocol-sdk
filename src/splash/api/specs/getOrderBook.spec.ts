@@ -18,10 +18,31 @@ test('it should return valid order book', async () => {
   expect(orderBook.spotPrice).toBeInstanceOf(Price);
   expect(orderBook.spotPrice.base.splashId).toBe(spf.splashId);
   expect(orderBook.spotPrice.quote.splashId).toBe(ada.splashId);
-  expect(orderBook.pair.base.splashId).toBe(spf.splashId);
-  expect(orderBook.pair.quote.splashId).toBe(ada.splashId);
+  expect(orderBook.base.splashId).toBe(spf.splashId);
+  expect(orderBook.quote.splashId).toBe(ada.splashId);
   expect(orderBook.ammTotalLiquidityQuote).toBeInstanceOf(Currency);
   expect(orderBook.ammTotalLiquidityQuote.asset.splashId).toBe(ada.splashId);
   expect(orderBook.ammTotalLiquidityBase).toBeInstanceOf(Currency);
   expect(orderBook.ammTotalLiquidityBase.asset.splashId).toBe(spf.splashId);
+
+  expect(orderBook.asks[0].price).toBeInstanceOf(Price);
+  expect(orderBook.asks[0].accumulatedAveragePrice).toBeInstanceOf(Price);
+  expect(orderBook.asks[1].price).toBeInstanceOf(Price);
+  expect(orderBook.asks[1].accumulatedAveragePrice).toBeInstanceOf(Price);
+
+  expect(orderBook.asks[0].price.raw).toBeLessThan(orderBook.asks[1].price.raw);
+  expect(orderBook.asks[0].accumulatedAveragePrice.raw).toBeLessThan(
+    orderBook.asks[1].accumulatedAveragePrice.raw,
+  );
+  expect(orderBook.asks[0].accumulatedAmount.amount).toBeLessThan(
+    orderBook.asks[1].accumulatedAmount.amount,
+  );
+
+  expect(orderBook.bids[1].price.raw).toBeLessThan(orderBook.bids[0].price.raw);
+  expect(orderBook.bids[1].accumulatedAveragePrice.raw).toBeLessThan(
+    orderBook.bids[0].accumulatedAveragePrice.raw,
+  );
+  expect(orderBook.bids[0].accumulatedAmount.amount).toBeLessThan(
+    orderBook.bids[1].accumulatedAmount.amount,
+  );
 });

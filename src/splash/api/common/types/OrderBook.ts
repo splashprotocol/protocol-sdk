@@ -3,25 +3,32 @@ import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
 import { percent } from '../../../../core/types/types.ts';
 
+/**
+ * Order book item representation
+ */
 export interface OrderBookItem {
-  readonly spot: Price;
-  readonly ordersVolume: Currency;
-  readonly poolsVolume: Currency;
-  readonly accumulatedVolume: Currency;
-  readonly ordersVolumeRelation: percent;
-  readonly ammVolumeRelation: percent;
-  readonly accumulatedVolumeRelation: percent;
+  readonly price: Price;
+  readonly accumulatedAveragePrice: Price;
+  readonly ordersAmount: Currency;
+  readonly ammAmount: Currency;
+  readonly amount: Currency;
+
+  readonly accumulatedAmount: Currency;
+  readonly accumulatedOrderAmount: Currency;
+  readonly accumulatedAmmAmount: Currency;
+  readonly accumulatedAmountInQuote: Currency;
+  readonly accumulatedOrderAmountInQuote: Currency;
+  readonly accumulatedAmmAmountInQuote: Currency;
+  readonly accumulatedAmountRelation: percent;
 }
 
 export interface OrderBook {
-  readonly pair: {
-    readonly base: AssetInfo;
-    readonly quote: AssetInfo;
-  };
+  readonly base: AssetInfo;
+  readonly quote: AssetInfo;
   readonly spotPrice: Price;
-  readonly previousSpotPrice: Price;
-  readonly bidsOrderBook: OrderBookItem[];
-  readonly asksOrderBook: OrderBookItem[];
+  readonly previousSpotPrice?: Price;
+  readonly bids: OrderBookItem[];
+  readonly asks: OrderBookItem[];
   readonly ammTotalLiquidityBase: Currency;
   readonly ammTotalLiquidityQuote: Currency;
 }

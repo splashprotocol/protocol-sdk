@@ -16,7 +16,7 @@ export interface RawOrderBook {
     readonly quote: AssetId;
   };
   readonly spot: number;
-  readonly previousSpotPrice: number;
+  readonly previousSpotPrice?: number;
   readonly bidsOrderBook: RawOrderBookItem[];
   readonly asksOrderBook: RawOrderBookItem[];
   readonly ammTotalLiquidityBase: string;
