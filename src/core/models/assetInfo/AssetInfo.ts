@@ -115,6 +115,8 @@ export class AssetInfo {
       name: '',
       policyId: '',
       subject: '',
+      // TODO: THINK about union metadata store
+      logo: 'https://spectrum.fi/logos/cardano/token-ada.svg',
       decimals: 6,
       ticker: 'ADA',
     },
