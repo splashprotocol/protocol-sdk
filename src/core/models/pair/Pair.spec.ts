@@ -1,5 +1,6 @@
 import { ada } from '../assetInfo/ada.ts';
 import { spf } from '../assetInfo/spf.ts';
+import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 import { Pair } from './Pair.ts';
 
@@ -23,12 +24,14 @@ test('It should create valid pair instance', () => {
     quoteAdaPrice: adaAdaPrice,
     change: 9,
   });
-
   expect(pair).toBeInstanceOf(Pair);
   expect(pair.base).toBe(spf);
   expect(pair.quote).toBe(ada);
   expect(pair.spotPrice).toBeInstanceOf(Price);
   expect(pair.spotPrice.raw).toBe(0.2);
+  expect(pair.prevSpotPrice).toBeInstanceOf(Price);
+  expect(pair.prevSpotPrice.raw).toBe((0.2 * 100) / 109);
+  expect(pair.changeInQuote).toBeInstanceOf(Currency);
   expect(pair.baseAdaPrice).toBeInstanceOf(Price);
   expect(pair.baseAdaPrice.raw).toBe(0.2);
   expect(pair.quoteAdaPrice).toBeInstanceOf(Price);

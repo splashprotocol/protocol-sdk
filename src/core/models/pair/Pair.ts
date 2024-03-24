@@ -1,5 +1,11 @@
 import { percent } from '../../types/types.ts';
+import {
+  math,
+  normalizeAmount,
+  toBigNumRepresentation,
+} from '../../utils/math/math.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
+import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
 export interface PairParams {
@@ -43,10 +49,22 @@ export class Pair {
   public change: percent;
 
   /**
+   * 24h change in quote asset
+   * @type {percent}
+   */
+  public changeInQuote: Currency;
+
+  /**
    * Current spot price
    * @type {Price}
    */
   public spotPrice: Price;
+
+  /**
+   * prev spot price
+   * @type {Price}
+   */
+  public prevSpotPrice: Price;
 
   /**
    * Base asset ada price
@@ -68,10 +86,34 @@ export class Pair {
     quoteAdaPrice,
     baseAdaPrice,
   }: PairParams) {
+    const rawPreviousSpotPrice: string = change
+      ? math.evaluate(`${spotPrice.raw} * 100 / (100 + ${change})`).toFixed()
+      : spotPrice.toString();
+
+    const changeInQuoteAmount = toBigNumRepresentation(
+      normalizeAmount(
+        Math.abs(
+          Number(
+            math
+              .evaluate(`${spotPrice.raw} - ${rawPreviousSpotPrice}`)
+              .toFixed(),
+          ),
+        ).toString(),
+        quote.decimals,
+      ),
+      quote.decimals,
+    );
+
     this.base = base;
     this.quote = quote;
     this.change = change;
     this.spotPrice = spotPrice;
+    this.prevSpotPrice = Price.new({
+      base,
+      quote,
+      raw: Number(rawPreviousSpotPrice),
+    });
+    this.changeInQuote = Currency.new(changeInQuoteAmount, quote);
     this.quoteAdaPrice = quoteAdaPrice;
     this.baseAdaPrice = baseAdaPrice;
   }
