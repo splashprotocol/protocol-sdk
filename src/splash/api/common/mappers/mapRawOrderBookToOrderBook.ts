@@ -75,12 +75,14 @@ const getNextOrderBookItemAdditionalInfo = (
     accumulatedAmountInQuote: additionalInfo.accumulatedAmountInQuote.plus(
       Currency.new(newPoolsInAmountQuote + newOrdersAmountInQuote, quote),
     ),
-    accumulatedAmmAmountInQuote: additionalInfo.accumulatedAmountInQuote.plus(
-      Currency.new(newPoolsInAmountQuote, quote),
-    ),
-    accumulatedOrderAmountInQuote: additionalInfo.accumulatedAmountInQuote.plus(
-      Currency.new(newOrdersAmountInQuote, quote),
-    ),
+    accumulatedAmmAmountInQuote:
+      additionalInfo.accumulatedAmmAmountInQuote.plus(
+        Currency.new(newPoolsInAmountQuote, quote),
+      ),
+    accumulatedOrderAmountInQuote:
+      additionalInfo.accumulatedOrderAmountInQuote.plus(
+        Currency.new(newOrdersAmountInQuote, quote),
+      ),
     items: additionalInfo.items,
   };
 
