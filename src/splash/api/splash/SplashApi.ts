@@ -12,6 +12,7 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
+import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
 import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
@@ -38,6 +39,12 @@ export class SplashApi implements Api {
     return mapNetworkToUrl[this.network];
   }
   private constructor(public network: ProtocolParams['network']) {}
+
+  async getTrendPools(): Promise<GetTrendPoolsResponse> {
+    return fetch(`http://195.201.9.29:8091/v1/pools/trended`).then((res) =>
+      res.json(),
+    );
+  }
 
   async getOrderBook({
     base,

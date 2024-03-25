@@ -11,11 +11,14 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
+import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
 
 /**
  *
  */
 export interface Api {
+  getTrendPools(): Promise<GetTrendPoolsResponse>;
+
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,
   ): Promise<GetSplashPoolsResponse>;

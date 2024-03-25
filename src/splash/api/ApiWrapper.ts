@@ -18,8 +18,10 @@ import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOr
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+import { mapRawTrendPoolToTrendPool } from './common/mappers/mapRawTrendPoolToTrendPool.ts';
 import { OrderBook } from './common/types/OrderBook.ts';
 import { ProtocolStats } from './common/types/ProtocolStats.ts';
+import { TrendPool } from './common/types/TrendPool.ts';
 
 export interface MetadataConfig {
   // Update time in milliseconds: Default 300_000
@@ -92,6 +94,25 @@ export class ApiWrapper {
         baseMetadata: metadata[orderBook.pair.base],
         quoteMetadata: metadata[orderBook.pair.quote],
       });
+    });
+  }
+
+  /**
+   * Returns 5 top trading pool info
+   * @return {Promise<TrendPool[]>}
+   */
+  async getTrendPools(): Promise<TrendPool[]> {
+    return Promise.all([
+      this.api.getTrendPools(),
+      this.getAssetsMetadata(),
+    ]).then(([trendPools, metadata]) => {
+      return trendPools.map((rawTrendPool) =>
+        mapRawTrendPoolToTrendPool({
+          rawTrendPool,
+          xMetadata: metadata[rawTrendPool.x],
+          yMetadata: metadata[rawTrendPool.y],
+        }),
+      );
     });
   }
 

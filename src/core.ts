@@ -6,11 +6,13 @@ export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
+export * from './core/api/types/common/RawTrendPool.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
 export * from './core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 export * from './core/api/types/getPairs/getPairs.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
+export * from './core/api/types/getTrendPools/getTrendPools.ts';
 
 //CORE_MODELS_ASSET_INFO
 export * from './core/models/assetInfo/ada.ts';
@@ -96,8 +98,10 @@ export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
 export * from './splash/api/common/mappers/mapRawPoolToCfmmPool.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+export * from './splash/api/common/mappers/mapRawTrendPoolToTrendPool.ts';
 export * from './splash/api/common/types/OrderBook.ts';
 export * from './splash/api/common/types/ProtocolStats.ts';
+export * from './splash/api/common/types/TrendPool.ts';
 
 // SPLASH_API_SPLASH
 export * from './splash/api/splash/SplashApi.ts';
