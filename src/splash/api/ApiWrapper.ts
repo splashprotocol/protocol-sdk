@@ -27,7 +27,9 @@ export interface MetadataConfig {
   // Update time in milliseconds: Default 300_000
   readonly updateTime: number;
   // Default metadata value. Field will be useful with ssr
-  readonly defaultValue?: Dictionary<AssetMetadata>;
+  readonly defaultValue?:
+    | Dictionary<AssetMetadata>
+    | Promise<Dictionary<AssetMetadata>>;
 }
 
 const DEFAULT_UPDATE_TIME = 300_000;
@@ -61,9 +63,10 @@ export class ApiWrapper {
 
     if (normalizedMetadataConfig.defaultValue) {
       this.assetsMetadataLastUpdateTime = Date.now();
-      this.assetsMetadataCache = Promise.resolve(
-        normalizedMetadataConfig.defaultValue,
-      );
+      this.assetsMetadataCache =
+        normalizedMetadataConfig.defaultValue instanceof Promise
+          ? normalizedMetadataConfig.defaultValue
+          : Promise.resolve(normalizedMetadataConfig.defaultValue);
     } else {
       this.getAssetsMetadata();
     }
