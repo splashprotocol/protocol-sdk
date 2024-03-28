@@ -178,7 +178,7 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
     if (typeof received === 'bigint') {
       return;
     }
-    if (expected.splashId !== received.asset.subject) {
+    if (expected.splashId !== received.asset.splashId) {
       throw new AssetInfoMismatchError(
         `can't execute ${operationName} operation with different asset info. Expected: ${expected.splashId}. Received: ${received.asset.splashId}`,
       );

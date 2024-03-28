@@ -156,8 +156,8 @@ test('it should returns valid number representation of currency', () => {
 test('it should calculate valid percent of amount', () => {
   const adaAssetAmount = Currency.new(1n, ada);
 
-  expect(adaAssetAmount.percent(60).amount).toBe(0n);
-  expect(adaAssetAmount.percent(200).amount).toBe(2n);
+  expect(adaAssetAmount.amountFromPercent(60).amount).toBe(0n);
+  expect(adaAssetAmount.amountFromPercent(200).amount).toBe(2n);
 });
 
 test('it should return true for isPositive with amount > 0', () => {

@@ -192,7 +192,7 @@ export class Currency {
    * @param {number} pct
    * @returns {Currency}
    */
-  percent(pct: number): Currency {
+  amountFromPercent(pct: number): Currency {
     if (this.amount === 0n) {
       return this;
     }
@@ -206,6 +206,24 @@ export class Currency {
       ),
       this.asset,
     );
+  }
+
+  /**
+   * calculates percent with equals received amount
+   * @param {Currency | bigint} amount
+   * @returns {Currency}
+   */
+  percentFromAmount(amount: bigint | Currency): number {
+    this.assertCurrency(amount, 'percentFromAmount');
+    if (this.amount === 0n) {
+      return 0;
+    }
+    const fmtAmount = this.toString();
+    const percent = math
+      .evaluate(`${amount.toString()} * 100 / ${fmtAmount}`)
+      .toFixed(3);
+
+    return Number(percent);
   }
 
   /**

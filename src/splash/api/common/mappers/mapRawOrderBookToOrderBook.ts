@@ -30,11 +30,20 @@ const getNextOrderBookItemAdditionalInfo = (
   base: AssetInfo,
   quote: AssetInfo,
 ): OrderBookItemAdditionalInfo => {
-  const newAveragePrice =
-    additionalInfo.items.reduce((acc, i) => {
-      return math.evaluate(`${acc} + ${i.price.raw}`);
-    }, item.spot) /
-    (additionalInfo.items.length + 1);
+  const newAveragePrice = additionalInfo.items.reduce(
+    (acc, i) => {
+      return Number(
+        math.evaluate(
+          `${acc} + ${i.price.raw} * (${i.amount.amount} / ${item.accumulatedVolume})`,
+        ),
+      );
+    },
+    Number(
+      math.evaluate(
+        `${item.spot} * ((${item.ordersVolume} + ${item.poolsVolume}) / ${item.accumulatedVolume})`,
+      ),
+    ),
+  );
 
   const newPoolsInAmountQuote = toBigNumRepresentation(
     normalizeAmount(
