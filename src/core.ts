@@ -1,7 +1,10 @@
 // CORE_API
 export * from './core/api/Api.ts';
 export * from './core/api/types/common/AssetMetadata.ts';
+export * from './core/api/types/common/ChartInterval.ts';
+export * from './core/api/types/common/ChartParams.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
+export * from './core/api/types/common/PoolChartPoint.ts';
 export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
@@ -10,6 +13,9 @@ export * from './core/api/types/common/RawTrendPool.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
 export * from './core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 export * from './core/api/types/getPairs/getPairs.ts';
+export * from './core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
+export * from './core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
+export * from './core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
 export * from './core/api/types/getTrendPools/getTrendPools.ts';

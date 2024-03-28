@@ -2,8 +2,13 @@ import { Address, NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
+import { PoolChartPoint } from '../../core/api/types/common/PoolChartPoint.ts';
 import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBook.ts';
+import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
+import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
+import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
+import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
@@ -70,6 +75,51 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  /**
+   * Returns tvl chart points by poolId and interval
+   * @param {GetPoolTvlChartParams} params
+   * @return {Promise<{asset: AssetInfo, data: PoolChartPoint[]}>}
+   */
+  async getPoolTvlChart(params: GetPoolTvlChartParams): Promise<{
+    asset: AssetInfo;
+    data: PoolChartPoint[];
+  }> {
+    return this.api.getPoolTvlChart(params).then((data) => ({
+      asset: AssetInfo.ada,
+      data,
+    }));
+  }
+
+  /**
+   * Returns volume chart points by poolId and interval
+   * @param {GetPoolVolumeChartParams} params
+   * @return {Promise<{asset: AssetInfo, data: PoolChartPoint[]}>}
+   */
+  async getPoolVolumeChart(params: GetPoolVolumeChartParams): Promise<{
+    asset: AssetInfo;
+    data: PoolChartPoint[];
+  }> {
+    return this.api.getPoolVolumeChart(params).then((data) => ({
+      asset: AssetInfo.ada,
+      data,
+    }));
+  }
+
+  /**
+   * Returns fees chart points by poolId and interval
+   * @param {GetPoolFeesChartParams} params
+   * @return {Promise<{asset: AssetInfo, data: PoolChartPoint[]}>}
+   */
+  async getPoolFeesChart(params: GetPoolFeesChartParams): Promise<{
+    asset: AssetInfo;
+    data: PoolChartPoint[];
+  }> {
+    return this.api.getPoolFeesChart(params).then((data) => ({
+      asset: AssetInfo.ada,
+      data,
+    }));
   }
 
   /**

@@ -6,6 +6,18 @@ import {
   GetOrderBookResponse,
 } from './types/getOrderBook/getOrderBook.ts';
 import { GetPairsResponse } from './types/getPairs/getPairs.ts';
+import {
+  GetPoolFeesChartParams,
+  GetPoolFeesChartResponse,
+} from './types/getPoolFeesChart/getPoolFeesChart.ts';
+import {
+  GetPoolTvlChartParams,
+  GetPoolTvlChartResponse,
+} from './types/getPoolTvlChart/getPoolTvlChart.ts';
+import {
+  GetPoolVolumeChartParams,
+  GetPoolVolumeChartResponse,
+} from './types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetProtocolStatsResponse } from './types/getProtocolStats/getProtocolStats.ts';
 import {
   GetSplashPoolsParams,
@@ -18,6 +30,18 @@ import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
  */
 export interface Api {
   getTrendPools(): Promise<GetTrendPoolsResponse>;
+
+  getPoolTvlChart(
+    params: GetPoolTvlChartParams,
+  ): Promise<GetPoolTvlChartResponse>;
+
+  getPoolVolumeChart(
+    params: GetPoolVolumeChartParams,
+  ): Promise<GetPoolVolumeChartResponse>;
+
+  getPoolFeesChart(
+    params: GetPoolFeesChartParams,
+  ): Promise<GetPoolFeesChartResponse>;
 
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,

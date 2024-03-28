@@ -7,6 +7,18 @@ import {
   GetOrderBookResponse,
 } from '../../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetPairsResponse } from '../../../core/api/types/getPairs/getPairs.ts';
+import {
+  GetPoolFeesChartParams,
+  GetPoolFeesChartResponse,
+} from '../../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
+import {
+  GetPoolTvlChartParams,
+  GetPoolTvlChartResponse,
+} from '../../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
+import {
+  GetPoolVolumeChartParams,
+  GetPoolVolumeChartResponse,
+} from '../../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetProtocolStatsResponse } from '../../../core/api/types/getProtocolStats/getProtocolStats.ts';
 import {
   GetSplashPoolsParams,
@@ -127,6 +139,52 @@ export class SplashApi implements Api {
    * @param {AssetId} assetId
    * @returns {Promise<GetAssetMetadataResponse>}
    */
+
+  /**
+   * Returns tvl chart points by poolId and interval
+   * @param {string} poolId
+   * @param {"d30" | "d60" | "d90"} interval
+   * @return {Promise<GetPoolTvlChartResponse>}
+   */
+  async getPoolTvlChart({
+    poolId,
+    interval,
+  }: GetPoolTvlChartParams): Promise<GetPoolTvlChartResponse> {
+    return fetch(
+      `http://195.201.9.29:8091/v1/pool/tvl/chart?poolId=${poolId}&interval=${interval}`,
+    ).then((res) => res.json());
+  }
+
+  /**
+   * Returns volume chart points by poolId and interval
+   * @param {string} poolId
+   * @param {"d30" | "d60" | "d90"} interval
+   * @return {Promise<GetPoolVolumeChartResponse>}
+   */
+  async getPoolVolumeChart({
+    poolId,
+    interval,
+  }: GetPoolVolumeChartParams): Promise<GetPoolVolumeChartResponse> {
+    return fetch(
+      `http://195.201.9.29:8091/v1/pool/volume/chart?poolId=${poolId}&interval=${interval}`,
+    ).then((res) => res.json());
+  }
+
+  /**
+   * Returns fees chart points by poolId and interval
+   * @param {string} poolId
+   * @param {"d30" | "d60" | "d90"} interval
+   * @return {Promise<GetPoolFeesChartResponse>}
+   */
+  async getPoolFeesChart({
+    poolId,
+    interval,
+  }: GetPoolFeesChartParams): Promise<GetPoolFeesChartResponse> {
+    return fetch(
+      `http://195.201.9.29:8091/v1/pool/fee/chart?poolId=${poolId}&interval=${interval}`,
+    ).then((res) => res.json());
+  }
+
   async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
     return this.getAssetsMetadata().then((assetsMetadata) => {
       return assetsMetadata[assetId];
