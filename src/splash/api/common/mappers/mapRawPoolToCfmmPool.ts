@@ -84,6 +84,8 @@ export const mapRawPoolToCfmmPool = (
       volumeUSD: rawCfmmPool.metrics?.volumeUsd,
       tvlADA: rawCfmmPool.metrics?.tvlAda,
       tvlUSD: rawCfmmPool.metrics?.tvlUsd,
+      lpFeeADA: rawCfmmPool.metrics?.lpFeeAda,
+      lpFeeUSD: rawCfmmPool.metrics?.lpFeeUsd,
     },
     splash,
   );

@@ -152,7 +152,11 @@ export class SplashApi implements Api {
   }: GetPoolTvlChartParams): Promise<GetPoolTvlChartResponse> {
     return fetch(
       `http://195.201.9.29:8091/v1/pool/tvl/chart?poolId=${poolId}&interval=${interval}`,
-    ).then((res) => res.json());
+    )
+      .then((res) => res.json())
+      .then((data) =>
+        data.map((item) => ({ ...item, timestamp: item.timestamp * 1_000 })),
+      );
   }
 
   /**
@@ -167,7 +171,11 @@ export class SplashApi implements Api {
   }: GetPoolVolumeChartParams): Promise<GetPoolVolumeChartResponse> {
     return fetch(
       `http://195.201.9.29:8091/v1/pool/volume/chart?poolId=${poolId}&interval=${interval}`,
-    ).then((res) => res.json());
+    )
+      .then((res) => res.json())
+      .then((data) =>
+        data.map((item) => ({ ...item, timestamp: item.timestamp * 1_000 })),
+      );
   }
 
   /**
@@ -182,7 +190,11 @@ export class SplashApi implements Api {
   }: GetPoolFeesChartParams): Promise<GetPoolFeesChartResponse> {
     return fetch(
       `http://195.201.9.29:8091/v1/pool/fee/chart?poolId=${poolId}&interval=${interval}`,
-    ).then((res) => res.json());
+    )
+      .then((res) => res.json())
+      .then((data) =>
+        data.map((item) => ({ ...item, timestamp: item.timestamp * 1_000 })),
+      );
   }
 
   async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {

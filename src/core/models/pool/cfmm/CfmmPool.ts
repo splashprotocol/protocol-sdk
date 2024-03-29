@@ -25,6 +25,8 @@ export interface CfmmPoolConfig {
   readonly tvlUSD?: number | bigint | Currency;
   readonly volumeADA?: number | bigint | Currency;
   readonly volumeUSD?: number | bigint | Currency;
+  readonly lpFeeADA?: number | bigint | Currency;
+  readonly lpFeeUSD?: number | bigint | Currency;
   readonly apr?: percent;
 }
 
@@ -151,16 +153,28 @@ export class CfmmPool implements Pool<'cfmm'> {
   readonly tvlUSD?: Currency;
 
   /**
-   * Current pool apr in ada
+   * Current pool volume in ada
    * @type {Currency | undefined}
    */
   readonly volumeADA?: Currency;
 
   /**
-   * Current pool apr in usd
+   * Current pool volume in usd
    * @type {Currency | undefined}
    */
   readonly volumeUSD?: Currency;
+
+  /**
+   * Current pool fees in ada
+   * @type {Currency | undefined}
+   */
+  readonly lpFeeADA?: Currency;
+
+  /**
+   * Current pool fees in usd
+   * @type {Currency | undefined}
+   */
+  readonly lpFeeUSD?: Currency;
 
   /**
    * Current pool apr
@@ -187,6 +201,8 @@ export class CfmmPool implements Pool<'cfmm'> {
       tvlUSD,
       volumeADA,
       volumeUSD,
+      lpFeeADA,
+      lpFeeUSD,
       apr,
     }: CfmmPoolConfig,
     private splash: Splash<{}>,
@@ -211,6 +227,8 @@ export class CfmmPool implements Pool<'cfmm'> {
     this.tvlUSD = this.toCurrencyOrUndefined(tvlUSD, usd);
     this.volumeADA = this.toCurrencyOrUndefined(volumeADA, ada);
     this.volumeUSD = this.toCurrencyOrUndefined(volumeUSD, usd);
+    this.lpFeeADA = this.toCurrencyOrUndefined(lpFeeADA, ada);
+    this.lpFeeUSD = this.toCurrencyOrUndefined(lpFeeUSD, usd);
     this.apr = apr;
   }
 
