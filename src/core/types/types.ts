@@ -4,6 +4,8 @@ export type Bech32String = string;
 
 export type CborHexString = string;
 
+export type TransactionHash = string;
+
 export type Dictionary<T> = { [key: string]: T };
 
 /* Asset identifier. Has ${policyId}.${base16Name} structure */
