@@ -1,6 +1,8 @@
 import {
   getDecimalsCount,
   normalizeAmount,
+  numberToRational,
+  rationalToNumber,
   toBigNumRepresentation,
   toNumberRepresentation,
 } from './math.ts';
@@ -36,4 +38,19 @@ test('it should returns valid bigint representation of string with fractions', (
   const number = '123.123';
   expect(toBigNumRepresentation(number, 3)).toBe(123123n);
   expect(toBigNumRepresentation(number, 5)).toBe(12312300n);
+});
+
+test('it should convert number to valid rational representation', () => {
+  const number = '123.1234';
+  const rational = numberToRational(number);
+
+  expect(rational.numerator).toBe(1231234n);
+  expect(rational.denominator).toBe(10000n);
+});
+
+test('it should convert rational to valid number representation', () => {
+  const number = 123.1234;
+  const rational = numberToRational(number);
+
+  expect(rationalToNumber(rational)).toBe(number);
 });

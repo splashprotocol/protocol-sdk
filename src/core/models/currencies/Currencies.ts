@@ -134,7 +134,20 @@ export class Currencies {
 
   private constructor(private currencies: Currency[]) {
     this.currencyMap = new Map<string, Currency>(
-      this.currencies.map((a) => [a.asset.splashId, a]),
+      Object.entries(
+        this.currencies.reduce<Dictionary<Currency>>((acc, item) => {
+          if (!acc[item.asset.splashId]) {
+            return {
+              ...acc,
+              [item.asset.splashId]: item,
+            };
+          }
+          return {
+            ...acc,
+            [item.asset.splashId]: acc[item.asset.splashId].plus(item),
+          };
+        }, {}),
+      ),
     );
   }
 

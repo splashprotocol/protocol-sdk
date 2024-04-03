@@ -1,7 +1,4 @@
-import {
-  PlutusData,
-  SingleOutputBuilderResult,
-} from '@dcspark/cardano-multiplatform-lib-browser';
+import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
@@ -17,13 +14,13 @@ export const payToAddress: Operation<
     currencies: Currencies | Currency[],
     data?: PlutusData,
   ) =>
-  ({ transactionBuilder, pParams }) => {
+  ({ transactionCandidate, pParams }) => {
     const output = Output.new(pParams, {
       address: address,
       value: currencies,
       data,
     });
-    transactionBuilder.add_output(SingleOutputBuilderResult.new(output.wasm));
+    transactionCandidate.addOutput(output);
 
     return Promise.resolve();
   };

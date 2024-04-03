@@ -66,7 +66,10 @@ export * from './core/models/position/Position.ts';
 export * from './core/models/price/Price.ts';
 
 // CORE_MODELS_UTXO
-export * from './core/models/UTxO/UTxO.ts';
+export * from './core/models/utxo/UTxO.ts';
+
+// CORE_MODELS_TRANSACTION_CANDIDATE
+export * from './core/models/transactionCandidate/TransactionCandidate.ts';
 
 // CORE_MODELS_TRANSACTION
 // export * from './core/models/transaction/Transaction.ts';

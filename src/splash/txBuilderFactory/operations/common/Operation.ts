@@ -1,15 +1,16 @@
-import { TransactionBuilder } from '@dcspark/cardano-multiplatform-lib-browser';
-
+import { TransactionCandidate } from '../../../../core/models/transactionCandidate/TransactionCandidate.ts';
 import { Network } from '../../../../core/types/Network.ts';
 import { NetworkContext } from '../../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../../core/types/ProtocolParams.ts';
 import { Bech32String } from '../../../../core/types/types.ts';
+import { UTxOsSelector } from '../../../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../../../splash.ts';
 
 export interface OperationContext {
-  readonly transactionBuilder: TransactionBuilder;
+  readonly transactionCandidate: TransactionCandidate;
   readonly pParams: ProtocolParams;
   readonly nContext: NetworkContext;
+  readonly uTxOsSelector: UTxOsSelector;
   readonly userAddress: Bech32String;
   readonly network: Network;
   readonly splash: Splash<{}>;

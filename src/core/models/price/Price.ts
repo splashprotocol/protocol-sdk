@@ -137,15 +137,17 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
       return this;
     }
 
-    const newPrice = math.evaluate(
+    const newPriceAmount = math.evaluate(
       `${this.raw} * ${normalizedPriceToCross.raw}`,
     );
 
-    return Price.new({
+    const newPrice = Price.new({
       base: this.base,
       quote: priceToCross.quote,
-      raw: Number(newPrice),
+      raw: Number(newPriceAmount),
     });
+
+    return newPrice.base.isAda() ? newPrice.invert() : newPrice;
   }
 
   /**

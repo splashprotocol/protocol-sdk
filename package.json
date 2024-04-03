@@ -19,6 +19,7 @@
   "dependencies": {
     "@dcspark/cardano-multiplatform-lib-browser": "^5.1.0",
     "cbor-x": "^1.5.4",
+    "hash-wasm": "^4.11.0",
     "js-encoding-utils": "^0.7.3",
     "mathjs": "^12.4.0",
     "typescript": "^5.2.2"

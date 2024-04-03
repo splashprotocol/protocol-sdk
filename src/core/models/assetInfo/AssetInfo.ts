@@ -279,6 +279,13 @@ export class AssetInfo {
   }
 
   /**
+   * Returns true if asset info is ada
+   */
+  isAda(): boolean {
+    return this.splashId === AssetInfo.ada.splashId;
+  }
+
+  /**
    * Creates new asset info with metadata
    * @param {AssetInfoMetadata} metadata
    * @returns {AssetInfo}

@@ -78,6 +78,21 @@ export class Pair {
    */
   public quoteAdaPrice: Price;
 
+  /**
+   * Returns true if pair includes specified asses
+   * @param {AssetInfo} asset1
+   * @param {AssetInfo} asset2
+   * @return {boolean}
+   */
+  includesSpecifiedAssets([asset1, asset2]: [AssetInfo, AssetInfo]): boolean {
+    return (
+      (this.base.splashId === asset1.splashId &&
+        this.quote.splashId === asset2.splashId) ||
+      (this.base.splashId === asset2.splashId &&
+        this.quote.splashId === asset1.splashId)
+    );
+  }
+
   private constructor({
     base,
     quote,

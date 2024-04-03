@@ -61,6 +61,12 @@ test('it should return valid wasm Value instance', () => {
   expect(assetAmountSet.toWasmValue()).toBeInstanceOf(Value);
 });
 
+test('it should concat all same currencies on creation', () => {
+  const set1 = Currencies.new([Currency.ada(4n), Currency.ada(3n)]);
+
+  expect(set1.ada.amount).toBe(7n);
+});
+
 test('it should sum 2 sets with different currencies', () => {
   const set1 = Currencies.new([Currency.ada(4n)]);
   const set2 = Currencies.new([Currency.spf(3n)]);
@@ -88,7 +94,7 @@ test('it should subtract set2 from set1', () => {
   expect(minusRes).toBeInstanceOf(Currencies);
   expect(minusRes.ada?.amount).toBe(1n);
 });
-//
+
 test('it should throws error after subtract same assets method call', () => {
   const set1 = Currencies.new([Currency.ada(4n)]);
   const set2 = Currencies.new([Currency.ada(3n)]);

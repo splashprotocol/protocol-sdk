@@ -1,3 +1,4 @@
+import { ProtocolParams } from '../types/ProtocolParams.ts';
 import { AssetId } from '../types/types.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from './types/getAssetsMetadata/getAssetsMetadata.ts';
@@ -29,6 +30,8 @@ import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
  *
  */
 export interface Api {
+  getProtocolParams(): Promise<ProtocolParams>;
+
   getTrendPools(): Promise<GetTrendPoolsResponse>;
 
   getPoolTvlChart(

@@ -50,7 +50,7 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     config?: SplashConfig<O>,
   ) {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
-    this.txBuilderFactory = new TxBuilderFactory(network);
+    this.txBuilderFactory = new TxBuilderFactory(network, this.api);
   }
 
   /**

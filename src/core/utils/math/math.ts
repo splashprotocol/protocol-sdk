@@ -1,5 +1,7 @@
 import { all, ConfigOptions, create, FormatOptions } from 'mathjs';
 
+import { RationalNumber } from '../../types/types.ts';
+
 const mathConf: ConfigOptions = {
   epsilon: 1e-24,
   matrix: 'Matrix',
@@ -90,5 +92,34 @@ export const normalizeAmount = (
   return amount.slice(
     0,
     amount.length - currentDecimalsCount + (expectedDecimals || 0),
+  );
+};
+
+/**
+ * Converts number to rational representation
+ * @param {number} value
+ * @return {RationalNumber}
+ */
+export const numberToRational = (value: number | string): RationalNumber => {
+  const fmtN = math.format(Number(value), formatOptions);
+  const [whole, decimals = ''] = String(fmtN).split('.');
+  const numDecimals = decimals.length;
+  const denominator = BigInt(math.evaluate(`10^${numDecimals}`));
+  const numerator = BigInt(whole) * denominator + BigInt(decimals);
+
+  return {
+    numerator,
+    denominator,
+  };
+};
+
+/**
+ * Converts rational to number representation
+ * @param {RationalNumber} rational
+ * @return {number}
+ */
+export const rationalToNumber = (rational: RationalNumber): number => {
+  return Number(
+    math.evaluate(`${rational.numerator} / ${rational.denominator}`).toFixed(),
   );
 };

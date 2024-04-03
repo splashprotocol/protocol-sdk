@@ -4,7 +4,6 @@ import {
   NetworkId,
   PlutusData,
   ScriptHash,
-  SingleOutputBuilderResult,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
@@ -21,7 +20,7 @@ export interface PayToContractScript {
 export const payToContract: Operation<
   [PayToContractScript, Currencies | Currency[], PlutusData?]
 > = (script, currencies: Currencies | Currency[], data?: PlutusData) => {
-  return ({ transactionBuilder, pParams, network }) => {
+  return ({ transactionCandidate, pParams, network }) => {
     const networkId =
       network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet();
     const contractAddress = EnterpriseAddress.new(
@@ -36,7 +35,7 @@ export const payToContract: Operation<
       value: currencies,
       data,
     });
-    transactionBuilder.add_output(SingleOutputBuilderResult.new(output.wasm));
+    transactionCandidate.addOutput(output);
 
     return Promise.resolve();
   };

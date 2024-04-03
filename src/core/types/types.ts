@@ -6,6 +6,18 @@ export type CborHexString = string;
 
 export type TransactionHash = string;
 
+export type OutputReferenceHash = string;
+
+export interface RationalNumber {
+  readonly numerator: bigint;
+  readonly denominator: bigint;
+}
+
+export interface OutputReference {
+  readonly txHash: TransactionHash;
+  readonly index: bigint;
+}
+
 export type Dictionary<T> = { [key: string]: T };
 
 /* Asset identifier. Has ${policyId}.${base16Name} structure */

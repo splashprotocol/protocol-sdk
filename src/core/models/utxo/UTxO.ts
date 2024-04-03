@@ -7,6 +7,8 @@ import {
 import {
   Bech32String,
   CborHexString,
+  OutputReference,
+  OutputReferenceHash,
   TransactionHash,
 } from '../../types/types.ts';
 import { Currencies } from '../currencies/Currencies.ts';
@@ -93,6 +95,18 @@ export class UTxO {
   readonly index: bigint;
 
   /**
+   * UTxo ref hash in format txHash#index
+   * @type {string}
+   */
+  readonly refHash: OutputReferenceHash;
+
+  /**
+   * UTxo ref hash in format txHash#index
+   * @type {string}
+   */
+  readonly ref: OutputReference;
+
+  /**
    * Wasm representation of UTxo
    * @type {TransactionUnspentOutput}
    */
@@ -118,6 +132,11 @@ export class UTxO {
     this.wasmOutput = output;
     this.txHash = this.wasmInput.transaction_id().to_hex();
     this.index = this.wasmInput.index();
+    this.refHash = `${this.txHash}#${this.index}`;
+    this.ref = {
+      txHash: this.txHash,
+      index: this.index,
+    };
     this.value = Currencies.new(this.wasmOutput.amount());
     this.address = this.wasmOutput.address().to_bech32();
   }

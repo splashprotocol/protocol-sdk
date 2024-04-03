@@ -13,6 +13,7 @@ import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
+import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { Dictionary } from '../../core/types/types.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
@@ -252,6 +253,14 @@ export class ApiWrapper {
         ),
       );
     });
+  }
+
+  /**
+   * Returns current protocol params
+   * @return {Promise<ProtocolParams>}
+   */
+  async getProtocolParams(): Promise<ProtocolParams> {
+    return this.api.getProtocolParams();
   }
 
   private getWalletContext(): Promise<CardanoCIP30WalletContext> {

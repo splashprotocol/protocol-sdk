@@ -168,6 +168,15 @@ export class Currency {
   }
 
   /**
+   * multiplies current currency to coefficient
+   * @param {bigint} coefficient
+   * @return {Currency}
+   */
+  multiply(coefficient: bigint): Currency {
+    return this.withAmount(this.amount * coefficient);
+  }
+
+  /**
    * subtract param from current currency amount with same asset info
    * @param {bigint | Currency} currency
    * @returns {Currency}
@@ -185,6 +194,13 @@ export class Currency {
     throw new ValueLowerThanZeroError(
       `result of minus is lower than 0. ${this.asset.subject}`,
     );
+  }
+
+  /**
+   * Returns true if asset info is ada
+   */
+  isAda(): boolean {
+    return this.asset.isAda();
   }
 
   /**

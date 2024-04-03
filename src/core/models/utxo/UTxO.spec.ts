@@ -16,6 +16,7 @@ test('It should create valid instance of UTxO', async () => {
   expect(utxo.wasmOutput).toBeInstanceOf(TransactionOutput);
   expect(utxo.wasmInput).toBeInstanceOf(TransactionInput);
   expect(typeof utxo.address).toBe('string');
+  expect(typeof utxo.refHash).toBe('string');
   expect(utxo.value).toBeInstanceOf(Currencies);
   expect(utxo.value.ada.amount).toBe(1155080n);
 });
