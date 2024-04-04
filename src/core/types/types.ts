@@ -6,6 +6,8 @@ export type CborHexString = string;
 
 export type TransactionHash = string;
 
+export type BlockHash = string;
+
 export type OutputReferenceHash = string;
 
 export interface RationalNumber {
@@ -44,3 +46,15 @@ export type lts = number;
  * Timestamp with seconds
  */
 export type ts = number;
+
+/**
+ * Tuple with length type
+ */
+export type Tuple<T, N extends number> = N extends N
+  ? number extends N
+    ? T[]
+    : _TupleOf<T, N, []>
+  : never;
+type _TupleOf<T, N extends number, R extends unknown[]> = R['length'] extends N
+  ? R
+  : _TupleOf<T, N, [T, ...R]>;

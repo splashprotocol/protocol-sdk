@@ -14,13 +14,11 @@ export const payToAddress: Operation<
     currencies: Currencies | Currency[],
     data?: PlutusData,
   ) =>
-  ({ transactionCandidate, pParams }) => {
+  async ({ transactionCandidate, pParams }) => {
     const output = Output.new(pParams, {
       address: address,
       value: currencies,
       data,
     });
     transactionCandidate.addOutput(output);
-
-    return Promise.resolve();
   };

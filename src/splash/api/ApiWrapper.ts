@@ -10,11 +10,18 @@ import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChar
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
+import { Currency } from '../../core/models/currency/Currency.ts';
+import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
+import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
+import { Transaction } from '../../core/models/transaction/Transaction.ts';
+import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
+import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
-import { Dictionary } from '../../core/types/types.ts';
+import { Dictionary, TransactionHash } from '../../core/types/types.ts';
+import { predictDepositAdaForExecutorTx } from '../../core/utils/predictDepositAdaForExecutorTx/predictDepositAdaForExecutorTx.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
 import { NoWalletError } from './common/errors/NoWalletError.ts';
@@ -44,6 +51,8 @@ export class ApiWrapper {
   private contextPromise: Promise<CardanoCIP30WalletContext> | undefined;
 
   private assetsMetadataCache: Promise<Dictionary<AssetMetadata>> | undefined;
+
+  private protocolParamsCacheP: Promise<ProtocolParams> | undefined;
 
   private assetsMetadataLastUpdateTime?: number;
 
@@ -124,6 +133,39 @@ export class ApiWrapper {
   }
 
   /**
+   * Returns signed transaction
+   * @param {Transaction} transaction
+   * @return {Promise<SignedTransaction>}
+   */
+  async sign(transaction: Transaction): Promise<SignedTransaction> {
+    return this.getWalletContext()
+      .then((ctx) =>
+        this.handleCIP30WalletError(
+          ctx.signTx(transaction.cbor, transaction.partialSign),
+        ),
+      )
+      .then((witnessSetWithSign) =>
+        SignedTransaction.new({
+          transaction,
+          witnessSetWithSign,
+        }),
+      );
+  }
+
+  /**
+   * Returns submitted transaction id
+   * @param {SignedTransaction} signedTransaction
+   * @return {Promise<TransactionHash>}
+   */
+  async submit(signedTransaction: SignedTransaction): Promise<TransactionHash> {
+    return this.getWalletContext().then((ctx) =>
+      this.handleCIP30WalletError(
+        ctx.submitTx(signedTransaction.wasm.to_cbor_hex()),
+      ),
+    );
+  }
+
+  /**
    * Returns active wallet address
    * @return {Promise<string>}
    */
@@ -197,6 +239,20 @@ export class ApiWrapper {
   }
 
   /**
+   * Returns necessary ada for backward tx
+   * @param {OutputParams} params
+   * @return {Promise<Currency>}
+   */
+  async predictDepositAdaForExecutorTx(
+    params: OutputParams,
+  ): Promise<Currency> {
+    return predictDepositAdaForExecutorTx(
+      await this.getProtocolParams(),
+      params,
+    );
+  }
+
+  /**
    * Returns current wallet balance
    * @returns {Promise<Currencies>}
    */
@@ -208,6 +264,23 @@ export class ApiWrapper {
       ),
     ]).then(([metadata, cborBalance]) => {
       return Currencies.new(cborBalance, metadata);
+    });
+  }
+
+  /**
+   * Returns current wallet uTxOs
+   * @return {Promise<UTxO[]>}
+   */
+  async getUTxOs(): Promise<UTxO[]> {
+    return Promise.all([
+      this.getAssetsMetadata(),
+      this.getWalletContext().then((ctx) =>
+        this.handleCIP30WalletError(ctx.getUtxos()),
+      ),
+    ]).then(([metadata, uTxOsCbors]) => {
+      return (uTxOsCbors || []).map((uTxOsCbor) =>
+        UTxO.new(uTxOsCbor, metadata),
+      );
     });
   }
 
@@ -260,7 +333,18 @@ export class ApiWrapper {
    * @return {Promise<ProtocolParams>}
    */
   async getProtocolParams(): Promise<ProtocolParams> {
-    return this.api.getProtocolParams();
+    if (!this.protocolParamsCacheP) {
+      this.protocolParamsCacheP = this.api.getProtocolParams();
+    }
+    return this.protocolParamsCacheP;
+  }
+
+  /**
+   * Returns network best block info
+   * @return {Promise<NetworkContext>}
+   */
+  async getNetworkContext(): Promise<NetworkContext> {
+    return this.api.getNetworkContext();
   }
 
   private getWalletContext(): Promise<CardanoCIP30WalletContext> {

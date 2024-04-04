@@ -4,7 +4,11 @@ import { Network } from '../core/types/Network.ts';
 import { Dictionary } from '../core/types/types.ts';
 import { ApiWrapper, MetadataConfig } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
-import { TxBuilderFactory } from './txBuilderFactory/TxBuilderFactory.ts';
+import {
+  defaultOperations,
+  TxBuilder,
+  TxBuilderFactory,
+} from './txBuilderFactory/TxBuilderFactory.ts';
 import { Utils } from './utils/Utils.ts';
 
 export interface SplashConfig<O extends Dictionary<Operation<any>>> {
@@ -50,14 +54,14 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     config?: SplashConfig<O>,
   ) {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
-    this.txBuilderFactory = new TxBuilderFactory(network, this.api);
+    this.txBuilderFactory = new TxBuilderFactory(this);
   }
 
   /**
    * Returns splash txBuilder
    * @returns {TxBuilder}
    */
-  newTx(): ReturnType<typeof this.txBuilderFactory.newTx> {
+  newTx(): TxBuilder<O & typeof defaultOperations> {
     return this.txBuilderFactory.newTx();
   }
 

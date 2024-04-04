@@ -27,6 +27,7 @@ import {
 import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
 import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
+import { NetworkContext } from '../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
@@ -203,32 +204,42 @@ export class SplashApi implements Api {
     });
   }
 
+  async getNetworkContext(): Promise<NetworkContext> {
+    return fetch(
+      `https://explorer.spectrum.fi/cardano/mainnet/v1/blocks/bestBlock`,
+    ).then((res) => res.json());
+  }
+
   async getProtocolParams(): Promise<ProtocolParams> {
     return fetch(
       `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`,
     )
       .then((res) => res.json())
       .then((res) => res.pparams)
-      .then((data: RawProtocolParams) => ({
-        network: this.network,
-        protocolVersion: data.protocolVersion,
-        collateralPercentage: data.collateralPercentage,
-        maxCollateralInputs: data.maxCollateralInputs,
-        maxTxExecutionUnits: {
-          memory: BigInt(data.maxTxExecutionUnits.memory),
-          steps: BigInt(data.maxTxExecutionUnits.steps),
-        },
-        executionUnitPrices: {
-          priceMemory: data.executionUnitPrices.priceMemory,
-          priceSteps: data.executionUnitPrices.priceSteps,
-        },
-        costModels: data.costModels,
-        coinsPerUtxoByte: BigInt(data.coinsPerUtxoByte),
-        maxTxSize: BigInt(data.maxTxSize),
-        txFeeFixed: BigInt(data.txFeeFixed),
-        txFeePerByte: BigInt(data.txFeePerByte),
-        minUTxOValue: BigInt(data.minUTxOValue),
-        maxValueSize: BigInt(data.maxValueSize),
-      }));
+      .then(
+        (data: RawProtocolParams): ProtocolParams => ({
+          network: this.network,
+          protocolVersion: data.protocolVersion,
+          collateralPercentage: data.collateralPercentage,
+          maxCollateralInputs: data.maxCollateralInputs,
+          maxTxExecutionUnits: {
+            memory: BigInt(data.maxTxExecutionUnits.memory),
+            steps: BigInt(data.maxTxExecutionUnits.steps),
+          },
+          executionUnitPrices: {
+            priceMemory: data.executionUnitPrices.priceMemory,
+            priceSteps: data.executionUnitPrices.priceSteps,
+          },
+          costModels: data.costModels,
+          coinsPerUtxoByte: BigInt(data.coinsPerUtxoByte),
+          maxTxSize: data.maxTxSize,
+          poolDeposit: BigInt(data.stakePoolDeposit),
+          keyDeposit: BigInt(data.stakeAddressDeposit),
+          txFeeFixed: BigInt(data.txFeeFixed),
+          txFeePerByte: BigInt(data.txFeePerByte),
+          minUTxOValue: BigInt(data.minUTxOValue),
+          maxValueSize: data.maxValueSize,
+        }),
+      );
   }
 }

@@ -1,7 +1,4 @@
-import {
-  PlutusV1ScriptParams,
-  PlutusV2ScriptParams,
-} from '../../../../core/types/ProtocolParams.ts';
+import { Tuple, uint } from '../../../../core/types/types.ts';
 
 export interface RawProtocolParams {
   readonly maxValueSize: number;
@@ -16,9 +13,12 @@ export interface RawProtocolParams {
     readonly priceMemory: number;
   };
   readonly costModels: {
-    PlutusScriptV2: PlutusV2ScriptParams;
-    PlutusScriptV1: PlutusV1ScriptParams;
+    readonly PlutusScriptV1: Tuple<uint, 166>;
+    readonly PlutusScriptV2: Tuple<uint, 175>;
   };
+
+  readonly stakeAddressDeposit: number;
+  readonly stakePoolDeposit: number;
   readonly coinsPerUtxoByte: number;
   readonly maxTxSize: number;
   readonly txFeeFixed: number;

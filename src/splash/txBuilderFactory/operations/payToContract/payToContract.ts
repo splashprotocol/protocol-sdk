@@ -20,12 +20,12 @@ export interface PayToContractScript {
 export const payToContract: Operation<
   [PayToContractScript, Currencies | Currency[], PlutusData?]
 > = (script, currencies: Currencies | Currency[], data?: PlutusData) => {
-  return ({ transactionCandidate, pParams, network }) => {
+  return async ({ transactionCandidate, pParams, network }) => {
     const networkId =
       network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet();
     const contractAddress = EnterpriseAddress.new(
       Number(networkId.network()),
-      Credential.new_script(ScriptHash.from_bech32(script.script)),
+      Credential.new_script(ScriptHash.from_hex(script.script)),
     )
       .to_address()
       .to_bech32();
@@ -36,7 +36,5 @@ export const payToContract: Operation<
       data,
     });
     transactionCandidate.addOutput(output);
-
-    return Promise.resolve();
   };
 };

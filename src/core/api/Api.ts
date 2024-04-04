@@ -1,3 +1,4 @@
+import { NetworkContext } from '../types/NetworkContext.ts';
 import { ProtocolParams } from '../types/ProtocolParams.ts';
 import { AssetId } from '../types/types.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
@@ -31,6 +32,8 @@ import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
  */
 export interface Api {
   getProtocolParams(): Promise<ProtocolParams>;
+
+  getNetworkContext(): Promise<NetworkContext>;
 
   getTrendPools(): Promise<GetTrendPoolsResponse>;
 

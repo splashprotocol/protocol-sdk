@@ -39,7 +39,7 @@ export class Currencies {
    * Produce Currencies structure instance
    * @param {CborHexString | Currency[] | Value} value
    * @param {Dictionary<AssetMetadata> | undefined} metadata
-   * @returns {AssetAmountSet}
+   * @returns {Currencies}
    */
   static new(
     value: CborHexString | Currency[] | Value,

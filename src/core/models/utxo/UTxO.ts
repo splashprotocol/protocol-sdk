@@ -4,9 +4,11 @@ import {
   TransactionUnspentOutput,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
+import { AssetMetadata } from '../../api/types/common/AssetMetadata.ts';
 import {
   Bech32String,
   CborHexString,
+  Dictionary,
   OutputReference,
   OutputReferenceHash,
   TransactionHash,
@@ -61,11 +63,12 @@ export class UTxO {
   /**
    * Creates new Utxo with specified config
    * @param {UTxOConfig} config
+   * @param {Dictionary<AssetMetadata>} metadata
    * @return {UTxO}
    */
-  static new(config: UTxOConfig): UTxO {
+  static new(config: UTxOConfig, metadata?: Dictionary<AssetMetadata>): UTxO {
     if (config instanceof TransactionUnspentOutput) {
-      return new UTxO(config);
+      return new UTxO(config, metadata);
     }
     return new UTxO(TransactionUnspentOutput.from_cbor_hex(config));
   }
@@ -124,7 +127,10 @@ export class UTxO {
    */
   readonly wasmOutput: TransactionOutput;
 
-  private constructor(wasm: TransactionUnspentOutput) {
+  private constructor(
+    wasm: TransactionUnspentOutput,
+    metadata?: Dictionary<AssetMetadata>,
+  ) {
     const [input, output] = getWasmInputOutputPair(wasm);
 
     this.wasm = wasm;
@@ -137,7 +143,7 @@ export class UTxO {
       txHash: this.txHash,
       index: this.index,
     };
-    this.value = Currencies.new(this.wasmOutput.amount());
+    this.value = Currencies.new(this.wasmOutput.amount(), metadata);
     this.address = this.wasmOutput.address().to_bech32();
   }
 }

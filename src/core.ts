@@ -72,7 +72,10 @@ export * from './core/models/utxo/UTxO.ts';
 export * from './core/models/transactionCandidate/TransactionCandidate.ts';
 
 // CORE_MODELS_TRANSACTION
-// export * from './core/models/transaction/Transaction.ts';
+export * from './core/models/transaction/Transaction.ts';
+
+// CORE_MODELS_TRANSACTION_SIGNED
+export * from './core/models/signedTransaction/SignedTransaction.ts';
 
 // CORE_TYPES
 export * from './core/types/CardanoCIP30WalletBridge.ts';

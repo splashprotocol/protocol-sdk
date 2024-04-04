@@ -147,6 +147,8 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     const outputCurrencies = Currencies.new([
       input,
       ORDER_STEP_COST.multiply(maxStepCount),
+      // DEPOSIT. Fix
+      Currency.ada(2_000_000n),
     ]);
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
 
@@ -170,7 +172,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: '',
+        script: 'dca27c481d7864e3a42ce075095295cde3de08e843aaf4b731a3d578',
         version: 'plutusV2',
       },
       outputCurrencies,
