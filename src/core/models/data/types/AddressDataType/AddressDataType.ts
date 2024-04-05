@@ -15,8 +15,8 @@ import { OptionalDataType } from '../OptionalDataType/OptionalDataType.ts';
 import { TupleDataType } from '../TupleDataType/TupleDataType.ts';
 
 const AddressTuple = TupleDataType([
-  BytesDataType,
-  OptionalDataType(BytesDataType),
+  TupleDataType([BytesDataType]),
+  TupleDataType([OptionalDataType(TupleDataType([BytesDataType]))]),
 ]);
 
 export const AddressDataType = (networkId: NetworkId): DataType<Bech32String> =>
@@ -30,16 +30,19 @@ export const AddressDataType = (networkId: NetworkId): DataType<Bech32String> =>
         throw new Error('payment key hash not found');
       }
 
-      return AddressTuple([paymentKeyHash, stakeKeyHash]);
+      return AddressTuple([
+        [paymentKeyHash],
+        [stakeKeyHash ? [stakeKeyHash] : undefined],
+      ]);
     },
     deserialize(data: PlutusData) {
       const [paymentKeyHash, stakeKeyHash] = AddressTuple.deserialize(data);
 
-      if (stakeKeyHash) {
+      if (stakeKeyHash[0]) {
         return BaseAddress.new(
           Number(networkId.network()),
-          Credential.new_pub_key(Ed25519KeyHash.from_hex(paymentKeyHash)),
-          Credential.new_pub_key(Ed25519KeyHash.from_hex(stakeKeyHash)),
+          Credential.new_pub_key(Ed25519KeyHash.from_hex(paymentKeyHash[0])),
+          Credential.new_pub_key(Ed25519KeyHash.from_hex(stakeKeyHash[0][0])),
         )
           .to_address()
           .to_bech32();
@@ -47,7 +50,7 @@ export const AddressDataType = (networkId: NetworkId): DataType<Bech32String> =>
 
       return EnterpriseAddress.new(
         Number(networkId.network()),
-        Credential.new_pub_key(Ed25519KeyHash.from_hex(paymentKeyHash)),
+        Credential.new_pub_key(Ed25519KeyHash.from_hex(paymentKeyHash[0])),
       )
         .to_address()
         .to_bech32();
