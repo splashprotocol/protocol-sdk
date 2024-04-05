@@ -178,7 +178,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: 'dca27c481d7864e3a42ce075095295cde3de08e843aaf4b731a3d578',
+        script: 'dfaa80c9732ed3b7752ba189786723c6709e2876a024f8f4d9910fb3',
         version: 'plutusV2',
       },
       outputCurrencies,

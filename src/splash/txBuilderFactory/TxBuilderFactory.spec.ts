@@ -1,6 +1,7 @@
 import { cip30Bridge } from '../../../jest/cip30BridgeEmulator.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
+import { Price } from '../../core/models/price/Price.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { SplashApi } from '../api/splash/SplashApi.ts';
 import { Splash } from '../splash.ts';
@@ -51,15 +52,21 @@ test('it should be mutable', () => {
 });
 
 test('it should create wasm transaction', async () => {
+  const someAsset = AssetInfo.new({
+    name: '74657374746f6b656e',
+    type: 'base16',
+    policyId: 'fd10da3e6a578708c877e14b6aaeda8dc3a36f666a346eec52a30b3a',
+  });
   const tx = await splash
     .newTx()
     .spotOrder({
-      input: Currency.ada(10_000n),
-      outputAsset: AssetInfo.spf,
-    })
-    .spotOrder({
-      input: Currency.ada(10_000n),
-      outputAsset: AssetInfo.spf,
+      input: Currency.ada(1n),
+      outputAsset: someAsset,
+      price: Price.new({
+        base: AssetInfo.ada,
+        quote: someAsset,
+        raw: 1000,
+      }),
     })
     .complete();
 
