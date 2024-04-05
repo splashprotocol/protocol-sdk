@@ -75,6 +75,7 @@ const getBeacon = async (uTxO: UTxO): Promise<string> =>
       ...stringToArrayBuffer(uTxO.ref.txHash),
       ...stringToArrayBuffer(uTxO.ref.index.toString()),
     ]),
+    224,
   );
 
 interface getMarginalOutputConfig {
