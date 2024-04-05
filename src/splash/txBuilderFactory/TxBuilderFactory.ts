@@ -21,7 +21,12 @@ import { payToContract } from './operations/payToContract/payToContract.ts';
 import { spotOrder } from './operations/spotOrder/spotOrder.ts';
 import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig.ts';
 
-export const defaultOperations = {
+export const defaultOperations: {
+  payToAddress: typeof payToAddress;
+  payToContract: typeof payToContract;
+  cfmmDeposit: typeof cfmmDeposit;
+  spotOrder: typeof spotOrder;
+} = {
   payToAddress,
   payToContract,
   cfmmDeposit,
