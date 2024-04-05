@@ -132,6 +132,8 @@ export * from './splash/txBuilderFactory/operations/common/Operation.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
 export * from './splash/txBuilderFactory/TxBuilderFactory.ts';
+export * from './splash/txBuilderFactory/utils/getCostModels.ts';
+export * from './splash/txBuilderFactory/utils/getTransactionBuilderConfig.ts';
 
 // SPLASH_UTILS
 export * from './splash/utils/types/selectAssetBalance.ts';
