@@ -33,8 +33,8 @@ import { AssetId, Dictionary } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
-  mainnet: 'https://api.splash.trade/platform-api/v1/',
-  preprod: 'https://test-api9.spectrum.fi/v1/',
+  mainnet: 'http://195.201.9.29:8091/v1/',
+  preprod: 'http://195.201.9.29:8033/v1',
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
 
@@ -54,9 +54,7 @@ export class SplashApi implements Api {
   private constructor(public network: ProtocolParams['network']) {}
 
   async getTrendPools(): Promise<GetTrendPoolsResponse> {
-    return fetch(`http://195.201.9.29:8091/v1/pools/trended`).then((res) =>
-      res.json(),
-    );
+    return fetch(`${this.url}/pools/trended`).then((res) => res.json());
   }
 
   async getOrderBook({
@@ -64,13 +62,13 @@ export class SplashApi implements Api {
     quote,
   }: GetOrderBookParams): Promise<GetOrderBookResponse> {
     return fetch(
-      `http://195.201.9.29:8091/v1/trading-view/order-book?base=${base.splashId}&quote=${quote.splashId}`,
+      `${this.url}trading-view/order-book?base=${base.splashId}&quote=${quote.splashId}`,
     ).then((res) => res.json());
   }
 
   async getPairs(): Promise<GetPairsResponse> {
-    return fetch(`http://195.201.9.29:8091/v2/trading-view/pair-list`).then(
-      (res) => res.json(),
+    return fetch(`${this.url}/v2/trading-view/pair-list`).then((res) =>
+      res.json(),
     );
   }
 
@@ -152,7 +150,7 @@ export class SplashApi implements Api {
     interval,
   }: GetPoolTvlChartParams): Promise<GetPoolTvlChartResponse> {
     return fetch(
-      `http://195.201.9.29:8091/v1/pool/tvl/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}/v1/pool/tvl/chart?poolId=${poolId}&interval=${interval}`,
     )
       .then((res) => res.json())
       .then((data) =>
@@ -171,7 +169,7 @@ export class SplashApi implements Api {
     interval,
   }: GetPoolVolumeChartParams): Promise<GetPoolVolumeChartResponse> {
     return fetch(
-      `http://195.201.9.29:8091/v1/pool/volume/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}/v1/pool/volume/chart?poolId=${poolId}&interval=${interval}`,
     )
       .then((res) => res.json())
       .then((data) =>
@@ -190,7 +188,7 @@ export class SplashApi implements Api {
     interval,
   }: GetPoolFeesChartParams): Promise<GetPoolFeesChartResponse> {
     return fetch(
-      `http://195.201.9.29:8091/v1/pool/fee/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}/v1/pool/fee/chart?poolId=${poolId}&interval=${interval}`,
     )
       .then((res) => res.json())
       .then((data) =>

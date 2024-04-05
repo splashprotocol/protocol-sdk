@@ -45,6 +45,7 @@ test('it should returns asset amount set with ada only', async () => {
 
   expect(output.totalValue.toArray().length).toBe(1);
   expect(output.totalValue.ada?.amount).toBe(2000000n);
+  expect(output.isUserValueCoverMinAdaRequired).toBe(true);
 });
 
 test('it should returns asset amount set with spf and ada', async () => {
@@ -56,4 +57,5 @@ test('it should returns asset amount set with spf and ada', async () => {
 
   expect(output.totalValue.toArray().length).toBe(2);
   expect(typeof output.totalValue.ada?.amount).toBe('bigint');
+  expect(output.isUserValueCoverMinAdaRequired).toBe(false);
 });

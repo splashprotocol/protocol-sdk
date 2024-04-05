@@ -65,13 +65,13 @@ export class Output {
   public wasm: TransactionOutput;
 
   /**
-   * Currencies that includes min required ada
+   * Currencies that includes additional ada
    * @type {Currencies}
    */
   public totalValue: Currencies;
 
   /**
-   * Min required ada for output
+   * Min required ada for output.
    * @type {Currency}
    */
   public minAdaRequired: Currency;
@@ -93,6 +93,18 @@ export class Output {
    * @type {Bech32String}
    */
   public address: Bech32String;
+
+  /**
+   * It returns true if user funds cover min uTxO ada value
+   * @type {boolean}
+   */
+  public isUserValueCoverMinAdaRequired: boolean;
+
+  /**
+   * Additional ada needed to add to user funds to cover min uTxO value
+   * @type {Currency}
+   */
+  public additionalAdaToCoverMinAdaRequired: Currency;
 
   private constructor(
     coinsPerUtxoByte: bigint,
@@ -130,6 +142,8 @@ export class Output {
     if (userAda.gte(minAdaRequired)) {
       this.wasm = outputExceptMinAdaRequired;
       this.totalValue = normalizedCurrencies;
+      this.isUserValueCoverMinAdaRequired = true;
+      this.additionalAdaToCoverMinAdaRequired = Currency.ada(0n);
     } else {
       const additionalAda = minAdaRequired.minus(userAda);
       const totalCurrencies = normalizedCurrencies.plus(
@@ -137,6 +151,8 @@ export class Output {
       );
       this.wasm = toWasmOutput(address, totalCurrencies, data);
       this.totalValue = totalCurrencies;
+      this.isUserValueCoverMinAdaRequired = false;
+      this.additionalAdaToCoverMinAdaRequired = additionalAda;
     }
   }
 

@@ -12,6 +12,7 @@ import { Splash } from '../../../splash.ts';
 import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
+import { predictDepositAdaForExecutor } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAdaForExecutor.ts';
 
 const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
@@ -143,12 +144,17 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       },
       context.splash,
     );
+    const depositAda = predictDepositAdaForExecutor(context.pParams, {
+      value: Currencies.new([basePrice.getReceivedBaseFor(input)]),
+      address: context.userAddress,
+    });
+
     const address = Address.from_bech32(context.userAddress);
     const outputCurrencies = Currencies.new([
       input,
       ORDER_STEP_COST.multiply(maxStepCount),
-      // DEPOSIT. Fix
-      Currency.ada(2_000_000n),
+      ORDER_EXECUTION_FEE,
+      depositAda,
     ]);
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
 
