@@ -69,7 +69,11 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         tasks,
         complete: async (): Promise<Transaction> => {
           const operationContext = await this.getOperationContext();
-          await Promise.all(tasks.map((task) => task(operationContext)));
+          await tasks.reduce<Promise<any>>(
+            (taskChain, task) => taskChain.then(() => task(operationContext)),
+            Promise.resolve(),
+          );
+          // await Promise.all(tasks.map((task) => task(operationContext)));
 
           return this.createTransaction(operationContext);
         },
