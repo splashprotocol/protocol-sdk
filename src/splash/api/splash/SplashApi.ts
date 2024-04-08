@@ -54,7 +54,7 @@ export class SplashApi implements Api {
   private constructor(public network: ProtocolParams['network']) {}
 
   async getTrendPools(): Promise<GetTrendPoolsResponse> {
-    return fetch(`${this.url}/pools/trended`).then((res) => res.json());
+    return fetch(`${this.url}pools/trended`).then((res) => res.json());
   }
 
   async getOrderBook({
@@ -67,9 +67,7 @@ export class SplashApi implements Api {
   }
 
   async getPairs(): Promise<GetPairsResponse> {
-    return fetch(`${this.url}/v2/trading-view/pair-list`).then((res) =>
-      res.json(),
-    );
+    return fetch(`${this.url}trading-view/pair-list`).then((res) => res.json());
   }
 
   /**
@@ -143,14 +141,16 @@ export class SplashApi implements Api {
    * Returns tvl chart points by poolId and interval
    * @param {string} poolId
    * @param {"d30" | "d60" | "d90"} interval
+   * @param {poolType} poolType
    * @return {Promise<GetPoolTvlChartResponse>}
    */
   async getPoolTvlChart({
     poolId,
     interval,
+    poolType,
   }: GetPoolTvlChartParams): Promise<GetPoolTvlChartResponse> {
     return fetch(
-      `${this.url}/v1/pool/tvl/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}pool/tvl/chart?poolId=${poolId}&interval=${interval}&poolType=${poolType}`,
     )
       .then((res) => res.json())
       .then((data) =>
@@ -162,14 +162,16 @@ export class SplashApi implements Api {
    * Returns volume chart points by poolId and interval
    * @param {string} poolId
    * @param {"d30" | "d60" | "d90"} interval
+   * @param {poolType} poolType
    * @return {Promise<GetPoolVolumeChartResponse>}
    */
   async getPoolVolumeChart({
     poolId,
     interval,
+    poolType,
   }: GetPoolVolumeChartParams): Promise<GetPoolVolumeChartResponse> {
     return fetch(
-      `${this.url}/v1/pool/volume/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}pool/volume/chart?poolId=${poolId}&interval=${interval}&poolType=${poolType}`,
     )
       .then((res) => res.json())
       .then((data) =>
@@ -181,14 +183,16 @@ export class SplashApi implements Api {
    * Returns fees chart points by poolId and interval
    * @param {string} poolId
    * @param {"d30" | "d60" | "d90"} interval
+   * @param {poolType} poolType
    * @return {Promise<GetPoolFeesChartResponse>}
    */
   async getPoolFeesChart({
     poolId,
     interval,
+    poolType,
   }: GetPoolFeesChartParams): Promise<GetPoolFeesChartResponse> {
     return fetch(
-      `${this.url}/v1/pool/fee/chart?poolId=${poolId}&interval=${interval}`,
+      `${this.url}pool/fee/chart?poolId=${poolId}&interval=${interval}&poolType=${poolType}`,
     )
       .then((res) => res.json())
       .then((data) =>
