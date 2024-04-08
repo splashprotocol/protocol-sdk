@@ -36,5 +36,6 @@ export const payToContract: Operation<
       data,
     });
     transactionCandidate.addOutput(output);
+    return output;
   };
 };

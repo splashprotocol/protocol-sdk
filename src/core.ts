@@ -99,11 +99,12 @@ export * from './core/utils/hexToCborBytes/hexToCborBytes.ts';
 export * from './core/utils/hexToCborHex/hexToCborHex.ts';
 export * from './core/utils/hexToString/hexToString.ts';
 export * from './core/utils/math/math.ts';
-export * from './core/utils/predictDepositAdaForExecutor/predictDepositAdaForExecutor.ts';
+export * from './core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 export * from './core/utils/stringToBytes/stringToBytes.ts';
 export * from './core/utils/stringToCborBytes/stringToCborBytes.ts';
 export * from './core/utils/stringToCborHex/stringToCborHex.ts';
 export * from './core/utils/stringToHex/stringToHex.ts';
+export * from './core/utils/toContractAddress/toContractAddress.ts';
 
 // SPLASH_API_COMMON
 export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';

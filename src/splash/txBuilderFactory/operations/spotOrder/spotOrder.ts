@@ -12,7 +12,9 @@ import { Splash } from '../../../splash.ts';
 import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
-import { predictDepositAdaForExecutor } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAdaForExecutor.ts';
+import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
+import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
+import { scripts } from '../../../../core/utils/scripts/scripts.ts';
 
 const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
@@ -122,8 +124,6 @@ export interface SpotOrderConfig {
 
 export const ORDER_STEP_COST = Currency.ada(500_000n);
 
-export const ORDER_EXECUTION_FEE = Currency.ada(500_000n);
-
 export const DEFAULT_MAX_STEP_COUNT = 4n;
 
 export const spotOrder: Operation<[SpotOrderConfig]> =
@@ -145,7 +145,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       },
       context.splash,
     );
-    const depositAda = predictDepositAdaForExecutor(context.pParams, {
+    const depositAda = predictDepositAda(context.pParams, {
       value: Currencies.new([basePrice.getReceivedBaseFor(input)]),
       address: context.userAddress,
     });
@@ -154,7 +154,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     const outputCurrencies = Currencies.new([
       input,
       ORDER_STEP_COST.multiply(maxStepCount),
-      ORDER_EXECUTION_FEE,
+      EXECUTOR_FEE,
       depositAda,
     ]);
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
@@ -170,7 +170,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       minMarginalOutput.amount,
       outputAsset,
       basePrice.raw,
-      ORDER_EXECUTION_FEE.amount,
+      EXECUTOR_FEE.amount,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
       [],
@@ -179,7 +179,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: 'dfaa80c9732ed3b7752ba189786723c6709e2876a024f8f4d9910fb3',
+        script: scripts.spotOrders,
         version: 'plutusV2',
       },
       outputCurrencies,

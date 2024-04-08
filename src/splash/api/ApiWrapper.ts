@@ -21,7 +21,7 @@ import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBr
 import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { Dictionary, TransactionHash } from '../../core/types/types.ts';
-import { predictDepositAdaForExecutor } from '../../core/utils/predictDepositAdaForExecutor/predictDepositAdaForExecutor.ts';
+import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
 import { NoWalletError } from './common/errors/NoWalletError.ts';
@@ -243,8 +243,8 @@ export class ApiWrapper {
    * @param {OutputParams} params
    * @return {Promise<Currency>}
    */
-  async predictDepositAdaForExecutor(params: OutputParams): Promise<Currency> {
-    return predictDepositAdaForExecutor(await this.getProtocolParams(), params);
+  async predictDepositAda(params: OutputParams): Promise<Currency> {
+    return predictDepositAda(await this.getProtocolParams(), params);
   }
 
   /**

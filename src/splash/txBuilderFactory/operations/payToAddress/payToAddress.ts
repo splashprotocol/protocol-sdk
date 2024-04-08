@@ -21,4 +21,5 @@ export const payToAddress: Operation<
       data,
     });
     transactionCandidate.addOutput(output);
+    return output;
   };
