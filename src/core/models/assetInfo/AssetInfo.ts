@@ -215,7 +215,7 @@ export class AssetInfo {
    * Returns cardano serlib scriptHash representation
    * @returns {ScriptHash}
    */
-  get wasmPolicyId() {
+  get wasmPolicyId(): ScriptHash {
     if (!this.policyId) {
       throw new Error('ada has no wasm script hash');
     }
@@ -283,6 +283,20 @@ export class AssetInfo {
    */
   isAda(): boolean {
     return this.splashId === AssetInfo.ada.splashId;
+  }
+
+  /**
+   * Returns true if assets are equals
+   * @param {AssetInfo | AssetId} assetOrSplashId
+   * @return {boolean}
+   */
+  isEquals(assetOrSplashId: AssetInfo | AssetId): boolean {
+    const splashId =
+      assetOrSplashId instanceof AssetInfo
+        ? assetOrSplashId.splashId
+        : assetOrSplashId;
+
+    return splashId === this.splashId;
   }
 
   /**

@@ -6,6 +6,7 @@ import { ada } from '../../assetInfo/ada.ts';
 import { AssetInfo } from '../../assetInfo/AssetInfo.ts';
 import { usd } from '../../assetInfo/usd.ts';
 import { Currency } from '../../currency/Currency.ts';
+import { AssetInfoMismatchError } from '../../currency/errors/AssetInfoMismatchError.ts';
 import { EMISSION_LP } from '../common/emissionLp.ts';
 import { CfmmPoolType } from './common/CfmmPoolType.ts';
 
@@ -33,7 +34,7 @@ export interface CfmmPoolConfig {
 /**
  * Cfmm pool representation
  */
-export class CfmmPool implements Pool<'cfmm'> {
+export class CfmmPool implements Pool<'cfmm', { x: Currency; y: Currency }> {
   /**
    * Creates new instanceof pool
    * @param {CfmmPoolConfig} config
@@ -233,6 +234,62 @@ export class CfmmPool implements Pool<'cfmm'> {
   }
 
   /**
+   * proportional amount of one token to a given input of the other
+   * @param {Currency} input
+   * @return {Currency}
+   */
+  getAnotherAssetForDeposit(input: Currency): Currency {
+    if (
+      !input.asset.isEquals(this.x.asset) &&
+      !input.asset.isEquals(this.y.asset)
+    ) {
+      throw new AssetInfoMismatchError(
+        `provided input is not x/y asset. Expected: ${this.x.asset.splashId} or ${this.y.asset.splashId}. Received: ${input.asset.splashId}`,
+      );
+    }
+
+    const priceX = { numerator: this.y.amount, denominator: this.x.amount };
+    const priceY = { numerator: this.x.amount, denominator: this.y.amount };
+
+    if (input.asset.isEquals(this.x.asset)) {
+      return this.y.withAmount(
+        (input.amount * priceX.numerator) / priceX.denominator,
+      );
+    } else {
+      return this.x.withAmount(
+        (input.amount * priceY.numerator) / priceY.denominator,
+      );
+    }
+  }
+
+  /**
+   * Converts given amount of x/y to lp
+   * @param {Currency} x
+   * @param {Currency} y
+   * @return {Currency}
+   */
+  convertAssetsToLp({ x, y }: { x: Currency; y: Currency }): Currency {
+    const normalizedX = x.asset.isEquals(this.x.asset) ? x : y;
+    const normalizedY = y.asset.isEquals(this.y.asset) ? y : x;
+
+    if (
+      !normalizedX.asset.isEquals(this.x.asset) ||
+      !normalizedY.asset.isEquals(this.y.asset)
+    ) {
+      throw new AssetInfoMismatchError(
+        `some of input is missing in pool. Expected ${this.x.asset.splashId} and ${this.y.asset.splashId}. Received ${normalizedX.asset.splashId} and ${normalizedY.asset.splashId}`,
+      );
+    }
+
+    const rewardXWise = (normalizedX.amount * this.supplyLP) / this.x.amount;
+    const rewardYWise = (normalizedY.amount * this.supplyLP) / this.y.amount;
+
+    return this.lq.withAmount(
+      rewardXWise <= rewardYWise ? rewardXWise : rewardYWise,
+    );
+  }
+
+  /**
    * Converts given lp amount to x/y assets
    * @param {Currency | bigint} lp
    * @returns {[Currency, Currency]}
@@ -241,7 +298,7 @@ export class CfmmPool implements Pool<'cfmm'> {
     const normalizedLp = lp instanceof Currency ? lp : this.lq.withAmount(lp);
 
     if (normalizedLp.asset.splashId !== this.lq.asset.splashId) {
-      throw new Error(
+      throw new AssetInfoMismatchError(
         `provided value is not lp token. \n Expected: ${this.lq.asset.splashId} \n Received: ${normalizedLp.asset.splashId}`,
       );
     }

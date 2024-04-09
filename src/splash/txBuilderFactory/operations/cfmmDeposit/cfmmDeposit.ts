@@ -41,8 +41,10 @@ export const cfmmDeposit: Operation<[CfmmPool, [Currency, Currency]]> =
     const address = BaseAddress.from_address(
       Address.from_bech32(context.userAddress),
     );
-    // TODO: ADD ESTIMATED LQ
-    const estimatedLq = pool.lq.withAmount(0n);
+    const estimatedLq = pool.convertAssetsToLp({
+      x,
+      y,
+    });
     const depositScript =
       pool.cfmmType === 'feeSwitch'
         ? scripts.deposit.feeSwitch

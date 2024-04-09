@@ -4,11 +4,12 @@ import { Dictionary, PoolId } from './types.ts';
 
 export type PoolType = 'cfmm' | 'weight';
 
-export interface Pool<T extends PoolType> {
+export interface Pool<T extends PoolType, A extends Dictionary<Currency>> {
   readonly id: PoolId;
   readonly nft: AssetInfo;
   readonly lq: Currency;
   readonly type: T;
   readonly deposit: (...args: any) => Promise<any>;
-  readonly convertLpToAssets: (lq: Currency) => Dictionary<Currency>;
+  readonly convertLpToAssets: (lq: Currency) => A;
+  readonly convertAssetsToLp: (assets: A) => Currency;
 }

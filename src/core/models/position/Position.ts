@@ -2,7 +2,7 @@ import { Splash } from '../../../splash/splash.ts';
 import { Pool } from '../../types/Pool.ts';
 import { Currency } from '../currency/Currency.ts';
 
-export interface PositionParams<P extends Pool<any>> {
+export interface PositionParams<P extends Pool<any, any>> {
   readonly pool: P;
   readonly lq: Currency;
 }
@@ -10,14 +10,17 @@ export interface PositionParams<P extends Pool<any>> {
 /**
  * Representation on pool with user asset and locks
  */
-export class Position<P extends Pool<any>> {
+export class Position<P extends Pool<any, any>> {
   /**
    * Creates new empty position from ammPool
    * @param {Pool} pool
    * @param {Splash<any>} splash
    * @returns {Position}
    */
-  static empty<P extends Pool<any>>(pool: P, splash: Splash<any>): Position<P> {
+  static empty<P extends Pool<any, any>>(
+    pool: P,
+    splash: Splash<any>,
+  ): Position<P> {
     return new Position(
       {
         pool,
@@ -33,7 +36,7 @@ export class Position<P extends Pool<any>> {
    * @param {Splash} splash
    * @returns {Position}
    */
-  static new<P extends Pool<any>>(
+  static new<P extends Pool<any, any>>(
     params: PositionParams<P>,
     splash: Splash<any>,
   ): Position<P> {

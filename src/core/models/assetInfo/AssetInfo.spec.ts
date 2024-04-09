@@ -4,7 +4,9 @@ import {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { stringToHex } from '../../utils/stringToHex/stringToHex.ts';
+import { ada } from './ada.ts';
 import { AssetInfo } from './AssetInfo.ts';
+import { spf } from './spf.ts';
 
 const assetPolicyId =
   '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75';
@@ -139,4 +141,14 @@ test('it should create same asset by usign different params', () => {
   expect(asset1.nameBase16).toBe(asset2.nameBase16);
   expect(asset1.nameBase16).toBe(asset3.nameBase16);
   expect(asset2.nameBase16).toBe(asset3.nameBase16);
+});
+
+test('it should return true if splashIds are equals', () => {
+  expect(spf.isEquals(spf.splashId)).toBe(true);
+  expect(spf.isEquals(spf)).toBe(true);
+});
+
+test('it should return false if splashIds are equals', () => {
+  expect(spf.isEquals(ada.splashId)).toBe(false);
+  expect(spf.isEquals(ada)).toBe(false);
 });
