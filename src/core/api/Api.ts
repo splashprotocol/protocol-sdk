@@ -25,6 +25,10 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
+import {
+  GetTradeOperationsParams,
+  GetTradeOperationsResponse,
+} from './types/getTradeOperations/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
 
 /**
@@ -62,4 +66,8 @@ export interface Api {
   getPairs(): Promise<GetPairsResponse>;
 
   getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
+
+  getTradeOperations(
+    params: GetTradeOperationsParams,
+  ): Promise<GetTradeOperationsResponse>;
 }

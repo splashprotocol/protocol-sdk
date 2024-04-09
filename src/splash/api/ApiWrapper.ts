@@ -1,4 +1,8 @@
-import { Address, NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
+import {
+  Address,
+  BaseAddress,
+  NetworkId,
+} from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
@@ -8,6 +12,7 @@ import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/ge
 import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
+import { GetTradeOperationsParams } from '../../core/api/types/getTradeOperations/getTradeOperations.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
@@ -15,6 +20,7 @@ import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
+import { TradeOperation } from '../../core/models/tradeOperation/TradeOperation.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
@@ -31,6 +37,7 @@ import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOr
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+import { mapRawTradeOrderToTradeOrder } from './common/mappers/mapRawTradeOrderToTradeOrder.ts';
 import { mapRawTrendPoolToTrendPool } from './common/mappers/mapRawTrendPoolToTrendPool.ts';
 import { OrderBook } from './common/types/OrderBook.ts';
 import { ProtocolStats } from './common/types/ProtocolStats.ts';
@@ -173,6 +180,60 @@ export class ApiWrapper {
     return this.getWalletContext()
       .then((ctx) => this.handleCIP30WalletError(ctx.getChangeAddress()))
       .then((cborAddressHex) => Address.from_hex(cborAddressHex).to_bech32());
+  }
+
+  /**
+   * Returns all wallet addresses
+   * @return {Promise<string>}
+   */
+  async getAddresses(): Promise<string[]> {
+    return this.getWalletContext()
+      .then((ctx) =>
+        Promise.all([
+          this.handleCIP30WalletError(ctx.getUnusedAddresses()),
+          this.handleCIP30WalletError(ctx.getUsedAddresses()),
+        ]),
+      )
+      .then(([unusedAddresses, usedAddresses]) =>
+        unusedAddresses.concat(usedAddresses),
+      )
+      .then((addresses) =>
+        addresses.map((cborAddressHex) =>
+          Address.from_hex(cborAddressHex).to_bech32(),
+        ),
+      );
+  }
+
+  /**
+   * Returns all wallet pkhs
+   * @return {Promise<string>}
+   */
+  async getPaymentKeysHashes(): Promise<string[]> {
+    return this.getWalletContext()
+      .then((ctx) =>
+        Promise.all([
+          this.handleCIP30WalletError(ctx.getUnusedAddresses()),
+          this.handleCIP30WalletError(ctx.getUsedAddresses()),
+        ]),
+      )
+      .then(([unusedAddresses, usedAddresses]) =>
+        unusedAddresses.concat(usedAddresses),
+      )
+      .then((addresses) =>
+        addresses.map(
+          (cborAddressHex) =>
+            BaseAddress.from_address(Address.from_hex(cborAddressHex))
+              ?.payment()
+              .as_pub_key()
+              ?.to_hex(),
+        ),
+      )
+      .then((pkhsOrUndefineds) =>
+        pkhsOrUndefineds.filter(
+          (pkhOrUndefined): pkhOrUndefined is string => !!pkhOrUndefined,
+        ),
+      )
+      .then((pkhs) => Array.from(new Set(pkhs).values()));
   }
 
   /**
@@ -320,6 +381,40 @@ export class ApiWrapper {
           this.splash,
         ),
       );
+    });
+  }
+
+  /**
+   * Returns orders list using limit and asset
+   * @param {P} params
+   * @return {Promise<{count: number, orders: TradeOperation[]}>}
+   */
+  async getTradeOperations(
+    params: Omit<GetTradeOperationsParams, 'paymentKeyHashes'>,
+  ): Promise<{ count: number; orders: TradeOperation[] }> {
+    return Promise.all([
+      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+        this.api.getTradeOperations({
+          limit: params.limit,
+          offset: params.offset,
+          paymentKeyHashes,
+        }),
+      ),
+      this.getAssetsMetadata(),
+    ]).then(([trades, metadata]) => {
+      return {
+        count: trades.count,
+        orders: trades.orders.map((trade) =>
+          mapRawTradeOrderToTradeOrder(
+            {
+              rawTradeOrder: trade,
+              baseMetadata: metadata[trade.base],
+              quoteMetadata: metadata[trade.quote],
+            },
+            this.splash,
+          ),
+        ),
+      };
     });
   }
 

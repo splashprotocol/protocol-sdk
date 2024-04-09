@@ -24,6 +24,10 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
+import {
+  GetTradeOperationsParams,
+  GetTradeOperationsResponse,
+} from '../../../core/api/types/getTradeOperations/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
 import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
@@ -243,5 +247,22 @@ export class SplashApi implements Api {
           maxValueSize: data.maxValueSize,
         }),
       );
+  }
+
+  async getTradeOperations({
+    limit,
+    paymentKeyHashes,
+    offset,
+  }: GetTradeOperationsParams): Promise<GetTradeOperationsResponse> {
+    return fetch(
+      `${this.url}history/order/trades?limit=${limit}&offset=${offset}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify(paymentKeyHashes),
+      },
+    ).then((res) => res.json());
   }
 }
