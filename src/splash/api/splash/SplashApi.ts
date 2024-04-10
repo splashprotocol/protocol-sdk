@@ -38,7 +38,7 @@ import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
   mainnet: 'http://195.201.9.29:8091/v1/',
-  preprod: 'http://195.201.9.29:8033/v1',
+  preprod: 'http://195.201.9.29:8033/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
 
