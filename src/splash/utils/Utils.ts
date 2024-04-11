@@ -2,6 +2,7 @@ import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { Position } from '../../core/models/position/Position.ts';
 import { Dictionary } from '../../core/types/types.ts';
+import { CurrencyConverter } from '../../core/utils/currencyConverter/CurrencyConverter.ts';
 import { Splash } from '../splash.ts';
 import {
   SelectAssetBalanceParams,
@@ -19,6 +20,7 @@ import {
   SelectPositionsParams,
   SelectPositionsResult,
 } from './types/selectPositions.ts';
+import { SelectRatesParams, SelectRatesResult } from './types/selectRates.ts';
 
 export class Utils {
   constructor(private splash: Splash<any>) {}
@@ -105,5 +107,18 @@ export class Utils {
       },
       this.splash,
     );
+  }
+
+  /**
+   * Returns rates from pair
+   * @param {Pair[]} pairs
+   * @param {Price} adaUsdPrice
+   * @return {SelectRatesResult}
+   */
+  selectRates({ pairs, adaUsdPrice }: SelectRatesParams): SelectRatesResult {
+    return CurrencyConverter.new({
+      prices: pairs.flatMap((pair) => [pair.baseAdaPrice, pair.quoteAdaPrice]),
+      adaUsdPrice,
+    });
   }
 }

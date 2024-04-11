@@ -19,6 +19,7 @@ import { Currency } from '../../core/models/currency/Currency.ts';
 import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
+import { Price } from '../../core/models/price/Price.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
 import { TradeOperation } from '../../core/models/tradeOperation/TradeOperation.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
@@ -92,6 +93,29 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  /**
+   * Returns current ada usd rate
+   * @return {Promise<Price>}
+   */
+  async getAdaUsdRate(): Promise<Price> {
+    return this.api
+      .getAdaUsdRate()
+      .then((res) =>
+        Price.new({
+          base: AssetInfo.ada,
+          quote: AssetInfo.usd,
+          raw: res,
+        }),
+      )
+      .catch(() =>
+        Price.new({
+          base: AssetInfo.ada,
+          quote: AssetInfo.usd,
+          raw: 0,
+        }),
+      );
   }
 
   /**

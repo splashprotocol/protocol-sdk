@@ -1,6 +1,7 @@
 import { NetworkContext } from '../types/NetworkContext.ts';
 import { ProtocolParams } from '../types/ProtocolParams.ts';
 import { AssetId } from '../types/types.ts';
+import { GetAdaUsdRateResult } from './types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from './types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
@@ -70,4 +71,6 @@ export interface Api {
   getTradeOperations(
     params: GetTradeOperationsParams,
   ): Promise<GetTradeOperationsResponse>;
+
+  getAdaUsdRate(): Promise<GetAdaUsdRateResult>;
 }

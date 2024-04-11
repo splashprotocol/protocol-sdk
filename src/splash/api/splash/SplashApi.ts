@@ -1,5 +1,6 @@
 import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
+import { GetAdaUsdRateResult } from '../../../core/api/types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
@@ -160,6 +161,16 @@ export class SplashApi implements Api {
       .then((data) =>
         data.map((item) => ({ ...item, timestamp: item.timestamp * 1_000 })),
       );
+  }
+
+  /**
+   * Returns current ada usd rate
+   * @return {Promise<GetAdaUsdRateResult>}
+   */
+  async getAdaUsdRate(): Promise<GetAdaUsdRateResult> {
+    return fetch(`${this.url}ada-usd/rate`)
+      .then((res) => res.json())
+      .then((rate) => Number(rate));
   }
 
   /**
