@@ -1,11 +1,10 @@
 import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { DataType } from '../../../../../../build';
 import {
   numberToRational,
   rationalToNumber,
 } from '../../../../utils/math/math.ts';
-import { toDataType } from '../../common/DataType.ts';
+import { DataType, toDataType } from '../../common/DataType.ts';
 import { BigIntegerDataType } from '../BigIntegerDataType/BigIntegerDataType.ts';
 import { TupleDataType } from '../TupleDataType/TupleDataType.ts';
 
