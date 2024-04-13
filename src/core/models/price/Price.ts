@@ -151,10 +151,22 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
   }
 
   /**
+   * Returns true if assets of two prices are equals
+   * @param {Price} price
+   * @return {boolean}
+   */
+  isPriceAssetsEquals(price: Price): boolean {
+    return (
+      (this.base.isEquals(price.base) || this.quote.isEquals(price.base)) &&
+      (this.quote.isEquals(price.base) || this.quote.isEquals(price.quote))
+    );
+  }
+
+  /**
    * Returns price string representation
    * @return {string}
    */
-  toString() {
+  toString(): string {
     const fractions = this.raw.toString().split('.')[1];
     if (!fractions) {
       return this.raw.toString();

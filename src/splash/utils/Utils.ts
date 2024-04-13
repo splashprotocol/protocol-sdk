@@ -144,6 +144,7 @@ export class Utils {
   selectEstimatedPrice({
     orderBook,
     input,
+    priceType = 'average',
   }: SelectEstimatedPriceParams): SelectEstimatedPriceResult {
     const isActualOrderBool =
       orderBook.spotPrice.base.isEquals(input.asset) ||
@@ -175,9 +176,11 @@ export class Utils {
           : bid.accumulatedAmountInQuote;
 
         if (accumulatedAmount.gt(input)) {
-          estimatedPrice = bid.price.quote.isEquals(input.asset)
-            ? bid.accumulatedAveragePrice
-            : bid.accumulatedAveragePrice.invert();
+          const priceToNormalize =
+            priceType === 'average' ? bid.accumulatedAveragePrice : bid.price;
+          estimatedPrice = priceToNormalize.quote.isEquals(input.asset)
+            ? priceToNormalize
+            : priceToNormalize.invert();
           break;
         }
       }
@@ -191,9 +194,11 @@ export class Utils {
           : ask.accumulatedAmountInQuote;
 
         if (accumulatedAmount.gt(input)) {
-          estimatedPrice = ask.price.quote.isEquals(input.asset)
-            ? ask.accumulatedAveragePrice
-            : ask.accumulatedAveragePrice.invert();
+          const priceToNormalize =
+            priceType === 'average' ? ask.accumulatedAveragePrice : ask.price;
+          estimatedPrice = priceToNormalize.quote.isEquals(input.asset)
+            ? priceToNormalize
+            : priceToNormalize.invert();
           break;
         }
       }
@@ -218,11 +223,24 @@ export class Utils {
     const targetPrice =
       input instanceof Price
         ? input
-        : this.selectEstimatedPrice({ orderBook, input });
+        : this.selectEstimatedPrice({
+            orderBook,
+            input,
+            priceType: 'actual',
+          });
+
+    if (!orderBook.spotPrice.isPriceAssetsEquals(targetPrice)) {
+      throw new AssetInfoMismatchError('received prices with different assets');
+    }
+    const normalizedSpotPrice = orderBook.spotPrice.base.isEquals(
+      targetPrice.base,
+    )
+      ? orderBook.spotPrice
+      : orderBook.spotPrice.invert();
 
     return Math.abs(
       math.evaluate!(
-        `(${targetPrice.raw} * 100 / ${orderBook.spotPrice}) - 100`,
+        `(${targetPrice.raw} * 100 / ${normalizedSpotPrice.raw}) - 100`,
       ).toFixed(2),
     );
   }

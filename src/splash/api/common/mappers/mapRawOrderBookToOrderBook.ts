@@ -34,7 +34,7 @@ const getNextOrderBookItemAdditionalInfo = (
     (acc, i) => {
       return Number(
         math.evaluate(
-          `${acc} + ${i.price.raw} * (${i.amount.amount} / ${item.accumulatedVolume})`,
+          `${acc} + ${i.price.raw} * (${i.ordersAmount.amount} / ${item.accumulatedVolume})`,
         ),
       );
     },
@@ -75,23 +75,18 @@ const getNextOrderBookItemAdditionalInfo = (
 
   const newAdditionalData: OrderBookItemAdditionalInfo = {
     accumulatedAveragePrice: newAveragePrice,
-    accumulatedAmmAmount: additionalInfo.accumulatedAmmAmount.plus(
-      Currency.new(BigInt(item.poolsVolume), base),
-    ),
+    accumulatedAmmAmount: Currency.new(BigInt(item.poolsVolume), base),
     accumulatedOrderAmount: additionalInfo.accumulatedOrderAmount.plus(
       Currency.new(BigInt(item.ordersVolume), base),
     ),
-    accumulatedAmountInQuote: additionalInfo.accumulatedAmountInQuote.plus(
-      Currency.new(newPoolsInAmountQuote + newOrdersAmountInQuote, quote),
-    ),
-    accumulatedAmmAmountInQuote:
-      additionalInfo.accumulatedAmmAmountInQuote.plus(
-        Currency.new(newPoolsInAmountQuote, quote),
-      ),
+    accumulatedAmmAmountInQuote: Currency.new(newPoolsInAmountQuote, quote),
     accumulatedOrderAmountInQuote:
       additionalInfo.accumulatedOrderAmountInQuote.plus(
         Currency.new(newOrdersAmountInQuote, quote),
       ),
+    accumulatedAmountInQuote: Currency.new(newPoolsInAmountQuote, quote)
+      .plus(newOrdersAmountInQuote)
+      .plus(additionalInfo.accumulatedOrderAmountInQuote),
     items: additionalInfo.items,
   };
 

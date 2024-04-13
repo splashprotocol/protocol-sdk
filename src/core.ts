@@ -144,6 +144,8 @@ export * from './splash/txBuilderFactory/utils/getCostModels.ts';
 export * from './splash/txBuilderFactory/utils/getTransactionBuilderConfig.ts';
 
 // SPLASH_UTILS
+export * from './splash/utils/errors/NoLiquidityError.ts';
+export * from './splash/utils/errors/PriceLessThanLovelaceError.ts';
 export * from './splash/utils/types/selectAssetBalance.ts';
 export * from './splash/utils/types/selectLqAssetBalance.ts';
 export * from './splash/utils/types/selectPositionOrEmpty.ts';
