@@ -179,11 +179,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
     const totalOutputValue = transactionCandidate.outputs.reduce(
       (total, output) => total.plus(output.totalValue),
-      Currencies.empty,
+      Currencies.new([txFee]),
     );
-    const uTxOsForOutput = uTxOsSelector['selectForTransactionBuilder'](
-      totalOutputValue.plus([txFee]),
-    );
+    const uTxOsForOutput =
+      uTxOsSelector['selectForTransactionBuilder'](totalOutputValue);
     const fullUTxOs = this.normalizeUTxOsForChange(
       totalOutputValue,
       uTxOsForOutput,
@@ -201,7 +200,6 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       ),
     );
     const wasmChangeAddress = Address.from_bech32(userAddress);
-    transactionBuilder.add_change_if_needed(wasmChangeAddress, true);
 
     return transactionBuilder.build(
       Number(ChangeSelectionAlgo.Default.toString()),
