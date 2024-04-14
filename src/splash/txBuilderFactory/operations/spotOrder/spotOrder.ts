@@ -185,7 +185,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       outputCurrencies,
       data,
       {
-        userStakingCred: address.staking_cred(),
+        stakeKeyHash: address.staking_cred()?.as_pub_key()?.to_hex(),
       },
     )(context);
   };
