@@ -44,10 +44,10 @@ export const payToContract: Operation<
         ? BaseAddress.new(networkNum, scriptCred, options.userStakingCred)
         : EnterpriseAddress.new(networkNum, scriptCred);
 
-    const contractAddressBench32 = contractAddress.to_address().to_bech32();
+    const contractAddressBech32 = contractAddress.to_address().to_bech32();
 
     const output = Output.new(pParams, {
-      address: contractAddressBench32,
+      address: contractAddressBech32,
       value: currencies,
       data,
     });
