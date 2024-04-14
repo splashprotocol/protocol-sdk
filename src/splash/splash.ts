@@ -51,7 +51,7 @@ export class Splash<O extends Dictionary<Operation<any>>> {
 
   // TODO: THINK ABOUT ABSTRACTION
   readonly operationsConfig: Promise<SplashOperationsConfig> = fetch(
-    'https://raw.githubusercontent.com/splashprotocol/dex-settings/main/settings.json',
+    'https://spectrum.fi/settings.json',
   ).then((res) => res.json());
 
   private constructor(

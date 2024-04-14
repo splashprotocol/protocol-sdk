@@ -229,7 +229,9 @@ export class SplashApi implements Api {
 
   async getProtocolParams(): Promise<ProtocolParams> {
     return fetch(
-      `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`,
+      this.network === 'mainnet'
+        ? `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`
+        : `http://88.99.59.114:8099/v1/networkParams`,
     )
       .then((res) => res.json())
       .then((res) => res.pparams)
