@@ -155,7 +155,9 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
    * @param {Price} price
    * @return {boolean}
    */
-  isPriceAssetsEquals(price: Price): boolean {
+  isPriceAssetsEquals(
+    price: Price | { base: AssetInfo; quote: AssetInfo },
+  ): boolean {
     return (
       (this.base.isEquals(price.base) || this.quote.isEquals(price.base)) &&
       (this.quote.isEquals(price.base) || this.quote.isEquals(price.quote))

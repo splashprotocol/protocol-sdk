@@ -1,6 +1,7 @@
 import { Api } from '../core/api/Api.ts';
 import { CardanoCIP30WalletBridge } from '../core/types/CardanoCIP30WalletBridge.ts';
 import { Network } from '../core/types/Network.ts';
+import { SplashOperationsConfig } from '../core/types/SplashOperationsConfig.ts';
 import { Dictionary } from '../core/types/types.ts';
 import { ApiWrapper, MetadataConfig } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
@@ -42,11 +43,16 @@ export class Splash<O extends Dictionary<Operation<any>>> {
    * Splash utils
    * @type {Utils}
    */
-  public readonly utils: Utils = new Utils(this);
+  public readonly utils: Utils;
 
   public wallet?: CardanoCIP30WalletBridge;
 
   private readonly txBuilderFactory: TxBuilderFactory<O>;
+
+  // TODO: THINK ABOUT ABSTRACTION
+  readonly operationsConfig: Promise<SplashOperationsConfig> = fetch(
+    'https://raw.githubusercontent.com/splashprotocol/dex-settings/main/settings.json',
+  ).then((res) => res.json());
 
   private constructor(
     api: Api,
@@ -54,7 +60,8 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     config?: SplashConfig<O>,
   ) {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
-    this.txBuilderFactory = new TxBuilderFactory(this);
+    this.txBuilderFactory = new TxBuilderFactory(this, this.operationsConfig);
+    this.utils = new Utils(this);
   }
 
   /**

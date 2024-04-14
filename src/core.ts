@@ -87,6 +87,7 @@ export * from './core/types/Network.ts';
 export * from './core/types/NetworkContext.ts';
 export * from './core/types/Pool.ts';
 export * from './core/types/ProtocolParams.ts';
+export * from './core/types/SplashOperationsConfig.ts';
 export * from './core/types/types.ts';
 
 // CORE_UTILS
@@ -99,6 +100,7 @@ export * from './core/utils/cborHexToCborBytes/cborHexToCborBytes.ts';
 export * from './core/utils/cborHexToHex/cborHexToHex.ts';
 export * from './core/utils/cborHexToString/cborHexToString.ts';
 export * from './core/utils/currencyConverter/CurrencyConverter.ts';
+export * from './core/utils/executorFee/executorFee.ts';
 export * from './core/utils/hexToBytes/hexToBytes.ts';
 export * from './core/utils/hexToCborBytes/hexToCborBytes.ts';
 export * from './core/utils/hexToCborHex/hexToCborHex.ts';
@@ -110,6 +112,7 @@ export * from './core/utils/stringToCborBytes/stringToCborBytes.ts';
 export * from './core/utils/stringToCborHex/stringToCborHex.ts';
 export * from './core/utils/stringToHex/stringToHex.ts';
 export * from './core/utils/toContractAddress/toContractAddress.ts';
+export * from './core/utils/transactionFee/transactionFee.ts';
 export * from './core/utils/utxosSelector/UTxOsSelector.ts';
 
 // SPLASH_API_COMMON

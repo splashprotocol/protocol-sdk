@@ -2,11 +2,13 @@ import { TransactionCandidate } from '../../../../core/models/transactionCandida
 import { Network } from '../../../../core/types/Network.ts';
 import { NetworkContext } from '../../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../../core/types/ProtocolParams.ts';
+import { SplashOperationsConfig } from '../../../../core/types/SplashOperationsConfig.ts';
 import { Bech32String } from '../../../../core/types/types.ts';
 import { UTxOsSelector } from '../../../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../../../splash.ts';
 
 export interface OperationContext {
+  readonly operationsConfig: SplashOperationsConfig;
   readonly transactionCandidate: TransactionCandidate;
   readonly pParams: ProtocolParams;
   readonly nContext: NetworkContext;
