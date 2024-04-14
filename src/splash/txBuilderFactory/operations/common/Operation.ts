@@ -6,6 +6,7 @@ import { SplashOperationsConfig } from '../../../../core/types/SplashOperationsC
 import { Bech32String } from '../../../../core/types/types.ts';
 import { UTxOsSelector } from '../../../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../../../splash.ts';
+import { Utils } from '../../../utils/Utils.ts';
 
 export interface OperationContext {
   readonly operationsConfig: SplashOperationsConfig;
@@ -15,6 +16,7 @@ export interface OperationContext {
   readonly uTxOsSelector: UTxOsSelector;
   readonly userAddress: Bech32String;
   readonly network: Network;
+  readonly utils: Utils;
   readonly splash: Splash<{}>;
 }
 

@@ -14,7 +14,7 @@ import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
-import { scripts } from '../../../../core/utils/scripts/scripts.ts';
+import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
 
 const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
@@ -45,12 +45,13 @@ const createSpotOrderData = (networkId: NetworkId) =>
   ]);
 
 interface GetBasePriceConfig {
-  readonly inputAsset: AssetInfo;
+  readonly input: Currency;
   readonly outputAsset: AssetInfo;
   readonly price: Price | undefined;
+  readonly slippage: number;
 }
 const getBasePrice = async (
-  { price, inputAsset, outputAsset }: GetBasePriceConfig,
+  { price, input, outputAsset, slippage }: GetBasePriceConfig,
   splash: Splash<{}>,
 ): Promise<Price> => {
   let basePrice: Price;
@@ -58,17 +59,18 @@ const getBasePrice = async (
   if (price) {
     basePrice = price;
   } else {
-    basePrice = (
-      await splash.api.getOrderBook({
-        base: inputAsset,
-        quote: outputAsset,
+    basePrice = splash.utils
+      .selectEstimatedPrice({
+        orderBook: await splash.api.getOrderBook({
+          base: input.asset,
+          quote: outputAsset,
+        }),
+        input,
       })
-    ).spotPrice;
+      .priceFromPct(100 - slippage);
   }
 
-  return basePrice.quote.splashId === inputAsset.splashId
-    ? basePrice
-    : basePrice.invert();
+  return basePrice.quote.isEquals(input.asset) ? basePrice : basePrice.invert();
 };
 
 const getBeacon = async (uTxO: UTxO): Promise<string> =>
@@ -84,33 +86,40 @@ interface getMarginalOutputConfig {
   readonly basePrice: Price;
   readonly inputAsset: AssetInfo;
   readonly outputAsset: AssetInfo;
+  readonly orderStepCost: Currency;
 }
 const getMarginalOutput = async (
-  { outputAsset, inputAsset, basePrice }: getMarginalOutputConfig,
+  {
+    outputAsset,
+    inputAsset,
+    basePrice,
+    orderStepCost,
+  }: getMarginalOutputConfig,
   splash: Splash<{}>,
 ): Promise<Currency> => {
   if (outputAsset.isAda()) {
-    return ORDER_STEP_COST;
+    return orderStepCost;
   }
   if (inputAsset.isAda()) {
-    return basePrice.getReceivedBaseFor(ORDER_STEP_COST);
+    return basePrice.getReceivedBaseFor(orderStepCost);
   }
-  const pairs = await splash.api.getPairs();
+  const rates = splash.utils.selectRates({
+    pairs: await splash.api.getPairs(),
+    adaUsdPrice: Price.new({
+      base: AssetInfo.ada,
+      quote: AssetInfo.usd,
+      raw: 0,
+    }),
+  });
 
-  const adaOutputPair = pairs.find((pair) =>
-    pair.includesSpecifiedAssets([outputAsset, AssetInfo.ada]),
-  );
-  if (adaOutputPair) {
-    return adaOutputPair.spotPrice.getReceivedBaseFor(ORDER_STEP_COST);
+  const outputAdaRate = rates.getPrice(outputAsset);
+  if (outputAdaRate) {
+    return outputAdaRate.getReceivedBaseFor(orderStepCost);
   }
-
-  const adaInputPair = pairs.find((pair) =>
-    pair.includesSpecifiedAssets([inputAsset, AssetInfo.ada]),
-  );
-  if (adaInputPair) {
-    return adaInputPair.spotPrice
-      .cross(basePrice)
-      .getReceivedBaseFor(ORDER_STEP_COST);
+  const inputAdaRate = rates.getPrice(inputAsset);
+  if (inputAdaRate) {
+    // TODO: CHECK IT ONE MORE TIME
+    return inputAdaRate.cross(basePrice).getReceivedBaseFor(orderStepCost);
   }
   return Currency.new(0n, outputAsset);
 };
@@ -122,18 +131,25 @@ export interface SpotOrderConfig {
   readonly maxStepCount?: bigint;
 }
 
-export const ORDER_STEP_COST = Currency.ada(500_000n);
-
-export const DEFAULT_MAX_STEP_COUNT = 4n;
-
 export const spotOrder: Operation<[SpotOrderConfig]> =
-  ({ price, input, outputAsset, maxStepCount = DEFAULT_MAX_STEP_COUNT }) =>
+  ({ price, input, outputAsset }) =>
   async (context) => {
+    const orderStepCost = Currency.ada(
+      BigInt(
+        context.operationsConfig.operations.spotOrder.settings.orderStepCost,
+      ),
+    );
+    const orderMaxStepCount = BigInt(
+      context.operationsConfig.operations.spotOrder.settings.maxStepCount,
+    );
     const basePrice = await getBasePrice(
       {
         price,
         outputAsset,
-        inputAsset: input.asset,
+        input,
+        slippage:
+          context.operationsConfig.operations.spotOrder.settings
+            .marketOrderPriceSlippage,
       },
       context.splash,
     );
@@ -142,23 +158,12 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         basePrice,
         inputAsset: input.asset,
         outputAsset: outputAsset,
+        orderStepCost,
       },
       context.splash,
     );
-    const depositAda = predictDepositAda(context.pParams, {
-      value: Currencies.new([basePrice.getReceivedBaseFor(input)]),
-      address: context.userAddress,
-    });
-
-    const address = Address.from_bech32(context.userAddress);
-    const outputCurrencies = Currencies.new([
-      input,
-      ORDER_STEP_COST.multiply(maxStepCount),
-      EXECUTOR_FEE,
-      depositAda,
-    ]);
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
-
+    const address = Address.from_bech32(context.userAddress);
     const data = createSpotOrderData(
       context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
     )([
@@ -166,7 +171,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       await getBeacon(firstUTxO),
       input.asset,
       input.amount,
-      ORDER_STEP_COST.amount,
+      orderStepCost.amount,
       minMarginalOutput.amount,
       outputAsset,
       basePrice.raw,
@@ -175,14 +180,36 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       address.payment_cred()!.as_pub_key()!.to_hex(),
       [],
     ]);
+    const depositAdaForReceive = predictDepositAda(context.pParams, {
+      value: Currencies.new([basePrice.getReceivedBaseFor(input)]),
+      address: context.userAddress,
+    });
+
+    const outputValue = Currencies.new([
+      input,
+      orderStepCost.multiply(orderMaxStepCount),
+      EXECUTOR_FEE,
+      depositAdaForReceive,
+    ]);
+    const depositAdaForOrder = predictDepositAda(context.pParams, {
+      value: outputValue,
+      data,
+      address: toContractAddress(
+        context.network === 'mainnet'
+          ? NetworkId.mainnet()
+          : NetworkId.testnet(),
+        context.operationsConfig.operations.spotOrder.script,
+        address.staking_cred()?.as_pub_key()?.to_hex(),
+      ),
+    });
 
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: scripts.spotOrders,
+        script: context.operationsConfig.operations.spotOrder.script,
         version: 'plutusV2',
       },
-      outputCurrencies,
+      outputValue.plus([depositAdaForOrder]),
       data,
       {
         stakeKeyHash: address.staking_cred()?.as_pub_key()?.to_hex(),

@@ -11,7 +11,6 @@ import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { TransactionCandidate } from '../../core/models/transactionCandidate/TransactionCandidate.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
-import { SplashOperationsConfig } from '../../core/types/SplashOperationsConfig.ts';
 import { Dictionary } from '../../core/types/types.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
@@ -46,10 +45,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
   private transactionBuilderConfigP: Promise<TransactionBuilderConfig>;
 
-  constructor(
-    public splash: Splash<{}>,
-    private operationsConfigP: Promise<SplashOperationsConfig>,
-  ) {
+  constructor(public splash: Splash<{}>) {
     this.protocolParamsP = this.splash.api.getProtocolParams();
     this.transactionBuilderConfigP = this.protocolParamsP.then(
       getTransactionBuilderConfig,
@@ -91,7 +87,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     const userAddress = await this.splash.api.getActiveAddress();
     const nContext = await this.splash.api.getNetworkContext();
     const uTxOs = await this.splash.api.getUTxOs();
-    const operationsConfig = await this.operationsConfigP;
+    const operationsConfig = await this.splash.operationsConfig;
     const uTxOsSelector = UTxOsSelector.new({
       transactionCandidate,
       uTxOs,
@@ -103,6 +99,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       userAddress,
       pParams,
       operationsConfig,
+      utils: this.splash.utils,
       network: this.splash.network,
       nContext,
       splash: this.splash,

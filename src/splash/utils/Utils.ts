@@ -137,8 +137,7 @@ export class Utils {
 
   /**
    * Returns estimated price from orderBook and input
-   * @param {OrderBook} orderBook
-   * @param {Currency} input
+   * @param {SelectEstimatedPriceParams} config
    * @return {SelectEstimatedPriceResult}
    */
   selectEstimatedPrice({

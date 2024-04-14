@@ -60,8 +60,8 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     config?: SplashConfig<O>,
   ) {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
-    this.txBuilderFactory = new TxBuilderFactory(this, this.operationsConfig);
     this.utils = new Utils(this);
+    this.txBuilderFactory = new TxBuilderFactory(this);
   }
 
   /**

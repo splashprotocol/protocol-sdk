@@ -1,3 +1,4 @@
+import { percent } from '../../types/types.ts';
 import {
   math,
   normalizeAmount,
@@ -162,6 +163,21 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
       (this.base.isEquals(price.base) || this.quote.isEquals(price.base)) &&
       (this.quote.isEquals(price.base) || this.quote.isEquals(price.quote))
     );
+  }
+
+  /**
+   * Creates new price like pct of current price
+   * @param {number} pct
+   * @return {Currency}
+   */
+  priceFromPct(pct: percent): Price {
+    const newPriceRaw = math.evaluate(`${this.raw} / 100 * ${pct}`).toFixed();
+
+    return Price.new({
+      base: this.base,
+      quote: this.quote,
+      raw: Number(newPriceRaw),
+    });
   }
 
   /**
