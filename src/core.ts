@@ -138,6 +138,7 @@ export * from './splash/api/splash/types/RawProtocolParams.ts';
 export * from './splash/api/ApiWrapper.ts';
 
 // SPLASH_TX_BUILDER
+export * from './splash/txBuilderFactory/erors/InsufficientFundsErrorForChange.ts';
 export * from './splash/txBuilderFactory/operations/cfmmDeposit/cfmmDeposit.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';

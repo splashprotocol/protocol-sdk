@@ -10,12 +10,12 @@ import {
 
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
+import { Output } from '../../core/models/output/Output.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { TransactionCandidate } from '../../core/models/transactionCandidate/TransactionCandidate.ts';
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { Dictionary, uint } from '../../core/types/types.ts';
-import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
@@ -186,6 +186,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     const fullUTxOs = this.normalizeUTxOsForChange(
       totalOutputValue,
       uTxOsForOutput,
+      transactionBuilder,
       { transactionCandidate, uTxOsSelector, userAddress, splash, ...rest },
     );
 
@@ -210,24 +211,38 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
   private normalizeUTxOsForChange(
     totalOutputValue: Currencies,
     uTxOsForOutput: UTxO[],
+    transactionBuilder: TransactionBuilder,
     context: OperationContext,
   ): UTxO[] {
     const estimatedChange = uTxOsForOutput
       .reduce((acc, uTxO) => acc.plus(uTxO.value), Currencies.empty)
       .minus(totalOutputValue);
-    const additionalAdaForChange = predictDepositAda(context.pParams, {
+    const estimatedChangeOutput = Output.new(context.pParams, {
       address: context.userAddress,
       value: estimatedChange,
     });
+    const extraOutputFee = Currency.ada(
+      transactionBuilder.fee_for_output(
+        SingleOutputBuilderResult.new(estimatedChangeOutput.wasm),
+      ),
+    );
 
-    if (!additionalAdaForChange.isPositive()) {
+    if (
+      estimatedChange.ada.gte(
+        estimatedChangeOutput.minAdaRequired.plus(extraOutputFee),
+      )
+    ) {
       return uTxOsForOutput;
     }
     let additionalUTxOs: UTxO[];
 
     try {
       additionalUTxOs = context.uTxOsSelector.select(
-        Currencies.new([additionalAdaForChange]),
+        Currencies.new([
+          estimatedChangeOutput.minAdaRequired
+            .plus(extraOutputFee)
+            .minus(estimatedChange.ada),
+        ]),
         {
           exclude: uTxOsForOutput,
         },
@@ -240,6 +255,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     return this.normalizeUTxOsForChange(
       totalOutputValue,
       uTxOsForOutput.concat(additionalUTxOs),
+      transactionBuilder,
       context,
     );
   }
