@@ -248,7 +248,7 @@ export class Currencies {
     for (const item of toCompare.currencies) {
       const splashId = item.asset.splashId;
 
-      if (!this.currencyMap.get(splashId)?.gt(item)) {
+      if (!this.currencyMap.get(splashId)?.gte(item)) {
         return false;
       }
     }
