@@ -184,5 +184,8 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       },
       outputCurrencies,
       data,
+      {
+        userStakingCred: address.staking_cred(),
+      },
     )(context);
   };

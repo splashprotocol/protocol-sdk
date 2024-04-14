@@ -1,4 +1,5 @@
 import {
+  BaseAddress,
   Credential,
   EnterpriseAddress,
   NetworkId,
@@ -17,21 +18,36 @@ export interface PayToContractScript {
   readonly version: 'plutusV1' | 'plutusV2';
 }
 
+type Options = {
+  userStakingCred?: Credential;
+};
+
 export const payToContract: Operation<
-  [PayToContractScript, Currencies | Currency[], PlutusData?]
-> = (script, currencies: Currencies | Currency[], data?: PlutusData) => {
+  [PayToContractScript, Currencies | Currency[], PlutusData?, Options?]
+> = (
+  script,
+  currencies: Currencies | Currency[],
+  data?: PlutusData,
+  options?: Options,
+) => {
   return async ({ transactionCandidate, pParams, network }) => {
     const networkId =
       network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet();
-    const contractAddress = EnterpriseAddress.new(
-      Number(networkId.network()),
-      Credential.new_script(ScriptHash.from_hex(script.script)),
-    )
-      .to_address()
-      .to_bech32();
+    const networkNum = Number(networkId.network());
+
+    const scriptCred = Credential.new_script(
+      ScriptHash.from_hex(script.script),
+    );
+
+    const contractAddress =
+      options && options.userStakingCred
+        ? BaseAddress.new(networkNum, scriptCred, options.userStakingCred)
+        : EnterpriseAddress.new(networkNum, scriptCred);
+
+    const contractAddressBench32 = contractAddress.to_address().to_bech32();
 
     const output = Output.new(pParams, {
-      address: contractAddress,
+      address: contractAddressBench32,
       value: currencies,
       data,
     });
