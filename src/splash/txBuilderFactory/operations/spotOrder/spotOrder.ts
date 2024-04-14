@@ -142,6 +142,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     const orderMaxStepCount = BigInt(
       context.operationsConfig.operations.spotOrder.settings.maxStepCount,
     );
+
     const basePrice = await getBasePrice(
       {
         price,
