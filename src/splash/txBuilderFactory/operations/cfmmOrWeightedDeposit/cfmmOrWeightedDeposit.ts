@@ -40,6 +40,7 @@ export const cfmmOrWeightedDeposit: Operation<
 > =
   (pool, [x, y]) =>
   (context) => {
+    const executorFeeWithTxFee = EXECUTOR_FEE.multiply(3n);
     const address = BaseAddress.from_address(
       Address.from_bech32(context.userAddress),
     );
@@ -57,11 +58,10 @@ export const cfmmOrWeightedDeposit: Operation<
       address: context.userAddress,
       value: Currencies.new([estimatedLq, x, y]),
     });
-
     const outputValue = Currencies.new([
       x,
       y,
-      EXECUTOR_FEE,
+      executorFeeWithTxFee,
       depositAdaForLqBox,
     ]);
     const tmpData = DepositData([
@@ -69,7 +69,7 @@ export const cfmmOrWeightedDeposit: Operation<
       x.asset,
       y.asset,
       pool.lq.asset,
-      EXECUTOR_FEE.amount,
+      executorFeeWithTxFee.amount,
       address?.payment().as_pub_key()?.to_hex()!,
       address?.stake().as_pub_key()?.to_hex(),
       depositAdaForLqBox.amount,
@@ -91,7 +91,7 @@ export const cfmmOrWeightedDeposit: Operation<
       x.asset,
       y.asset,
       pool.lq.asset,
-      EXECUTOR_FEE.amount,
+      executorFeeWithTxFee.amount,
       address?.payment().as_pub_key()?.to_hex()!,
       address?.stake().as_pub_key()?.to_hex(),
       depositAdaForLqBox.plus(depositAdaForOrder).amount,

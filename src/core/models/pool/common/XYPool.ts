@@ -349,7 +349,7 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
   deposit([x, y]: [Currency, Currency]): Promise<Transaction> {
     return this.splash
       .newTx()
-      .cfmmDeposit(this as any, [x, y])
+      .cfmmOrWeightedDeposit(this as any, [x, y])
       .complete();
   }
 }

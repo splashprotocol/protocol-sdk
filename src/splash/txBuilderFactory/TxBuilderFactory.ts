@@ -36,12 +36,12 @@ interface CreateTransactionExtra {
 export const defaultOperations: {
   payToAddress: typeof payToAddress;
   payToContract: typeof payToContract;
-  cfmmDeposit: typeof cfmmOrWeightedDeposit;
+  cfmmOrWeightedDeposit: typeof cfmmOrWeightedDeposit;
   spotOrder: typeof spotOrder;
 } = {
   payToAddress,
   payToContract,
-  cfmmDeposit: cfmmOrWeightedDeposit,
+  cfmmOrWeightedDeposit,
   spotOrder,
 };
 
