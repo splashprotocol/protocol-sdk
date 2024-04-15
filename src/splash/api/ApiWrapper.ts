@@ -19,6 +19,7 @@ import { Currency } from '../../core/models/currency/Currency.ts';
 import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
+import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Price } from '../../core/models/price/Price.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
 import { TradeOperation } from '../../core/models/tradeOperation/TradeOperation.ts';
@@ -36,7 +37,7 @@ import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
 import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOrderBook.ts';
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
-import { mapRawPoolToCfmmPool } from './common/mappers/mapRawPoolToCfmmPool.ts';
+import { mapRawPoolToCfmmOrWeightedPool } from './common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 import { mapRawTradeOrderToTradeOrder } from './common/mappers/mapRawTradeOrderToTradeOrder.ts';
 import { mapRawTrendPoolToTrendPool } from './common/mappers/mapRawTrendPoolToTrendPool.ts';
@@ -390,17 +391,17 @@ export class ApiWrapper {
    */
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,
-  ): Promise<CfmmPool[]> {
+  ): Promise<(CfmmPool | WeightedPool)[]> {
     return Promise.all([
       this.api.getSplashPools(params),
       this.getAssetsMetadata(),
     ]).then(([pools, metadata]) => {
-      return pools.map((rawCfmmPool) =>
-        mapRawPoolToCfmmPool(
+      return pools.map((rawPool) =>
+        mapRawPoolToCfmmOrWeightedPool(
           {
-            rawCfmmPool,
-            xMetadata: metadata[rawCfmmPool.pool.x.asset],
-            yMetadata: metadata[rawCfmmPool.pool.y.asset],
+            rawPool: rawPool,
+            xMetadata: metadata[rawPool.pool.x.asset],
+            yMetadata: metadata[rawPool.pool.y.asset],
           },
           this.splash,
         ),

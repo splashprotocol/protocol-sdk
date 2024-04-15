@@ -4,11 +4,10 @@ import { CurrencyDescriptor } from './CurrencyDescriptor.ts';
 export type RawSplashPoolVersion = 'v1' | 'v2' | 'v3' | 'v4';
 
 export interface RawSplashPoolInfo {
-  readonly poolType: 'cfmm';
   readonly id: PoolId;
   readonly x: CurrencyDescriptor;
   readonly y: CurrencyDescriptor;
-  lq: CurrencyDescriptor;
+  readonly lq: CurrencyDescriptor;
   readonly poolFeeNumX: string;
   readonly poolFeeNumY: string;
   readonly treasuryFee: string;
@@ -16,7 +15,17 @@ export interface RawSplashPoolInfo {
   readonly treasuryY: string;
   readonly verified: boolean;
   readonly poolLqBound: string;
+}
+
+export interface RawSplashCfmmPoolInfo extends RawSplashPoolInfo {
+  readonly poolType: 'cfmm';
   readonly version: RawSplashPoolVersion;
+}
+
+export interface RawSplashWeightedPoolInfo extends RawSplashPoolInfo {
+  readonly poolType: 'weighted';
+  readonly xWeight: number;
+  readonly yWeight: number;
 }
 
 export interface RawSplashPoolMetrics {
@@ -32,7 +41,12 @@ export interface RawSplashPoolMetrics {
   readonly lpFeeUsd?: number;
 }
 
-export interface RawSplashPool {
-  readonly pool: RawSplashPoolInfo;
+export interface RawSplashCfmmPool {
+  readonly pool: RawSplashCfmmPoolInfo;
+  readonly metrics?: RawSplashPoolMetrics;
+}
+
+export interface RawSplashWeightedPool {
+  readonly pool: RawSplashWeightedPoolInfo;
   readonly metrics?: RawSplashPoolMetrics;
 }

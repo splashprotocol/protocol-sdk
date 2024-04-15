@@ -8,9 +8,9 @@ import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
+import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
-import { scripts } from '../../../../core/utils/scripts/scripts.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
 import { Operation } from '../common/Operation.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
@@ -35,7 +35,9 @@ const DepositData = Data.Tuple([
   Data.BigInt,
 ]);
 
-export const cfmmDeposit: Operation<[CfmmPool, [Currency, Currency]]> =
+export const cfmmOrWeightedDeposit: Operation<
+  [CfmmPool | WeightedPool, [Currency, Currency]]
+> =
   (pool, [x, y]) =>
   (context) => {
     const address = BaseAddress.from_address(
@@ -46,9 +48,11 @@ export const cfmmDeposit: Operation<[CfmmPool, [Currency, Currency]]> =
       y,
     });
     const depositScript =
-      pool.cfmmType === 'feeSwitch'
-        ? scripts.deposit.feeSwitch
-        : scripts.deposit.default;
+      pool instanceof WeightedPool
+        ? context.operationsConfig.operations.depositWeighted.script
+        : pool.cfmmType === 'feeSwitch'
+        ? context.operationsConfig.operations.depositFeeSwitch.script
+        : context.operationsConfig.operations.depositDefault.script;
     const depositAdaForLqBox = predictDepositAda(context.pParams, {
       address: context.userAddress,
       value: Currencies.new([estimatedLq, x, y]),

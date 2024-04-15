@@ -32,6 +32,7 @@ export interface SplashOperationsConfig {
     readonly spotOrder: SplashSpotOrder;
     readonly depositDefault: SplashOperation;
     readonly depositFeeSwitch: SplashOperation;
+    readonly depositWeighted: SplashOperation;
     readonly redeemDefault: SplashOperation;
     readonly redeemFeeSwitch: SplashOperation;
   };

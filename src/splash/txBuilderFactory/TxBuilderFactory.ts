@@ -20,7 +20,7 @@ import { TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
-import { cfmmDeposit } from './operations/cfmmDeposit/cfmmDeposit.ts';
+import { cfmmOrWeightedDeposit } from './operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
@@ -36,12 +36,12 @@ interface CreateTransactionExtra {
 export const defaultOperations: {
   payToAddress: typeof payToAddress;
   payToContract: typeof payToContract;
-  cfmmDeposit: typeof cfmmDeposit;
+  cfmmDeposit: typeof cfmmOrWeightedDeposit;
   spotOrder: typeof spotOrder;
 } = {
   payToAddress,
   payToContract,
-  cfmmDeposit,
+  cfmmDeposit: cfmmOrWeightedDeposit,
   spotOrder,
 };
 

@@ -1,7 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "0.0.1",
-  "description": "",
+  "version": "0.0.4",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "source": "src/index.ts",
@@ -48,5 +47,9 @@
     "setupFiles": [
       "./jest/mocks.js"
     ]
-  }
+  },
+  "directories": {
+    "doc": "docs"
+  },
+  "description": ""
 }

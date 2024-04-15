@@ -56,6 +56,8 @@ export * from './core/models/output/Output.ts';
 export * from './core/models/pool/cfmm/CfmmPool.ts';
 export * from './core/models/pool/cfmm/common/CfmmPoolType.ts';
 export * from './core/models/pool/common/emissionLp.ts';
+export * from './core/models/pool/common/XYPool.ts';
+export * from './core/models/pool/weighted/WeightedPool.ts';
 
 // CORE_MODELS_PAIR
 export * from './core/models/pair/Pair.ts';
@@ -122,7 +124,7 @@ export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
 export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
-export * from './splash/api/common/mappers/mapRawPoolToCfmmPool.ts';
+export * from './splash/api/common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 export * from './splash/api/common/mappers/mapRawTradeOrderToTradeOrder.ts';
 export * from './splash/api/common/mappers/mapRawTrendPoolToTrendPool.ts';
@@ -139,7 +141,7 @@ export * from './splash/api/ApiWrapper.ts';
 
 // SPLASH_TX_BUILDER
 export * from './splash/txBuilderFactory/erors/InsufficientFundsErrorForChange.ts';
-export * from './splash/txBuilderFactory/operations/cfmmDeposit/cfmmDeposit.ts';
+export * from './splash/txBuilderFactory/operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
