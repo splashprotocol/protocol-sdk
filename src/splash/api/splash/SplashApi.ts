@@ -38,8 +38,8 @@ import { AssetId, Dictionary } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
-  mainnet: 'http://195.201.9.29:8091/v1/',
-  preprod: 'http://195.201.9.29:8033/v1/',
+  mainnet: 'https://api-test-mainnet.splash.trade/v1/',
+  preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
 
@@ -229,9 +229,7 @@ export class SplashApi implements Api {
 
   async getProtocolParams(): Promise<ProtocolParams> {
     return fetch(
-      this.network === 'mainnet'
-        ? `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`
-        : `http://88.99.59.114:8099/v1/networkParams`,
+      `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`,
     )
       .then((res) => res.json())
       .then((res) => res.pparams)

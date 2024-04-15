@@ -2,7 +2,7 @@ import { AssetInfo } from '../models/assetInfo/AssetInfo.ts';
 import { Currency } from '../models/currency/Currency.ts';
 import { Dictionary, PoolId } from './types.ts';
 
-export type PoolType = 'cfmm' | 'weight';
+export type PoolType = 'cfmm' | 'weighted';
 
 export interface Pool<T extends PoolType, A extends Dictionary<Currency>> {
   readonly id: PoolId;
