@@ -8,6 +8,7 @@ import { AssetInfo } from '../../assetInfo/AssetInfo.ts';
 import { usd } from '../../assetInfo/usd.ts';
 import { Currency } from '../../currency/Currency.ts';
 import { AssetInfoMismatchError } from '../../currency/errors/AssetInfoMismatchError.ts';
+import { Transaction } from '../../transaction/Transaction.ts';
 import { EMISSION_LP } from './emissionLp.ts';
 
 export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
@@ -345,7 +346,7 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
    * @param {Currency} y
    * @returns {Promise<any>}
    */
-  deposit([x, y]: [Currency, Currency]): Promise<any> {
+  deposit([x, y]: [Currency, Currency]): Promise<Transaction> {
     return this.splash
       .newTx()
       .cfmmDeposit(this as any, [x, y])
