@@ -92,7 +92,7 @@ export class SplashApi implements Api {
     params?: GetSplashPoolsParams,
   ): Promise<GetSplashPoolsResponse> {
     const duplicated = params?.duplicated || true;
-    const verified = params?.verified || true;
+    const verified = params?.verified === undefined ? true : params?.verified;
 
     return fetch(
       `${this.url}pools/overview?verified=${verified}&duplicated=${duplicated}`,
