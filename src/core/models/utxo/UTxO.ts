@@ -9,6 +9,7 @@ import {
   Bech32String,
   CborHexString,
   Dictionary,
+  HexString,
   OutputReference,
   OutputReferenceHash,
   TransactionHash,
@@ -64,20 +65,48 @@ export class UTxO {
    * Creates new Utxo with specified config
    * @param {UTxOConfig} config
    * @param {Dictionary<AssetMetadata>} metadata
+   * @param {boolean | undefined} spent
    * @return {UTxO}
    */
-  static new(config: UTxOConfig, metadata?: Dictionary<AssetMetadata>): UTxO {
+  static new(
+    config: UTxOConfig,
+    metadata?: Dictionary<AssetMetadata>,
+    spent: boolean | undefined = false,
+  ): UTxO {
     if (config instanceof TransactionUnspentOutput) {
-      return new UTxO(config, metadata);
+      return new UTxO(config, metadata, spent);
     }
-    return new UTxO(TransactionUnspentOutput.from_cbor_hex(config));
+    return new UTxO(
+      TransactionUnspentOutput.from_cbor_hex(config),
+      metadata,
+      spent,
+    );
   }
 
+  // TODO: EXTRACT TO OUTPUT STRUCTURE
   /**
-   * UTxO address
+   * Is utxo spended flag
+   * @type {boolean}
+   */
+  readonly spent: boolean;
+
+  /**
+   * Address of utxo
    * @type {Bech32String}
    */
   readonly address: Bech32String;
+
+  /**
+   * Payment credentials of utxo. Can be pkh or skh
+   * @type {HexString}
+   */
+  readonly paymentCredentials: HexString;
+
+  /**
+   * Stake credentials of utxo.
+   * @type {HexString | undefined}
+   */
+  readonly stakeCredentials?: HexString;
 
   /**
    * UTxO currencies
@@ -130,8 +159,14 @@ export class UTxO {
   private constructor(
     wasm: TransactionUnspentOutput,
     metadata?: Dictionary<AssetMetadata>,
+    spent = false,
   ) {
     const [input, output] = getWasmInputOutputPair(wasm);
+
+    const wasmAddress = output.address();
+    const paymentCredentials = wasmAddress.payment_cred()?.as_pub_key()
+      ? wasmAddress.payment_cred()?.as_pub_key()?.to_hex()
+      : wasmAddress.payment_cred()?.as_script()?.to_hex();
 
     this.wasm = wasm;
     this.wasmInput = input;
@@ -145,5 +180,8 @@ export class UTxO {
     };
     this.value = Currencies.new(this.wasmOutput.amount(), metadata);
     this.address = this.wasmOutput.address().to_bech32();
+    this.paymentCredentials = paymentCredentials!;
+    this.spent = spent;
+    this.stakeCredentials = wasmAddress.staking_cred()?.as_pub_key()?.to_hex();
   }
 }

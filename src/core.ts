@@ -142,6 +142,10 @@ export * from './splash/api/ApiWrapper.ts';
 
 // SPLASH_TX_BUILDER
 export * from './splash/txBuilderFactory/erors/InsufficientFundsErrorForChange.ts';
+export * from './splash/txBuilderFactory/operations/cancelOperation/cancelOperation.ts';
+export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputAlreadySpentError.ts';
+export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputNotFoundError.ts';
+export * from './splash/txBuilderFactory/operations/cancelOperation/errors/SupportedOperationNotFoundError.ts';
 export * from './splash/txBuilderFactory/operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
 export * from './splash/txBuilderFactory/operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';

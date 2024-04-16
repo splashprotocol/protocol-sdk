@@ -382,6 +382,23 @@ export class ApiWrapper {
   }
 
   /**
+   * Returns collaterals
+   * @return {Promise<UTxO[]>}
+   */
+  async getCollaterals(): Promise<UTxO[]> {
+    return Promise.all([
+      this.getAssetsMetadata(),
+      this.getWalletContext().then((ctx) =>
+        this.handleCIP30WalletError(ctx.getCollateral()),
+      ),
+    ]).then(([metadata, uTxOsCbors]) => {
+      return (uTxOsCbors || []).map((uTxOsCbor) =>
+        UTxO.new(uTxOsCbor, metadata),
+      );
+    });
+  }
+
+  /**
    * Returns all available assets metadata
    * @returns {Promise<AssetMetadata>}
    */

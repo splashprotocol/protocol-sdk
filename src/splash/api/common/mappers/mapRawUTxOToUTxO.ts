@@ -47,12 +47,18 @@ export const mapRawUTxOToUTxO = ({
   const output = Output.new(pParams, {
     address: rawUTxO.addr,
     value: currencies,
-    data: PlutusData.from_cbor_hex(rawUTxO.dataBin),
+    data: rawUTxO.dataBin
+      ? PlutusData.from_cbor_hex(rawUTxO.dataBin)
+      : undefined,
   });
   const wasmInput = TransactionInput.new(
     TransactionHash.from_hex(rawUTxO.txHash),
     BigInt(rawUTxO.index),
   );
 
-  UTxO.new(TransactionUnspentOutput.new(wasmInput, output.wasm));
+  return UTxO.new(
+    TransactionUnspentOutput.new(wasmInput, output.wasm),
+    metadata,
+    !!rawUTxO.spentByTxHash,
+  );
 };

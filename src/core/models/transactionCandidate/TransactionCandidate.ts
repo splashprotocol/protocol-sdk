@@ -1,18 +1,32 @@
 import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { OutputReference } from '../../types/types.ts';
+import { HexString, OutputReference } from '../../types/types.ts';
 import { Output } from '../output/Output.ts';
 import { UTxO } from '../utxo/UTxO.ts';
 
 export interface InputExtra {
   readonly redeemer: PlutusData;
   readonly scriptRef: OutputReference;
+  readonly script: HexString;
+  readonly data?: PlutusData;
+  readonly requiredSigners: HexString[];
+  readonly exUnits: {
+    readonly mem: bigint;
+    readonly steps: bigint;
+  };
 }
 
-export interface InputDescriptor {
+export interface InternalInputDescriptor {
   readonly uTxO: UTxO;
-  readonly extra?: InputExtra;
+  readonly extra: undefined;
 }
+
+export interface ExternalInputDescriptor {
+  readonly uTxO: UTxO;
+  readonly extra: InputExtra;
+}
+
+export type InputDescriptor = InternalInputDescriptor | ExternalInputDescriptor;
 
 /**
  * Transaction Candidate representation

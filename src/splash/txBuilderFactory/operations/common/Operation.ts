@@ -14,6 +14,7 @@ export interface OperationContext {
   readonly pParams: ProtocolParams;
   readonly nContext: NetworkContext;
   readonly uTxOsSelector: UTxOsSelector;
+  readonly collateralSelector: UTxOsSelector;
   readonly userAddress: Bech32String;
   readonly network: Network;
   readonly utils: Utils;

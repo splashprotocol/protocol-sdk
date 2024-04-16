@@ -285,7 +285,7 @@ export class SplashApi implements Api {
     return fetch(
       `https://explorer.spectrum.fi/cardano/${this.network}/v1/outputs/${params.txHash}:${params.index}`,
     )
-      .then((res) => res.json())
+      .then((res) => (res.status === 404 ? undefined : res.json()))
       .catch(() => undefined);
   }
 }
