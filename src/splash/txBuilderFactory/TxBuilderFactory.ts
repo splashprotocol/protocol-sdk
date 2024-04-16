@@ -21,6 +21,7 @@ import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
 import { cfmmOrWeightedDeposit } from './operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
+import { cfmmOrWeightedRedeem } from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
@@ -37,11 +38,13 @@ export const defaultOperations: {
   payToAddress: typeof payToAddress;
   payToContract: typeof payToContract;
   cfmmOrWeightedDeposit: typeof cfmmOrWeightedDeposit;
+  cfmmOrWeightedRedeem: typeof cfmmOrWeightedRedeem;
   spotOrder: typeof spotOrder;
 } = {
   payToAddress,
   payToContract,
   cfmmOrWeightedDeposit,
+  cfmmOrWeightedRedeem,
   spotOrder,
 };
 

@@ -1,0 +1,85 @@
+import {
+  Address,
+  BaseAddress,
+  NetworkId,
+} from '@dcspark/cardano-multiplatform-lib-browser';
+
+import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
+import { Currency } from '../../../../core/models/currency/Currency.ts';
+import { Data } from '../../../../core/models/data/data.ts';
+import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
+import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
+import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
+import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
+import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
+import { Operation } from '../common/Operation.ts';
+import { payToContract } from '../payToContract/payToContract.ts';
+
+const RedeemData = Data.Tuple([
+  // nft
+  Data.AssetInfo,
+  // x
+  Data.AssetInfo,
+  // y
+  Data.AssetInfo,
+  // lq
+  Data.AssetInfo,
+  // exFee
+  Data.BigInt,
+  // pkh
+  Data.Bytes,
+  // skh
+  Data.Optional(Data.Bytes),
+]);
+
+export const cfmmOrWeightedRedeem: Operation<
+  [CfmmPool | WeightedPool, Currency]
+> = (pool, lq) => (context) => {
+  const executorFeeWithTxFee = EXECUTOR_FEE.multiply(3n);
+  const address = BaseAddress.from_address(
+    Address.from_bech32(context.userAddress),
+  );
+  const estimatedAssets = pool.convertLpToAssets(lq);
+  const redeemScript =
+    pool instanceof WeightedPool
+      ? context.operationsConfig.operations.redeemWeighted.script
+      : pool.cfmmType === 'feeSwitch'
+      ? context.operationsConfig.operations.redeemFeeSwitch.script
+      : context.operationsConfig.operations.redeemDefault.script;
+  const redeemAdaForXYBox = predictDepositAda(context.pParams, {
+    address: context.userAddress,
+    value: Currencies.new([estimatedAssets.x, estimatedAssets.y]),
+  });
+  const outputValue = Currencies.new([
+    lq,
+    executorFeeWithTxFee,
+    redeemAdaForXYBox,
+  ]);
+  const data = RedeemData([
+    pool.nft,
+    pool.x.asset,
+    pool.x.asset,
+    pool.lq.asset,
+    executorFeeWithTxFee.amount,
+    address?.payment().as_pub_key()?.to_hex()!,
+    address?.stake().as_pub_key()?.to_hex(),
+  ]);
+
+  const depositAdaForOrder = predictDepositAda(context.pParams, {
+    address: toContractAddress(
+      context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
+      redeemScript,
+    ),
+    data: data,
+    value: outputValue,
+  });
+
+  return payToContract(
+    {
+      script: redeemScript,
+      version: 'plutusV2',
+    },
+    outputValue.plus([depositAdaForOrder]),
+    data,
+  )(context);
+};

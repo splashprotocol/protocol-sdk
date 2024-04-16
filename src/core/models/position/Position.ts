@@ -1,6 +1,7 @@
 import { Splash } from '../../../splash/splash.ts';
 import { Pool } from '../../types/Pool.ts';
 import { Currency } from '../currency/Currency.ts';
+import { Transaction } from '../transaction/Transaction.ts';
 
 export interface PositionParams<P extends Pool<any, any>> {
   readonly pool: P;
@@ -136,8 +137,11 @@ export class Position<P extends Pool<any, any>> {
    * @param {Currency} lq
    * @returns {Promise<any>}
    */
-  redeem(lq: Currency): Promise<any> {
-    return Promise.resolve(lq);
+  redeem(lq: Currency): Promise<Transaction> {
+    return this.splash
+      .newTx()
+      .cfmmOrWeightedRedeem(this.pool as any, lq)
+      .complete();
   }
 
   /**

@@ -10,6 +10,7 @@ export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
 export * from './core/api/types/common/RawTrendPool.ts';
+export * from './core/api/types/common/RawUTxO.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
 export * from './core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 export * from './core/api/types/getPairs/getPairs.ts';
@@ -142,6 +143,7 @@ export * from './splash/api/ApiWrapper.ts';
 // SPLASH_TX_BUILDER
 export * from './splash/txBuilderFactory/erors/InsufficientFundsErrorForChange.ts';
 export * from './splash/txBuilderFactory/operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
+export * from './splash/txBuilderFactory/operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
