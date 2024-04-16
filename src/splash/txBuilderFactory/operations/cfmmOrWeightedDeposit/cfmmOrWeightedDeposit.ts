@@ -7,6 +7,7 @@ import {
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
+import { Output } from '../../../../core/models/output/Output.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
 import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
@@ -54,10 +55,10 @@ export const cfmmOrWeightedDeposit: Operation<
         : pool.cfmmType === 'feeSwitch'
         ? context.operationsConfig.operations.depositFeeSwitch.script
         : context.operationsConfig.operations.depositDefault.script;
-    const depositAdaForLqBox = predictDepositAda(context.pParams, {
+    const depositAdaForLqBox = Output.new(context.pParams, {
       address: context.userAddress,
       value: Currencies.new([estimatedLq, x, y]),
-    });
+    }).minAdaRequired;
     const outputValue = Currencies.new([
       x,
       y,

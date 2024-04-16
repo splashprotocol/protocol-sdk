@@ -31,7 +31,10 @@ import {
   GetTradeOperationsResponse,
 } from './types/getTradeOperations/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
-import { GetUTxOByRefParams } from './types/getUTxOByRef/getUTxOByRef.ts';
+import {
+  GetUTxOByRefParams,
+  GetUTxOByRefResult,
+} from './types/getUTxOByRef/getUTxOByRef.ts';
 
 /**
  *
@@ -75,5 +78,5 @@ export interface Api {
 
   getAdaUsdRate(): Promise<GetAdaUsdRateResult>;
 
-  getUTxOByRef(ref: GetUTxOByRefParams): Promise<GetAdaUsdRateResult>;
+  getUTxOByRef(ref: GetUTxOByRefParams): Promise<GetUTxOByRefResult>;
 }

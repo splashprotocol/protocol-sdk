@@ -30,7 +30,10 @@ import {
   GetTradeOperationsResponse,
 } from '../../../core/api/types/getTradeOperations/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
-import { GetUTxOByRefParams } from '../../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
+import {
+  GetUTxOByRefParams,
+  GetUTxOByRefResult,
+} from '../../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
 import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { NetworkContext } from '../../../core/types/NetworkContext.ts';
@@ -278,7 +281,7 @@ export class SplashApi implements Api {
     ).then((res) => res.json());
   }
 
-  async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetAdaUsdRateResult> {
+  async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetUTxOByRefResult> {
     return fetch(
       `https://explorer.spectrum.fi/cardano/${this.network}/v1/outputs/${params.txHash}:${params.index}`,
     ).then((res) => res.json());
