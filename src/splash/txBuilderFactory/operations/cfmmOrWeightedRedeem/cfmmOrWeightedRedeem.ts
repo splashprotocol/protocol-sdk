@@ -58,7 +58,7 @@ export const cfmmOrWeightedRedeem: Operation<
   const data = RedeemData([
     pool.nft,
     pool.x.asset,
-    pool.x.asset,
+    pool.y.asset,
     pool.lq.asset,
     executorFeeWithTxFee.amount,
     address?.payment().as_pub_key()?.to_hex()!,
