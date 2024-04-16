@@ -13,6 +13,7 @@ import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getP
 import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { GetTradeOperationsParams } from '../../core/api/types/getTradeOperations/getTradeOperations.ts';
+import { GetUTxOByRefParams } from '../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
@@ -41,6 +42,7 @@ import { mapRawPoolToCfmmOrWeightedPool } from './common/mappers/mapRawPoolToCfm
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 import { mapRawTradeOrderToTradeOrder } from './common/mappers/mapRawTradeOrderToTradeOrder.ts';
 import { mapRawTrendPoolToTrendPool } from './common/mappers/mapRawTrendPoolToTrendPool.ts';
+import { mapRawUTxOToUTxO } from './common/mappers/mapRawUTxOToUTxO.ts';
 import { OrderBook } from './common/types/OrderBook.ts';
 import { ProtocolStats } from './common/types/ProtocolStats.ts';
 import { TrendPool } from './common/types/TrendPool.ts';
@@ -94,6 +96,20 @@ export class ApiWrapper {
     } else {
       this.getAssetsMetadata();
     }
+  }
+
+  async getUTxOByRef(params: GetUTxOByRefParams): Promise<UTxO | undefined> {
+    return Promise.all([
+      this.getProtocolParams(),
+      this.getAssetsMetadata(),
+      this.api.getUTxOByRef(params),
+    ]).then(([pParams, metadata, rawUTxO]) =>
+      mapRawUTxOToUTxO({
+        pParams,
+        metadata,
+        rawUTxO,
+      }),
+    );
   }
 
   /**

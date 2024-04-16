@@ -284,6 +284,8 @@ export class SplashApi implements Api {
   async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetUTxOByRefResult> {
     return fetch(
       `https://explorer.spectrum.fi/cardano/${this.network}/v1/outputs/${params.txHash}:${params.index}`,
-    ).then((res) => res.json());
+    )
+      .then((res) => res.json())
+      .catch(() => undefined);
   }
 }
