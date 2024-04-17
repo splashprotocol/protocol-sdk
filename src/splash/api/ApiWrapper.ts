@@ -449,7 +449,7 @@ export class ApiWrapper {
    */
   async getTradeOperations(
     params: Omit<GetTradeOperationsParams, 'paymentKeyHashes'>,
-  ): Promise<{ count: number; orders: TradeOperation[] }> {
+  ): Promise<{ count: number; operations: TradeOperation[] }> {
     return Promise.all([
       this.getPaymentKeysHashes().then((paymentKeyHashes) =>
         this.api.getTradeOperations({
@@ -462,12 +462,12 @@ export class ApiWrapper {
     ]).then(([trades, metadata]) => {
       return {
         count: trades.count,
-        orders: trades.orders.map((trade) =>
+        operations: trades.orders.map((trade) =>
           mapRawTradeOrderToTradeOrder(
             {
               rawTradeOrder: trade,
-              baseMetadata: metadata[trade.base],
-              quoteMetadata: metadata[trade.quote],
+              inputMetadata: metadata[trade.input],
+              outputMetadata: metadata[trade.output],
             },
             this.splash,
           ),

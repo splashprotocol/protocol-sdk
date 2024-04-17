@@ -7,55 +7,57 @@ import { TradeOperation } from '../../../../core/models/tradeOperation/TradeOper
 import { Splash } from '../../../splash.ts';
 
 export interface MapRawTradeOrderToTradeOrderConfig {
-  readonly baseMetadata?: AssetMetadata;
-  readonly quoteMetadata?: AssetMetadata;
+  readonly inputMetadata?: AssetMetadata;
+  readonly outputMetadata?: AssetMetadata;
   readonly rawTradeOrder: RawTradeOperation;
 }
 export const mapRawTradeOrderToTradeOrder = (
   {
-    baseMetadata,
-    quoteMetadata,
+    inputMetadata,
+    outputMetadata,
     rawTradeOrder,
   }: MapRawTradeOrderToTradeOrderConfig,
   splash: Splash<{}>,
 ): TradeOperation => {
-  const [basePolicyId, baseBase16Name] = rawTradeOrder.base.split('.');
-  const [quotePolicyId, quoteBase16Name] = rawTradeOrder.quote.split('.');
+  const [inputPolicyId, inputBase16Name] = rawTradeOrder.input.split('.');
+  const [outputPolicyId, outputBase16Name] = rawTradeOrder.output.split('.');
 
-  const base = Currency.new(
-    BigInt(rawTradeOrder.baseAmount),
+  const input = Currency.new(
+    BigInt(rawTradeOrder.inputAmount),
     AssetInfo.new(
       {
-        policyId: basePolicyId,
-        name: baseBase16Name,
+        policyId: inputPolicyId,
+        name: inputBase16Name,
         type: 'base16',
       },
-      baseMetadata,
+      inputMetadata,
     ),
   );
 
-  const quote = Currency.new(
-    BigInt(rawTradeOrder.quoteAmount),
+  const output = Currency.new(
+    BigInt(rawTradeOrder.outputAmount),
     AssetInfo.new(
       {
-        policyId: quotePolicyId,
-        name: quoteBase16Name,
+        policyId: outputPolicyId,
+        name: outputBase16Name,
         type: 'base16',
       },
-      quoteMetadata,
+      outputMetadata,
     ),
   );
+  const [orderTransactionId] = rawTradeOrder.pendingTxId.split(':');
 
   return TradeOperation.new(
     {
-      base,
-      currentQuote: quote,
+      input,
+      currentOutput: output,
       status: rawTradeOrder.orderStatus,
       price: Price.new({
-        base: base.asset,
-        quote: quote.asset,
+        base: output.asset,
+        quote: input.asset,
         raw: Number(rawTradeOrder.price),
       }),
+      orderTransactionId: orderTransactionId,
       orderId: rawTradeOrder.pendingTxId,
       orderTimestamp: rawTradeOrder.pendingTx * 1_000,
       filled: rawTradeOrder.filled,

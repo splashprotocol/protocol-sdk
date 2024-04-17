@@ -5,12 +5,12 @@ export interface RawTradeOperation {
   readonly orderStatus: TradeOperationStatus;
   readonly pendingTxId: TransactionHash;
   readonly evalTxId?: TransactionHash;
-  readonly base: AssetId;
-  readonly quote: AssetId;
+  readonly input: AssetId;
+  readonly output: AssetId;
   readonly pendingTx: ts;
   readonly evaluatedTx?: ts;
-  readonly baseAmount: string;
-  readonly quoteAmount: string;
+  readonly inputAmount: string;
+  readonly outputAmount: string;
   readonly price: string;
   readonly filled: percent;
 }

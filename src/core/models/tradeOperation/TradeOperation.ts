@@ -1,5 +1,10 @@
 import { Splash } from '../../../splash/splash.ts';
-import { lts, percent, TransactionHash } from '../../types/types.ts';
+import {
+  lts,
+  OutputReferenceHash,
+  percent,
+  TransactionHash,
+} from '../../types/types.ts';
 import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
@@ -10,11 +15,12 @@ export enum TradeOperationStatus {
 }
 export interface TradeOperationConfig {
   readonly status: TradeOperationStatus;
-  readonly base: Currency;
-  readonly currentQuote: Currency;
+  readonly input: Currency;
+  readonly currentOutput: Currency;
   readonly price: Price;
   readonly filled: percent;
-  readonly orderId: TransactionHash;
+  readonly orderTransactionId: TransactionHash;
+  readonly orderId: OutputReferenceHash;
   readonly lastTransactionId?: TransactionHash;
   readonly orderTimestamp: lts;
   readonly lastTransactionTimestamp?: lts;
@@ -40,16 +46,16 @@ export class TradeOperation {
   readonly splash: Splash<{}>;
 
   /**
-   * Trade operation base currency
+   * Trade operation input currency
    * @type {Currency}
    */
-  readonly base: Currency;
+  readonly input: Currency;
 
   /**
-   * Trade operation base currency
+   * Trade operation output currency
    * @type {Currency}
    */
-  readonly quote: Currency;
+  readonly output: Currency;
 
   /**
    * Trade operation price
@@ -70,10 +76,16 @@ export class TradeOperation {
   readonly status: TradeOperationStatus;
 
   /**
-   * Trade operation first transaction id
+   * Trade operation current pending tx id
    * @type {TransactionHash}
    */
-  readonly orderId: TransactionHash;
+  readonly orderTransactionId: TransactionHash;
+
+  /**
+   * Trade operation current pending tx box
+   * @type {TransactionHash}
+   */
+  readonly orderId: OutputReferenceHash;
 
   /**
    * Trade operation last evaluated transaction id
@@ -95,27 +107,29 @@ export class TradeOperation {
 
   private constructor(
     {
-      base,
-      currentQuote,
+      input,
+      currentOutput,
       price,
       filled,
       status,
-      orderId,
+      orderTransactionId,
       lastTransactionId,
       orderTimestamp,
       lastTransactionTimestamp,
+      orderId,
     }: TradeOperationConfig,
     splash: Splash<{}>,
   ) {
     this.splash = splash;
-    this.base = base;
-    this.quote = currentQuote;
+    this.input = input;
+    this.output = currentOutput;
     this.price = price;
     this.filled = filled;
     this.status = status;
-    this.orderId = orderId;
+    this.orderTransactionId = orderTransactionId;
     this.lastTransactionId = lastTransactionId;
     this.orderTimestamp = orderTimestamp;
+    this.orderId = orderId;
     this.lastTransactionTimestamp = lastTransactionTimestamp;
   }
 
@@ -124,6 +138,10 @@ export class TradeOperation {
    * @return {Promise<TransactionHash>}
    */
   async cancel(): Promise<TransactionHash> {
-    return Promise.resolve('');
+    return this.splash
+      .newTx()
+      .cancelOperation(this.orderId)
+      .complete()
+      .then((tx) => tx.signAndSubmit());
   }
 }

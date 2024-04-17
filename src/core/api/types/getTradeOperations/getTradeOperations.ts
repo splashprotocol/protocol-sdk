@@ -1,3 +1,4 @@
+import { uint } from '../../../types/types.ts';
 import { RawTradeOperation } from '../common/RawTradeOperation.ts';
 
 export interface GetTradeOperationsParams {
@@ -7,6 +8,6 @@ export interface GetTradeOperationsParams {
 }
 
 export interface GetTradeOperationsResponse {
-  readonly count: number;
+  readonly count: uint;
   readonly orders: RawTradeOperation[];
 }

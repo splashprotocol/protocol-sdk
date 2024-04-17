@@ -19,7 +19,7 @@ test('It should creates valid trade operation', () => {
       }),
       status: TradeOperationStatus.Pending,
       orderTimestamp: Date.now(),
-      orderId: '',
+      orderTransactionId: '',
       filled: 0,
     },
     splash,
