@@ -59,7 +59,6 @@ export class SignedTransaction {
       transaction,
       witnessSetWithSign,
     );
-    console.log(this.wasm);
     this.partialSign = transaction.partialSign;
   }
 

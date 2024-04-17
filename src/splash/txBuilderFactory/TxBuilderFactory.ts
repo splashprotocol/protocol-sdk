@@ -16,6 +16,7 @@ import {
   SingleOutputBuilderResult,
   TransactionBuilder,
   TransactionBuilderConfig,
+  TransactionWitnessSetBuilder,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
@@ -29,7 +30,7 @@ import {
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { Dictionary, OutputReference, uint } from '../../core/types/types.ts';
-import { TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
+import { MAX_TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
@@ -146,7 +147,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     { prevTxFee, bestTxTxFee, buildCounts }: CreateTransactionExtra = {
       prevTxFee: undefined,
       buildCounts: 1,
-      bestTxTxFee: TRANSACTION_FEE.amount,
+      bestTxTxFee: MAX_TRANSACTION_FEE.amount,
     },
   ): Promise<Transaction> {
     try {
@@ -200,7 +201,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       collateralSelector,
       ...rest
     }: OperationContext,
-    txFee: Currency = TRANSACTION_FEE,
+    txFee: Currency = MAX_TRANSACTION_FEE,
   ): Promise<{ txBuilder: SignedTxBuilder; partialSign: boolean }> {
     const transactionBuilder = TransactionBuilder.new(
       await this.transactionBuilderConfigP,
@@ -217,6 +218,9 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       (total, output) => total.plus(output.totalValue),
       Currencies.new([txFee]),
     );
+    const maxCollateralsValue = Currencies.new([
+      MAX_TRANSACTION_FEE.multiply(3n),
+    ]);
     const userUTxOsForOutput = scriptsInputsValue.isAssetsEnough(
       totalOutputValue,
     )
@@ -249,7 +253,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
     // COLLATERALS
     const collaterals = scriptInputs.length
-      ? collateralSelector['uTxOs'].slice(0, rest.pParams.maxCollateralInputs)
+      ? collateralSelector.select(maxCollateralsValue)
       : [];
 
     // REF INPUTS
@@ -282,6 +286,23 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ).payment_key(),
       ),
     );
+    if (collaterals.length) {
+      const collateralReturnOutput = Output.new(rest.pParams, {
+        address: userAddress,
+        value: collaterals
+          .reduce(
+            (total, collaterals) => total.plus(collaterals.value),
+            Currencies.empty,
+          )
+          .minus(maxCollateralsValue),
+      });
+      if (
+        !collateralReturnOutput.additionalAdaToCoverMinAdaRequired.isPositive()
+      ) {
+        transactionBuilder.set_collateral_return(collateralReturnOutput.wasm);
+      }
+    }
+
     allRefUTxOs.forEach((refUTxO) =>
       transactionBuilder.add_reference_input(refUTxO.wasm),
     );
@@ -298,12 +319,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         requiredSigners.add(Ed25519KeyHash.from_hex(rs)),
       );
       const partialPlutusWitness = PartialPlutusWitness.new(
+        // PlutusScriptWitness.new_ref(ScriptHash.from_hex(input.extra.script)),
         PlutusScriptWitness.new_script(
           PlutusScript.from_v2(
-            PlutusV2Script.from_cbor_hex(
-              // TODO: REPLACE WITH VARIABLE
-              '59041459041101000033232323232323232322222323253330093232533300b003132323300100100222533301100114a02646464a66602266ebc0380045288998028028011808801180a80118098009bab301030113011301130113011301130090011323232533300e3370e900118068008991919299980899b8748000c0400044c8c8c8c8c94ccc0594ccc05802c400852808008a503375e601860260046034603660366036603660366036603660366036602602266ebcc020c048c020c048008c020c048004c060dd6180c180c980c9808804980b80098078008b19191980080080111299980b0008a60103d87a80001323253330153375e6018602600400c266e952000330190024bd70099802002000980d001180c0009bac3007300e0063014001300c001163001300b0072301230130013322323300100100322533301200114a026464a66602266e3c008014528899802002000980b0011bae3014001375860206022602260226022602260226022602260120026eb8c040c044c044c044c044c044c044c044c044c044c044c02401cc004c0200108c03c004526136563370e900118049baa003323232533300a3370e90000008991919191919191919191919191919191919191919191919299981298140010991919191924c646600200200c44a6660560022930991980180198178011bae302d0013253330263370e9000000899191919299981698180010991924c64a66605866e1d20000011323253330313034002132498c94ccc0bccdc3a400000226464a666068606e0042649318150008b181a80098168010a99981799b87480080044c8c8c8c8c8c94ccc0e0c0ec00852616375a607200260720046eb4c0dc004c0dc008dd6981a80098168010b18168008b181900098150018a99981619b874800800454ccc0bcc0a800c5261616302a002302300316302e001302e002302c00130240091630240083253330253370e9000000899191919299981618178010a4c2c6eb4c0b4004c0b4008dd6981580098118060b1811805980d806180d0098b1bac30260013026002375c60480026048004604400260440046eb4c080004c080008c078004c078008c070004c070008dd6980d000980d0011bad30180013018002375a602c002602c004602800260280046eb8c048004c048008dd7180800098040030b1804002919299980519b87480000044c8c8c8c94ccc044c05000852616375c602400260240046eb8c040004c02000858c0200048c94ccc024cdc3a400000226464a66601c60220042930b1bae300f0013007002153330093370e900100089919299980718088010a4c2c6eb8c03c004c01c00858c01c0048c014dd5000918019baa0015734aae7555cf2ab9f5740ae855d126126d8799fd87a9f581c2be9e0e775b72db02ab618a03ccbe70c357a47bcd8437323e7e0f51affff0001',
-            ),
+            PlutusV2Script.from_cbor_hex(input.extra.plutusV2ScriptCbor),
           ),
         ),
         input.extra.redeemer,
@@ -352,7 +371,6 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           break;
         }
       }
-
       transactionBuilder.set_exunits(
         RedeemerWitnessKey.new(RedeemerTag.Spend, txInputIndex),
         ExUnits.new(
@@ -362,10 +380,54 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       );
     });
 
+    const uncheckedSignedTxBuilder = transactionBuilder.build(
+      changeSelectionAlgo,
+      wasmChangeAddress,
+    );
+    const uncheckedWitnessSetBuilder = uncheckedSignedTxBuilder
+      .build_unchecked()
+      .witness_set();
+    const txWitnessSetBuilder = TransactionWitnessSetBuilder.new();
+
+    txWitnessSetBuilder.add_required_wits(
+      uncheckedSignedTxBuilder.witness_set().remaining_wits(),
+    );
+
+    if (uncheckedWitnessSetBuilder.redeemers()) {
+      const redeemersToAdd = uncheckedWitnessSetBuilder.redeemers()!;
+
+      for (let i = 0; i < redeemersToAdd.len(); i++) {
+        txWitnessSetBuilder.add_redeemer(redeemersToAdd.get(i));
+      }
+    }
+    if (uncheckedWitnessSetBuilder.vkeywitnesses()) {
+      const vkeywitnessesToAdd = uncheckedWitnessSetBuilder.vkeywitnesses()!;
+
+      for (let i = 0; i < vkeywitnessesToAdd.len(); i++) {
+        txWitnessSetBuilder.add_vkey(vkeywitnessesToAdd.get(i));
+      }
+    }
+    if (uncheckedWitnessSetBuilder.plutus_datums()) {
+      const plutusDatumsToAdd = uncheckedWitnessSetBuilder.plutus_datums()!;
+
+      for (let i = 0; i < plutusDatumsToAdd.len(); i++) {
+        txWitnessSetBuilder.add_plutus_datum(plutusDatumsToAdd.get(i));
+      }
+    }
+    if (uncheckedWitnessSetBuilder.bootstrap_witnesses()) {
+      const bootstrapWitnessesToAdd =
+        uncheckedWitnessSetBuilder.bootstrap_witnesses()!;
+
+      for (let i = 0; i < bootstrapWitnessesToAdd.len(); i++) {
+        txWitnessSetBuilder.add_bootstrap(bootstrapWitnessesToAdd.get(i));
+      }
+    }
+
     return {
-      txBuilder: transactionBuilder.build(
-        changeSelectionAlgo,
-        wasmChangeAddress,
+      txBuilder: SignedTxBuilder.new_without_data(
+        txForEvaluations.draft_body(),
+        txWitnessSetBuilder,
+        txForEvaluations.draft_tx().is_valid(),
       ),
       partialSign: true,
     };

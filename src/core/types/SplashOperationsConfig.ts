@@ -1,14 +1,16 @@
-import { percent, TransactionHash, uint } from './types.ts';
+import { CborHexString, percent, TransactionHash, uint } from './types.ts';
 
 export interface SplashRefundData {
-  cost: {
-    mem: uint;
-    steps: uint;
+  readonly cost: {
+    readonly mem: uint;
+    readonly steps: uint;
   };
-  refUtxo: {
-    txHash: TransactionHash;
-    index: uint;
+  readonly refUtxo: {
+    readonly txHash: TransactionHash;
+    readonly index: uint;
   };
+  readonly plutusV2ScriptCbor: CborHexString;
+  readonly redeemer: string;
 }
 
 export interface SplashOperation {

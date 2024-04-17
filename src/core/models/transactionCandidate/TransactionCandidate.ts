@@ -1,6 +1,10 @@
 import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { HexString, OutputReference } from '../../types/types.ts';
+import {
+  CborHexString,
+  HexString,
+  OutputReference,
+} from '../../types/types.ts';
 import { Output } from '../output/Output.ts';
 import { UTxO } from '../utxo/UTxO.ts';
 
@@ -8,6 +12,7 @@ export interface InputExtra {
   readonly redeemer: PlutusData;
   readonly scriptRef: OutputReference;
   readonly script: HexString;
+  readonly plutusV2ScriptCbor: CborHexString;
   readonly data?: PlutusData;
   readonly requiredSigners: HexString[];
   readonly exUnits: {

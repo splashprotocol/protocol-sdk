@@ -46,6 +46,7 @@ export class Transaction {
    * @return {string}
    */
   get cbor(): CborHexString {
+    console.log(this.wasm.build_unchecked());
     return this.wasm.build_unchecked().to_cbor_hex();
   }
 

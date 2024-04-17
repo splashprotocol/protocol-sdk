@@ -51,7 +51,7 @@ export const cancelOperation: Operation<
     }
 
     transactionCandidate.addInput(uTxOToCancel, {
-      redeemer: PlutusData.from_cbor_hex('d8799f00000001ff'),
+      redeemer: PlutusData.from_cbor_hex(operationConfig.refundData.redeemer),
       scriptRef: {
         txHash: operationConfig.refundData.refUtxo.txHash,
         index: BigInt(operationConfig.refundData.refUtxo.index),
@@ -64,6 +64,7 @@ export const cancelOperation: Operation<
           ?.to_hex()!,
       ],
       script: operationConfig.script,
+      plutusV2ScriptCbor: operationConfig.refundData.plutusV2ScriptCbor,
       exUnits: {
         mem: BigInt(operationConfig.refundData.cost.mem),
         steps: BigInt(operationConfig.refundData.cost.steps),
