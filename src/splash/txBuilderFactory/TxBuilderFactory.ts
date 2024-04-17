@@ -45,7 +45,7 @@ import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig
 
 interface CreateTransactionExtra {
   readonly prevTxFee?: bigint;
-  readonly bestTxTxFee: bigint;
+  readonly bestTxFee: bigint;
   readonly buildCounts: uint;
 }
 
@@ -144,15 +144,18 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
   private async createTransaction(
     context: OperationContext,
-    { prevTxFee, bestTxTxFee, buildCounts }: CreateTransactionExtra = {
+    { prevTxFee, bestTxFee, buildCounts }: CreateTransactionExtra = {
       prevTxFee: undefined,
       buildCounts: 1,
-      bestTxTxFee: MAX_TRANSACTION_FEE.amount,
+      bestTxFee: MAX_TRANSACTION_FEE.amount,
     },
   ): Promise<Transaction> {
     try {
       const { txBuilder, partialSign } =
-        await this.createSignedTransactionBuilder(context);
+        await this.createSignedTransactionBuilder(
+          context,
+          Currency.ada(bestTxFee),
+        );
       if (txBuilder.body().fee() === prevTxFee) {
         return Transaction.new(
           {
@@ -166,11 +169,11 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         return Transaction.new(
           {
             transaction:
-              txBuilder.body().fee() > bestTxTxFee
+              txBuilder.body().fee() > bestTxFee
                 ? (
                     await this.createSignedTransactionBuilder(
                       context,
-                      Currency.ada(bestTxTxFee),
+                      Currency.ada(bestTxFee),
                     )
                   ).txBuilder
                 : txBuilder,
@@ -182,9 +185,9 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       return this.createTransaction(context, {
         buildCounts: buildCounts + 1,
         prevTxFee: txBuilder.body().fee(),
-        bestTxTxFee:
-          txBuilder.body().fee() > bestTxTxFee
-            ? bestTxTxFee
+        bestTxFee:
+          txBuilder.body().fee() > bestTxFee
+            ? bestTxFee
             : txBuilder.body().fee(),
       });
     } catch (e) {
@@ -214,6 +217,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       (total, scriptInput) => total.plus(scriptInput.uTxO.value),
       Currencies.empty,
     );
+
     const totalOutputValue = transactionCandidate.outputs.reduce(
       (total, output) => total.plus(output.totalValue),
       Currencies.new([txFee]),
@@ -422,10 +426,9 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         txWitnessSetBuilder.add_bootstrap(bootstrapWitnessesToAdd.get(i));
       }
     }
-
     return {
       txBuilder: SignedTxBuilder.new_without_data(
-        txForEvaluations.draft_body(),
+        transactionBuilder.build(changeSelectionAlgo, wasmChangeAddress).body(),
         txWitnessSetBuilder,
         txForEvaluations.draft_tx().is_valid(),
       ),
