@@ -1,9 +1,11 @@
 import {
   Address,
+  BaseAddress,
   ChangeSelectionAlgo,
+  Credential,
   Ed25519KeyHash,
+  EnterpriseAddress,
   ExUnits,
-  NetworkId,
   PartialPlutusWitness,
   PlutusScript,
   PlutusScriptWitness,
@@ -29,18 +31,28 @@ import {
 } from '../../core/models/transactionCandidate/TransactionCandidate.ts';
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
+import { SplashOperationsConfigWithCredsDeserializers } from '../../core/types/SplashOperationsConfig.ts';
 import { Dictionary, OutputReference, uint } from '../../core/types/types.ts';
 import { MAX_TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
 import { cancelOperation } from './operations/cancelOperation/cancelOperation.ts';
-import { cfmmOrWeightedDeposit } from './operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
-import { cfmmOrWeightedRedeem } from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
+import {
+  cfmmOrWeightedDeposit,
+  DepositData,
+} from './operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
+import {
+  cfmmOrWeightedRedeem,
+  RedeemData,
+} from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
-import { spotOrder } from './operations/spotOrder/spotOrder.ts';
+import {
+  createSpotOrderData,
+  spotOrder,
+} from './operations/spotOrder/spotOrder.ts';
 import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig.ts';
 
 interface CreateTransactionExtra {
@@ -113,13 +125,83 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
   }
 
+  private async getMappedOperationsConfig(): Promise<SplashOperationsConfigWithCredsDeserializers> {
+    const rawOperationsConfig = await this.splash.operationsConfig;
+    const anyRedeemOrDepositDeserializer = (
+      dataStructure: typeof RedeemData | typeof DepositData,
+    ): SplashOperationsConfigWithCredsDeserializers['operations']['spotOrder']['credsDeserializer'] => {
+      return (networkId, data) => {
+        const deserializedData = dataStructure.deserialize(data);
+        const pkh = deserializedData[5];
+        const skh = deserializedData[6];
+
+        const address = skh
+          ? BaseAddress.new(
+              Number(networkId.network()),
+              Credential.new_pub_key(Ed25519KeyHash.from_hex(pkh)),
+              Credential.new_pub_key(Ed25519KeyHash.from_hex(skh)),
+            )
+          : EnterpriseAddress.new(
+              Number(networkId.network()),
+              Credential.new_pub_key(Ed25519KeyHash.from_hex(pkh)),
+            );
+
+        return {
+          address: address.to_address().to_bech32(),
+          requiredSigner: pkh,
+        };
+      };
+    };
+
+    return {
+      operations: {
+        spotOrder: {
+          ...rawOperationsConfig.operations.spotOrder,
+          credsDeserializer: (networkId, data) => {
+            const deserializedData =
+              createSpotOrderData(networkId).deserialize(data);
+
+            return {
+              address: deserializedData[9],
+              requiredSigner: deserializedData[10],
+            };
+          },
+        },
+        redeemFeeSwitch: {
+          ...rawOperationsConfig.operations.redeemFeeSwitch,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
+        redeemWeighted: {
+          ...rawOperationsConfig.operations.redeemWeighted,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
+        redeemDefault: {
+          ...rawOperationsConfig.operations.redeemDefault,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
+        depositDefault: {
+          ...rawOperationsConfig.operations.depositDefault,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
+        depositWeighted: {
+          ...rawOperationsConfig.operations.depositWeighted,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
+        depositFeeSwitch: {
+          ...rawOperationsConfig.operations.depositFeeSwitch,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
+      },
+    };
+  }
+
   private async getOperationContext(): Promise<OperationContext> {
     const transactionCandidate = TransactionCandidate.new();
     const pParams = await this.protocolParamsP;
     const userAddress = await this.splash.api.getActiveAddress();
     const nContext = await this.splash.api.getNetworkContext();
     const uTxOs = await this.splash.api.getUTxOs();
-    const operationsConfig = await this.splash.operationsConfig;
+    const operationsConfig = await this.getMappedOperationsConfig();
     const uTxOsSelector = UTxOsSelector.new({
       transactionCandidate,
       uTxOs,
@@ -280,9 +362,6 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       throw new Error('some of ref uTxO not found');
     }
 
-    transactionBuilder.set_network_id(
-      rest.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
-    );
     collaterals.forEach((collateralUTxO) =>
       transactionBuilder.add_collateral(
         SingleInputBuilder.from_transaction_unspent_output(

@@ -16,7 +16,7 @@ import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts'
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
 
-const createSpotOrderData = (networkId: NetworkId) =>
+export const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
     // tag:
     Data.Bytes,

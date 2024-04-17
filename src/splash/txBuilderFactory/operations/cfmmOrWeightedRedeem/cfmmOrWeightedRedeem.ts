@@ -15,7 +15,7 @@ import { toContractAddress } from '../../../../core/utils/toContractAddress/toCo
 import { Operation } from '../common/Operation.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
 
-const RedeemData = Data.Tuple([
+export const RedeemData = Data.Tuple([
   // nft
   Data.AssetInfo,
   // x

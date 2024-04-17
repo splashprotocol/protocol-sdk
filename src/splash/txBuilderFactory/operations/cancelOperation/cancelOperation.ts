@@ -1,8 +1,9 @@
 import {
-  Address,
+  NetworkId,
   PlutusData,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
+import { Output } from '../../../../core/models/output/Output.ts';
 import {
   OutputReference,
   OutputReferenceHash,
@@ -16,7 +17,13 @@ export const cancelOperation: Operation<
   [OutputReference | OutputReferenceHash]
 > =
   (outputReferenceOrHash) =>
-  async ({ userAddress, transactionCandidate, operationsConfig, splash }) => {
+  async ({
+    network,
+    transactionCandidate,
+    operationsConfig,
+    splash,
+    pParams,
+  }) => {
     let outputReference: OutputReference;
 
     if (outputReferenceOrHash instanceof Object) {
@@ -50,6 +57,11 @@ export const cancelOperation: Operation<
       );
     }
 
+    const creds = operationConfig.credsDeserializer(
+      network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
+      uTxOToCancel.wasmOutput.datum()?.as_datum()?.to_cbor_hex()!,
+    );
+
     transactionCandidate.addInput(uTxOToCancel, {
       redeemer: PlutusData.from_cbor_hex(operationConfig.refundData.redeemer),
       scriptRef: {
@@ -57,12 +69,7 @@ export const cancelOperation: Operation<
         index: BigInt(operationConfig.refundData.refUtxo.index),
       },
       // TODO: NEED TO REWRITE
-      requiredSigners: [
-        Address.from_bech32(userAddress)
-          .payment_cred()
-          ?.as_pub_key()
-          ?.to_hex()!,
-      ],
+      requiredSigners: [creds.requiredSigner],
       script: operationConfig.script,
       plutusV2ScriptCbor: operationConfig.refundData.plutusV2ScriptCbor,
       exUnits: {
@@ -71,4 +78,10 @@ export const cancelOperation: Operation<
       },
       data: uTxOToCancel.wasmOutput.datum()?.as_datum(),
     });
+    transactionCandidate.addOutput(
+      Output.new(pParams, {
+        address: creds.address,
+        value: uTxOToCancel.value,
+      }),
+    );
   };

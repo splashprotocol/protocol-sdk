@@ -1,4 +1,13 @@
-import { CborHexString, percent, TransactionHash, uint } from './types.ts';
+import { NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
+
+import {
+  Bech32String,
+  CborHexString,
+  HexString,
+  percent,
+  TransactionHash,
+  uint,
+} from './types.ts';
 
 export interface SplashRefundData {
   readonly cost: {
@@ -38,5 +47,27 @@ export interface SplashOperationsConfig {
     readonly redeemDefault: SplashOperation;
     readonly redeemFeeSwitch: SplashOperation;
     readonly redeemWeighted: SplashOperation;
+  };
+}
+
+export interface WithCredsDeserializer {
+  credsDeserializer: (
+    networkId: NetworkId,
+    data: CborHexString,
+  ) => {
+    readonly requiredSigner: HexString;
+    readonly address: Bech32String;
+  };
+}
+// TODO: REWRITE
+export interface SplashOperationsConfigWithCredsDeserializers {
+  readonly operations: {
+    readonly spotOrder: SplashSpotOrder & WithCredsDeserializer;
+    readonly depositDefault: SplashOperation & WithCredsDeserializer;
+    readonly depositFeeSwitch: SplashOperation & WithCredsDeserializer;
+    readonly depositWeighted: SplashOperation & WithCredsDeserializer;
+    readonly redeemDefault: SplashOperation & WithCredsDeserializer;
+    readonly redeemFeeSwitch: SplashOperation & WithCredsDeserializer;
+    readonly redeemWeighted: SplashOperation & WithCredsDeserializer;
   };
 }
