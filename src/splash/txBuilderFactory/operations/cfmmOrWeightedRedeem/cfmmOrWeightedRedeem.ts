@@ -32,6 +32,8 @@ const RedeemData = Data.Tuple([
   Data.Optional(Data.Bytes),
 ]);
 
+const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
+
 export const cfmmOrWeightedRedeem: Operation<
   [CfmmPool | WeightedPool, Currency]
 > = (pool, lq) => (context) => {
@@ -65,14 +67,19 @@ export const cfmmOrWeightedRedeem: Operation<
     address?.stake().as_pub_key()?.to_hex(),
   ]);
 
-  const depositAdaForOrder = predictDepositAda(context.pParams, {
-    address: toContractAddress(
-      context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
-      redeemScript,
-    ),
-    data: data,
-    value: outputValue,
-  });
+  const depositAdaForOrder = Currency.max([
+    predictDepositAda(context.pParams, {
+      address: toContractAddress(
+        context.network === 'mainnet'
+          ? NetworkId.mainnet()
+          : NetworkId.testnet(),
+        redeemScript,
+      ),
+      data: data,
+      value: outputValue,
+    }),
+    MINIMUM_COLLATERAL_ADA,
+  ]);
 
   return payToContract(
     {

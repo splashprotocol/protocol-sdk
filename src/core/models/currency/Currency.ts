@@ -13,6 +13,31 @@ import { ValueLowerThanZeroError } from './errors/ValueLowerThanZeroError.ts';
 
 export class Currency {
   /**
+   * Returns max currency of array
+   * @param {Currency[]} currencies
+   * @return {Currency}
+   */
+  static max(
+    currencies:
+      | [Currency, Currency]
+      | [Currency, Currency, Currency]
+      | [Currency, Currency, Currency, Currency]
+      | [Currency, Currency, Currency, Currency, Currency],
+  ): Currency {
+    const [first] = currencies;
+
+    if (!currencies.every((currency) => currency.asset.isEquals(first.asset))) {
+      throw new AssetInfoMismatchError(
+        `all currrencies should has same asset. expected ${first.asset.splashId}`,
+      );
+    }
+
+    return currencies.reduce((max, currency) => {
+      return max.gte(currency) ? max : currency;
+    }, first.withAmount(0n));
+  }
+
+  /**
    * Creates currency instance with usd asset info
    * @param {bigint} amount
    * @returns {Currency}

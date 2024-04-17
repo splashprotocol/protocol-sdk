@@ -36,6 +36,8 @@ const DepositData = Data.Tuple([
   Data.BigInt,
 ]);
 
+const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
+
 export const cfmmOrWeightedDeposit: Operation<
   [CfmmPool | WeightedPool, [Currency, Currency]]
 > =
@@ -55,10 +57,14 @@ export const cfmmOrWeightedDeposit: Operation<
         : pool.cfmmType === 'feeSwitch'
         ? context.operationsConfig.operations.depositFeeSwitch.script
         : context.operationsConfig.operations.depositDefault.script;
-    const depositAdaForLqBox = Output.new(context.pParams, {
-      address: context.userAddress,
-      value: Currencies.new([estimatedLq, x, y]),
-    }).minAdaRequired;
+    const depositAdaForLqBox = Currency.max([
+      Output.new(context.pParams, {
+        address: context.userAddress,
+        value: Currencies.new([estimatedLq, x, y]),
+      }).minAdaRequired,
+      MINIMUM_COLLATERAL_ADA,
+    ]);
+
     const outputValue = Currencies.new([
       x,
       y,
