@@ -36,7 +36,7 @@ export const mapRawUTxOToUTxO = ({
           BigInt(item.jsQuantity),
           AssetInfo.new({
             name: item.name,
-            type: 'base16',
+            type: 'raw',
             policyId: item.policyId,
           }),
         ),
