@@ -88,6 +88,24 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
   readonly y: Currency;
 
   /**
+   * Pool x Fee in pct
+   * @type {percent}
+   */
+  readonly xFee: percent;
+
+  /**
+   * Pool y fee in pct
+   * @type {percent}
+   */
+  readonly yFee: percent;
+
+  /**
+   * Pool treasury fee in pct. Can be undefined
+   * @type {percent | undefined}
+   */
+  readonly treasuryFee: percent;
+
+  /**
    * Fee numerator of x asset
    * @type {bigint}
    */
@@ -208,6 +226,11 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
     this.y = this.totalY.minus(this.treasuryY);
     this.xFeeNumerator = xFee;
     this.yFeeNumerator = yFee;
+    this.xFee = this.toPoolFeePct(xFee, feeDenominator);
+    this.yFee = this.toPoolFeePct(yFee, feeDenominator);
+    this.treasuryFee = treasuryFee
+      ? this.toTreasuryFeePct(treasuryFee, feeDenominator)
+      : Number(treasuryFee);
     this.treasuryFeeNumerator = treasuryFee;
     this.type = type;
     this.feeDenominator = feeDenominator;
@@ -338,6 +361,16 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
               .toFixed(),
           );
     return Currency.new(amount, assetInfo);
+  }
+
+  private toPoolFeePct(feeNum: bigint, feeDenom: bigint): percent {
+    return Number(
+      math.evaluate(`(1 - ${feeNum} / ${feeDenom}) * 100`).toFixed(3),
+    );
+  }
+
+  private toTreasuryFeePct(feeNum: bigint, feeDenom: bigint): percent {
+    return Number(math.evaluate(`${feeNum} / ${feeDenom} * 100`).toFixed(3));
   }
 
   /**
