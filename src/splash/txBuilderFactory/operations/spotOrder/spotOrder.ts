@@ -67,7 +67,7 @@ const getBasePrice = async (
         }),
         input,
       })
-      .priceFromPct(100 - slippage);
+      .priceFromPct(100 + slippage);
   }
 
   return basePrice.quote.isEquals(input.asset) ? basePrice : basePrice.invert();
