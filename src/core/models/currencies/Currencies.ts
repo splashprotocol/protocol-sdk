@@ -223,10 +223,14 @@ export class Currencies {
       Map<string, Currency>
     >((map, item) => {
       const splashId = item.asset.splashId;
-      if (map.has(splashId)) {
-        map.set(splashId, map.get(splashId)!.minus(item));
-      } else {
+      if (!map.has(splashId)) {
         throw new MinuendEqualsZeroError(`minuend is equals zero. ${splashId}`);
+      }
+      const result = map.get(splashId)!.minus(item);
+      if (result.isPositive()) {
+        map.set(splashId, result);
+      } else {
+        map.delete(splashId);
       }
       return map;
     }, new Map(this.currencyMap.entries()));

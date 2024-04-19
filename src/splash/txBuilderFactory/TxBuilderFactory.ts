@@ -36,7 +36,9 @@ import { Dictionary, OutputReference, uint } from '../../core/types/types.ts';
 import { MAX_TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
+import { InsufficientCollateralError } from './erors/InsufficientCollateralError.ts';
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
+import { NoCollateralError } from './erors/NoCollateralError.ts';
 import { cancelOperation } from './operations/cancelOperation/cancelOperation.ts';
 import {
   cfmmOrWeightedDeposit,
@@ -314,6 +316,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       : uTxOsSelector['selectForTransactionBuilder'](
           totalOutputValue.minus(scriptsInputsValue),
         );
+
     const allUTxOs = this.normalizeUTxOsForChange(
       totalOutputValue,
       userUTxOsForOutput.concat(
@@ -338,9 +341,19 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
 
     // COLLATERALS
-    const collaterals = scriptInputs.length
-      ? collateralSelector.select(maxCollateralsValue)
-      : [];
+    let collaterals: UTxO[] = [];
+    if (scriptInputs.length && !collateralSelector['uTxOs'].length) {
+      throw new NoCollateralError('wallet has no collateral UTxO');
+    }
+    if (scriptInputs.length) {
+      try {
+        collaterals = collateralSelector.select(maxCollateralsValue);
+      } catch (e) {
+        throw new InsufficientCollateralError(
+          'insufficient collateral in wallet',
+        );
+      }
+    }
 
     // REF INPUTS
     const allRefUTxOsInfo = Object.values(
