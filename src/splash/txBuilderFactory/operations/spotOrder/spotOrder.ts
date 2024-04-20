@@ -70,7 +70,7 @@ const getBasePrice = async (
       .priceFromPct(100 + slippage);
   }
 
-  return basePrice.quote.isEquals(input.asset) ? basePrice : basePrice.invert();
+  return basePrice.base.isEquals(input.asset) ? basePrice : basePrice.invert();
 };
 
 const getBeacon = async (uTxO: UTxO): Promise<string> =>
@@ -101,7 +101,7 @@ const getMarginalOutput = async (
     return orderStepCost;
   }
   if (inputAsset.isAda()) {
-    return basePrice.getReceivedBaseFor(orderStepCost);
+    return basePrice.getNecessaryQuoteFor(orderStepCost);
   }
   const rates = splash.utils.selectRates({
     pairs: await splash.api.getPairs(),
