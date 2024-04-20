@@ -19,7 +19,7 @@ export * from './core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 export * from './core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
-export * from './core/api/types/getTradeOperations/getTradeOperations.ts';
+export * from './core/api/types/getTradeOrders/getTradeOperations.ts';
 export * from './core/api/types/getTrendPools/getTrendPools.ts';
 
 //CORE_MODELS_ASSET_INFO
@@ -67,7 +67,7 @@ export * from './core/models/pair/Pair.ts';
 export * from './core/models/position/Position.ts';
 
 // CORE_MODELS_TRADE_OPERATION
-export * from './core/models/tradeOperation/TradeOperation.ts';
+export * from './core/models/tradeOrder/TradeOrder.ts';
 
 // CORE_MODELS_PRICE
 export * from './core/models/price/Price.ts';

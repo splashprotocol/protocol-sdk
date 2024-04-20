@@ -27,9 +27,9 @@ import {
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
 import {
-  GetTradeOperationsParams,
-  GetTradeOperationsResponse,
-} from './types/getTradeOperations/getTradeOperations.ts';
+  getTradeOrdersParams,
+  getTradeOrdersResult,
+} from './types/getTradeOrders/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
 import {
   GetUTxOByRefParams,
@@ -72,9 +72,7 @@ export interface Api {
 
   getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
 
-  getTradeOperations(
-    params: GetTradeOperationsParams,
-  ): Promise<GetTradeOperationsResponse>;
+  getTradeOrders(params: getTradeOrdersParams): Promise<getTradeOrdersResult>;
 
   getAdaUsdRate(): Promise<GetAdaUsdRateResult>;
 

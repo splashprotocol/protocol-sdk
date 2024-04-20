@@ -29,14 +29,14 @@ export interface TradeOperationConfig {
 /**
  * Trade operation representation in history
  */
-export class TradeOperation {
+export class TradeOrder {
   /**
    * Creates new Trade operation
    * @param {TradeOperationConfig} config
    * @param {Splash<{}>} splash
    */
   static new(config: TradeOperationConfig, splash: Splash<{}>) {
-    return new TradeOperation(config, splash);
+    return new TradeOrder(config, splash);
   }
 
   /**

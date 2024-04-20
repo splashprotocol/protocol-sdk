@@ -12,7 +12,7 @@ import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/ge
 import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
-import { GetTradeOperationsParams } from '../../core/api/types/getTradeOperations/getTradeOperations.ts';
+import { getTradeOrdersParams } from '../../core/api/types/getTradeOrders/getTradeOperations.ts';
 import { GetUTxOByRefParams } from '../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
@@ -23,7 +23,7 @@ import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Price } from '../../core/models/price/Price.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
-import { TradeOperation } from '../../core/models/tradeOperation/TradeOperation.ts';
+import { TradeOrder } from '../../core/models/tradeOrder/TradeOrder.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
@@ -445,14 +445,14 @@ export class ApiWrapper {
   /**
    * Returns orders list using limit and asset
    * @param {P} params
-   * @return {Promise<{count: number, orders: TradeOperation[]}>}
+   * @return {Promise<{count: number, orders: TradeOrder[]}>}
    */
-  async getTradeOperations(
-    params: Omit<GetTradeOperationsParams, 'paymentKeyHashes'>,
-  ): Promise<{ count: number; operations: TradeOperation[] }> {
+  async getTradeOrders(
+    params: Omit<getTradeOrdersParams, 'paymentKeyHashes'>,
+  ): Promise<{ count: number; operations: TradeOrder[] }> {
     return Promise.all([
       this.getPaymentKeysHashes().then((paymentKeyHashes) =>
-        this.api.getTradeOperations({
+        this.api.getTradeOrders({
           limit: params.limit,
           offset: params.offset,
           paymentKeyHashes,

@@ -1,15 +1,15 @@
 import { AssetMetadata } from '../../../../core/api/types/common/AssetMetadata.ts';
-import { RawTradeOperation } from '../../../../core/api/types/common/RawTradeOperation.ts';
+import { RawTradeOrder } from '../../../../core/api/types/common/RawTradeOrder.ts';
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
-import { TradeOperation } from '../../../../core/models/tradeOperation/TradeOperation.ts';
+import { TradeOrder } from '../../../../core/models/tradeOrder/TradeOrder.ts';
 import { Splash } from '../../../splash.ts';
 
 export interface MapRawTradeOrderToTradeOrderConfig {
   readonly inputMetadata?: AssetMetadata;
   readonly outputMetadata?: AssetMetadata;
-  readonly rawTradeOrder: RawTradeOperation;
+  readonly rawTradeOrder: RawTradeOrder;
 }
 export const mapRawTradeOrderToTradeOrder = (
   {
@@ -18,7 +18,7 @@ export const mapRawTradeOrderToTradeOrder = (
     rawTradeOrder,
   }: MapRawTradeOrderToTradeOrderConfig,
   splash: Splash<{}>,
-): TradeOperation => {
+): TradeOrder => {
   const [inputPolicyId, inputBase16Name] = rawTradeOrder.input.split('.');
   const [outputPolicyId, outputBase16Name] = rawTradeOrder.output.split('.');
 
@@ -47,7 +47,7 @@ export const mapRawTradeOrderToTradeOrder = (
   );
   const [orderTransactionId] = rawTradeOrder.pendingTxId.split(':');
 
-  return TradeOperation.new(
+  return TradeOrder.new(
     {
       input,
       currentOutput: output,

@@ -3,12 +3,12 @@ import { Splash } from '../../../splash/splash.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
-import { TradeOperation, TradeOperationStatus } from './TradeOperation.ts';
+import { TradeOperationStatus, TradeOrder } from './TradeOrder.ts';
 
 const splash = Splash.new(SplashApi.new('mainnet'), 'mainnet');
 
 test('It should creates valid trade operation', () => {
-  const tradeOperation = TradeOperation.new(
+  const tradeOperation = TradeOrder.new(
     {
       base: Currency.ada(1000n),
       currentQuote: Currency.spf(1000n),
@@ -25,5 +25,5 @@ test('It should creates valid trade operation', () => {
     splash,
   );
 
-  expect(tradeOperation).toBeInstanceOf(TradeOperation);
+  expect(tradeOperation).toBeInstanceOf(TradeOrder);
 });

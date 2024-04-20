@@ -26,9 +26,9 @@ import {
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
 import {
-  GetTradeOperationsParams,
-  GetTradeOperationsResponse,
-} from '../../../core/api/types/getTradeOperations/getTradeOperations.ts';
+  getTradeOrdersParams,
+  getTradeOrdersResult,
+} from '../../../core/api/types/getTradeOrders/getTradeOperations.ts';
 import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
 import {
   GetUTxOByRefParams,
@@ -264,11 +264,11 @@ export class SplashApi implements Api {
       );
   }
 
-  async getTradeOperations({
+  async getTradeOrders({
     limit,
     paymentKeyHashes,
     offset,
-  }: GetTradeOperationsParams): Promise<GetTradeOperationsResponse> {
+  }: getTradeOrdersParams): Promise<getTradeOrdersResult> {
     return fetch(
       `${this.url}history/order/trades?limit=${limit}&offset=${offset}`,
       {
