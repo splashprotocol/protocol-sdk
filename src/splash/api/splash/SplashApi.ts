@@ -4,6 +4,10 @@ import { GetAdaUsdRateResult } from '../../../core/api/types/getAdaUsdRate/getAd
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
+  GetLiquidityOrdersParams,
+  GetLiquidityOrdersResult,
+} from '../../../core/api/types/getLiquidityOrders/getLiquidityOrders.ts';
+import {
   GetOrderBookParams,
   GetOrderBookResponse,
 } from '../../../core/api/types/getOrderBook/getOrderBook.ts';
@@ -26,9 +30,9 @@ import {
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
 import {
-  getTradeOrdersParams,
-  getTradeOrdersResult,
-} from '../../../core/api/types/getTradeOrders/getTradeOperations.ts';
+  GetTradeOrdersParams,
+  GetTradeOrdersResult,
+} from '../../../core/api/types/getTradeOrders/getTradeOrders.ts';
 import { GetTrendPoolsResponse } from '../../../core/api/types/getTrendPools/getTrendPools.ts';
 import {
   GetUTxOByRefParams,
@@ -268,7 +272,24 @@ export class SplashApi implements Api {
     limit,
     paymentKeyHashes,
     offset,
-  }: getTradeOrdersParams): Promise<getTradeOrdersResult> {
+  }: GetTradeOrdersParams): Promise<GetTradeOrdersResult> {
+    return fetch(
+      `${this.url}history/order/trades?limit=${limit}&offset=${offset}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json;charset=utf-8',
+        },
+        body: JSON.stringify(paymentKeyHashes),
+      },
+    ).then((res) => res.json());
+  }
+
+  async getLiquidityOrders({
+    limit,
+    paymentKeyHashes,
+    offset,
+  }: GetLiquidityOrdersParams): Promise<GetLiquidityOrdersResult> {
     return fetch(
       `${this.url}history/order/trades?limit=${limit}&offset=${offset}`,
       {

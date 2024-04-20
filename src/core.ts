@@ -5,10 +5,12 @@ export * from './core/api/types/common/ChartInterval.ts';
 export * from './core/api/types/common/ChartParams.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
 export * from './core/api/types/common/PoolChartPoint.ts';
+export * from './core/api/types/common/RawLiquidityOrder.ts';
 export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
+export * from './core/api/types/common/RawTradeOrder.ts';
 export * from './core/api/types/common/RawTrendPool.ts';
 export * from './core/api/types/common/RawUTxO.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
@@ -19,7 +21,7 @@ export * from './core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 export * from './core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
-export * from './core/api/types/getTradeOrders/getTradeOperations.ts';
+export * from './core/api/types/getTradeOrders/getTradeOrders.ts';
 export * from './core/api/types/getTrendPools/getTrendPools.ts';
 
 //CORE_MODELS_ASSET_INFO
@@ -66,8 +68,14 @@ export * from './core/models/pair/Pair.ts';
 // CORE_MODELS_POSITION
 export * from './core/models/position/Position.ts';
 
-// CORE_MODELS_TRADE_OPERATION
+// CORE_MODELS_TRADE_ORDER
 export * from './core/models/tradeOrder/TradeOrder.ts';
+
+// CORE_MODELS_LIQUIDITY_ORDER
+export * from './core/models/liquidityOrder/common/LiquidityOrder.ts';
+export * from './core/models/liquidityOrder/common/LiquidityOrderStatus.ts';
+export * from './core/models/liquidityOrder/DepositLiquidityOrder.ts';
+export * from './core/models/liquidityOrder/RedeemLiquidityOrder.ts';
 
 // CORE_MODELS_PRICE
 export * from './core/models/price/Price.ts';
@@ -123,6 +131,7 @@ export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
 export * from './splash/api/common/errors/NoWalletError.ts';
 export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
+export * from './splash/api/common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';
 export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
 export * from './splash/api/common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';

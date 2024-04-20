@@ -7,16 +7,19 @@ import {
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { PoolChartPoint } from '../../core/api/types/common/PoolChartPoint.ts';
+import { GetLiquidityOrdersParams } from '../../core/api/types/getLiquidityOrders/getLiquidityOrders.ts';
 import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
 import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
-import { getTradeOrdersParams } from '../../core/api/types/getTradeOrders/getTradeOperations.ts';
+import { GetTradeOrdersParams } from '../../core/api/types/getTradeOrders/getTradeOrders.ts';
 import { GetUTxOByRefParams } from '../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
+import { DepositLiquidityOrder } from '../../core/models/liquidityOrder/DepositLiquidityOrder.ts';
+import { RedeemLiquidityOrder } from '../../core/models/liquidityOrder/RedeemLiquidityOrder.ts';
 import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
@@ -36,6 +39,7 @@ import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkE
 import { NoWalletError } from './common/errors/NoWalletError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
+import { mapRawLiquidityOrderToLiquidityOrder } from './common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';
 import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOrderBook.ts';
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmOrWeightedPool } from './common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
@@ -448,7 +452,7 @@ export class ApiWrapper {
    * @return {Promise<{count: number, orders: TradeOrder[]}>}
    */
   async getTradeOrders(
-    params: Omit<getTradeOrdersParams, 'paymentKeyHashes'>,
+    params: Omit<GetTradeOrdersParams, 'paymentKeyHashes'>,
   ): Promise<{ count: number; operations: TradeOrder[] }> {
     return Promise.all([
       this.getPaymentKeysHashes().then((paymentKeyHashes) =>
@@ -468,6 +472,42 @@ export class ApiWrapper {
               rawTradeOrder: trade,
               inputMetadata: metadata[trade.input],
               outputMetadata: metadata[trade.output],
+            },
+            this.splash,
+          ),
+        ),
+      };
+    });
+  }
+
+  /**
+   * Returns orders list using limit and asset
+   * @param {Omit<GetLiquidityOrdersParams, "paymentKeyHashes">} params
+   * @return {Promise<{count: number, operations: (RedeemLiquidityOrder | DepositLiquidityOrder)[]}>}
+   */
+  async getLiquidityOrders(
+    params: Omit<GetLiquidityOrdersParams, 'paymentKeyHashes'>,
+  ): Promise<{
+    count: number;
+    operations: (RedeemLiquidityOrder | DepositLiquidityOrder)[];
+  }> {
+    return Promise.all([
+      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+        this.api.getLiquidityOrders({
+          limit: params.limit,
+          offset: params.offset,
+          paymentKeyHashes,
+        }),
+      ),
+      this.getAssetsMetadata(),
+    ]).then(([trades, metadata]) => {
+      return {
+        count: trades.count,
+        operations: trades.orders.map((rawLiquidityOrder) =>
+          mapRawLiquidityOrderToLiquidityOrder(
+            {
+              rawLiquidityOrder,
+              metadata,
             },
             this.splash,
           ),

@@ -5,6 +5,10 @@ import { GetAdaUsdRateResult } from './types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from './types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
+  GetLiquidityOrdersParams,
+  GetLiquidityOrdersResult,
+} from './types/getLiquidityOrders/getLiquidityOrders.ts';
+import {
   GetOrderBookParams,
   GetOrderBookResponse,
 } from './types/getOrderBook/getOrderBook.ts';
@@ -27,9 +31,9 @@ import {
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
 import {
-  getTradeOrdersParams,
-  getTradeOrdersResult,
-} from './types/getTradeOrders/getTradeOperations.ts';
+  GetTradeOrdersParams,
+  GetTradeOrdersResult,
+} from './types/getTradeOrders/getTradeOrders.ts';
 import { GetTrendPoolsResponse } from './types/getTrendPools/getTrendPools.ts';
 import {
   GetUTxOByRefParams,
@@ -72,7 +76,11 @@ export interface Api {
 
   getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
 
-  getTradeOrders(params: getTradeOrdersParams): Promise<getTradeOrdersResult>;
+  getTradeOrders(params: GetTradeOrdersParams): Promise<GetTradeOrdersResult>;
+
+  getLiquidityOrders(
+    params: GetLiquidityOrdersParams,
+  ): Promise<GetLiquidityOrdersResult>;
 
   getAdaUsdRate(): Promise<GetAdaUsdRateResult>;
 
