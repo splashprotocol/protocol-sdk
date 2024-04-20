@@ -8,13 +8,13 @@ import {
 import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
-export enum TradeOperationStatus {
+export enum TradeOrderStatus {
   Open = 'open',
   Close = 'close',
   Pending = 'pending',
 }
-export interface TradeOperationConfig {
-  readonly status: TradeOperationStatus;
+export interface TradeOrderConfig {
+  readonly status: TradeOrderStatus;
   readonly input: Currency;
   readonly currentOutput: Currency;
   readonly price: Price;
@@ -32,10 +32,10 @@ export interface TradeOperationConfig {
 export class TradeOrder {
   /**
    * Creates new Trade operation
-   * @param {TradeOperationConfig} config
+   * @param {TradeOrderConfig} config
    * @param {Splash<{}>} splash
    */
-  static new(config: TradeOperationConfig, splash: Splash<{}>) {
+  static new(config: TradeOrderConfig, splash: Splash<{}>) {
     return new TradeOrder(config, splash);
   }
 
@@ -71,9 +71,9 @@ export class TradeOrder {
 
   /**
    * Trade operation status
-   * @type {TradeOperationStatus}
+   * @type {TradeOrderStatus}
    */
-  readonly status: TradeOperationStatus;
+  readonly status: TradeOrderStatus;
 
   /**
    * Trade operation current pending tx id
@@ -117,7 +117,7 @@ export class TradeOrder {
       orderTimestamp,
       lastTransactionTimestamp,
       orderId,
-    }: TradeOperationConfig,
+    }: TradeOrderConfig,
     splash: Splash<{}>,
   ) {
     this.splash = splash;

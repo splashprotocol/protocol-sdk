@@ -1,8 +1,8 @@
-import { TradeOperationStatus } from '../../../models/tradeOrder/TradeOrder.ts';
+import { TradeOrderStatus } from '../../../models/tradeOrder/TradeOrder.ts';
 import { AssetId, percent, TransactionHash, ts } from '../../../types/types.ts';
 
 export interface RawTradeOrder {
-  readonly orderStatus: TradeOperationStatus;
+  readonly orderStatus: TradeOrderStatus;
   readonly pendingTxId: TransactionHash;
   readonly evalTxId?: TransactionHash;
   readonly input: AssetId;

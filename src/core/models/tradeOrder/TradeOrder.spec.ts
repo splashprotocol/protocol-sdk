@@ -3,7 +3,7 @@ import { Splash } from '../../../splash/splash.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
-import { TradeOperationStatus, TradeOrder } from './TradeOrder.ts';
+import { TradeOrder, TradeOrderStatus } from './TradeOrder.ts';
 
 const splash = Splash.new(SplashApi.new('mainnet'), 'mainnet');
 
@@ -17,7 +17,7 @@ test('It should creates valid trade operation', () => {
         quote: AssetInfo.spf,
         raw: 0.2,
       }),
-      status: TradeOperationStatus.Pending,
+      status: TradeOrderStatus.Pending,
       orderTimestamp: Date.now(),
       orderTransactionId: '',
       filled: 0,
