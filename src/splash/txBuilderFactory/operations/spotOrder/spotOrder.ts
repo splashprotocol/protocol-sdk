@@ -182,7 +182,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       [],
     ]);
     const depositAdaForReceive = predictDepositAda(context.pParams, {
-      value: Currencies.new([basePrice.getReceivedBaseFor(input)]),
+      value: Currencies.new([basePrice.getNecessaryQuoteFor(input)]),
       address: context.userAddress,
     });
 
