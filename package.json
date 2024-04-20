@@ -26,6 +26,7 @@
   "devDependencies": {
     "@dcspark/cardano-multiplatform-lib-nodejs": "^5.2.0",
     "@parcel/packager-ts": "2.12.0",
+    "@parcel/reporter-bundle-analyzer": "^2.12.0",
     "@parcel/transformer-typescript-types": "2.12.0",
     "@types/jest": "^29.5.6",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
