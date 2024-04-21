@@ -53,10 +53,10 @@ export const mapRawTradeOrderToTradeOrder = (
       currentOutput: output,
       status: rawTradeOrder.orderStatus,
       price: Price.new({
-        base: input.asset,
-        quote: output.asset,
+        base: output.asset,
+        quote: input.asset,
         raw: Number(rawTradeOrder.price),
-      }).invert(),
+      }),
       orderTransactionId: orderTransactionId,
       orderId: rawTradeOrder.pendingTxId,
       orderTimestamp: rawTradeOrder.pendingTx * 1_000,
