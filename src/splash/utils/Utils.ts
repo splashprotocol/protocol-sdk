@@ -1,9 +1,12 @@
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { AssetInfoMismatchError } from '../../core/models/currency/errors/AssetInfoMismatchError.ts';
+import { DepositLiquidityOrder } from '../../core/models/liquidityOrder/DepositLiquidityOrder.ts';
+import { RedeemLiquidityOrder } from '../../core/models/liquidityOrder/RedeemLiquidityOrder.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Position } from '../../core/models/position/Position.ts';
 import { Price } from '../../core/models/price/Price.ts';
+import { TradeOrder } from '../../core/models/tradeOrder/TradeOrder.ts';
 import { Dictionary } from '../../core/types/types.ts';
 import { CurrencyConverter } from '../../core/utils/currencyConverter/CurrencyConverter.ts';
 import { math } from '../../core/utils/math/math.ts';
@@ -22,6 +25,14 @@ import {
   SelectLqAssetBalanceParams,
   SelectLqAssetBalanceResult,
 } from './types/selectLqAssetBalance.ts';
+import {
+  SelectMempoolLiquidityOperationsParams,
+  SelectMempoolLiquidityOperationsResult,
+} from './types/selectMempoolLiquidityOperations.ts';
+import {
+  SelectMempoolTradeOrdersParams,
+  SelectMempoolTradeOrdersResult,
+} from './types/selectMempoolTradeOperations.ts';
 import {
   SelectPositionOrEmptyParams,
   SelectPositionOrEmptyResult,
@@ -249,6 +260,34 @@ export class Utils {
       math.evaluate!(
         `(${targetPrice.raw} * 100 / ${normalizedSpotPrice.raw}) - 100`,
       ).toFixed(2),
+    );
+  }
+
+  /**
+   * Returns only trade orders from mempool
+   * @param {SelectMempoolTradeOrdersParams} mempool
+   * @return {SelectMempoolTradeOrdersResult}
+   */
+  selectMempoolTradeOrders(
+    mempool: SelectMempoolTradeOrdersParams,
+  ): SelectMempoolTradeOrdersResult {
+    return mempool.filter(
+      (item): item is TradeOrder => item instanceof TradeOrder,
+    );
+  }
+
+  /**
+   * Returns only liquidity orders from mempool
+   * @param {SelectMempoolTradeOrdersParams} mempool
+   * @return {SelectMempoolTradeOrdersResult}
+   */
+  selectMempoolLiquidityOrders(
+    mempool: SelectMempoolLiquidityOperationsParams,
+  ): SelectMempoolLiquidityOperationsResult {
+    return mempool.filter(
+      (item): item is DepositLiquidityOrder | RedeemLiquidityOrder =>
+        item instanceof RedeemLiquidityOrder ||
+        item instanceof DepositLiquidityOrder,
     );
   }
 }

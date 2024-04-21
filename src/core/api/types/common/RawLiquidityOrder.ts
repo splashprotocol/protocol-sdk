@@ -7,7 +7,11 @@ import {
 } from '../../../types/types.ts';
 import { CurrencyDescriptor } from './CurrencyDescriptor.ts';
 
-export type RawLiquidityOrderStatus = 'Pending' | 'Evaluated' | 'Refunded';
+export type RawLiquidityOrderStatus =
+  | 'Pending'
+  | 'Evaluated'
+  | 'Refunded'
+  | 'mempool';
 
 export interface RawLiquidityOrder {
   readonly orderId: OutputReferenceHash;

@@ -12,7 +12,8 @@ export type TradeOrderStatus =
   | 'open'
   | 'closed'
   | 'partiallyClosed'
-  | 'cancelled';
+  | 'cancelled'
+  | 'mempool';
 export interface TradeOrderConfig {
   readonly status: TradeOrderStatus;
   readonly input: Currency;

@@ -1,1 +1,5 @@
-export type LiquidityOrderStatus = 'Pending' | 'Evaluated' | 'Cancelled';
+export type LiquidityOrderStatus =
+  | 'Pending'
+  | 'Evaluated'
+  | 'Cancelled'
+  | 'mempool';
