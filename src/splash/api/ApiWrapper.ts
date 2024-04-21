@@ -7,6 +7,7 @@ import {
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { PoolChartPoint } from '../../core/api/types/common/PoolChartPoint.ts';
+import { RawTradeOrder } from '../../core/api/types/common/RawTradeOrder.ts';
 import { GetLiquidityOrdersParams } from '../../core/api/types/getLiquidityOrders/getLiquidityOrders.ts';
 import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
@@ -477,6 +478,49 @@ export class ApiWrapper {
           ),
         ),
       };
+    });
+  }
+
+  /**
+   * Returns orders mempool
+   * @return {Promise<(TradeOrder | DepositLiquidityOrder | RedeemLiquidityOrder)[]>}
+   */
+  async getOrdersMempool(): Promise<
+    (TradeOrder | DepositLiquidityOrder | RedeemLiquidityOrder)[]
+  > {
+    return Promise.all([
+      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+        this.api.getOrdersMempool({
+          paymentKeyHashes,
+        }),
+      ),
+      this.getAssetsMetadata(),
+    ]).then(([orders, metadata]) => {
+      return orders.map((rawOrder) => {
+        if (
+          rawOrder.orderType === 'cfmmDeposit' ||
+          rawOrder.orderType === 'cfmmRedeem' ||
+          rawOrder.orderType === 'weightedDeposit' ||
+          rawOrder.orderType === 'weightedRedeem'
+        ) {
+          return mapRawLiquidityOrderToLiquidityOrder(
+            {
+              rawLiquidityOrder: rawOrder,
+              metadata,
+            },
+            this.splash,
+          );
+        }
+        const rawTradeOrder = rawOrder as RawTradeOrder;
+        return mapRawTradeOrderToTradeOrder(
+          {
+            rawTradeOrder: rawTradeOrder,
+            inputMetadata: metadata[rawTradeOrder.input],
+            outputMetadata: metadata[rawTradeOrder.output],
+          },
+          this.splash,
+        );
+      });
     });
   }
 

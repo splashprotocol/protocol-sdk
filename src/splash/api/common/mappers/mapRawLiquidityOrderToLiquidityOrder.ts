@@ -50,6 +50,10 @@ const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
 
   return RedeemLiquidityOrder.new(
     {
+      type:
+        rawLiquidityRedeemOrder.orderType === 'cfmmRedeem'
+          ? 'cfmm'
+          : 'weighted',
       orderId: rawLiquidityRedeemOrder.orderId,
       lq: Currency.new(BigInt(rawLiquidityRedeemOrder.lq.amount), lqAsset),
       x,
@@ -105,6 +109,10 @@ const mapRawLiquidityDepositOrderToDepositLiquidityOrder = (
 
   return DepositLiquidityOrder.new(
     {
+      type:
+        rawLiquidityDepositOrder.orderType === 'cfmmDeposit'
+          ? 'cfmm'
+          : 'weighted',
       orderId: rawLiquidityDepositOrder.orderId,
       x: Currency.new(xAmount, xAsset),
       y: Currency.new(yAmount, yAsset),

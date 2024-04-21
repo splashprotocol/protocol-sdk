@@ -11,6 +11,10 @@ import {
   GetOrderBookParams,
   GetOrderBookResponse,
 } from '../../../core/api/types/getOrderBook/getOrderBook.ts';
+import {
+  GetOrdersMempoolParams,
+  GetOrdersMempoolResult,
+} from '../../../core/api/types/getOrdersMempool/getOrdersMempool.ts';
 import { GetPairsResponse } from '../../../core/api/types/getPairs/getPairs.ts';
 import {
   GetPoolFeesChartParams,
@@ -300,6 +304,23 @@ export class SplashApi implements Api {
         body: JSON.stringify(paymentKeyHashes),
       },
     ).then((res) => res.json());
+  }
+
+  async getOrdersMempool({
+    paymentKeyHashes,
+  }: GetOrdersMempoolParams): Promise<GetOrdersMempoolResult> {
+    const url =
+      this.network === 'preprod'
+        ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
+        : 'https://api-test-mainnet.splash.trade/mempool/v2/mempool/orders';
+
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(paymentKeyHashes),
+    }).then((res) => res.json());
   }
 
   async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetUTxOByRefResult> {

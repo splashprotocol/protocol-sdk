@@ -12,6 +12,10 @@ import {
   GetOrderBookParams,
   GetOrderBookResponse,
 } from './types/getOrderBook/getOrderBook.ts';
+import {
+  GetOrdersMempoolParams,
+  GetOrdersMempoolResult,
+} from './types/getOrdersMempool/getOrdersMempool.ts';
 import { GetPairsResponse } from './types/getPairs/getPairs.ts';
 import {
   GetPoolFeesChartParams,
@@ -77,6 +81,10 @@ export interface Api {
   getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
 
   getTradeOrders(params: GetTradeOrdersParams): Promise<GetTradeOrdersResult>;
+
+  getOrdersMempool(
+    params: GetOrdersMempoolParams,
+  ): Promise<GetOrdersMempoolResult>;
 
   getLiquidityOrders(
     params: GetLiquidityOrdersParams,

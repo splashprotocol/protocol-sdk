@@ -8,6 +8,7 @@ import {
 export interface DepositLiquidityOrderConfig extends LiquidityOrderConfig {
   readonly x: Currency;
   readonly y: Currency;
+  readonly type: 'weighted' | 'cfmm';
   readonly lq?: Currency;
 }
 
@@ -29,6 +30,12 @@ export class DepositLiquidityOrder extends LiquidityOrder {
   }
 
   /**
+   * Type of pool
+   * @type {"weighted" | "cfmm"}
+   */
+  readonly type: 'weighted' | 'cfmm';
+
+  /**
    * x of Liquidity order
    * @type {Currency}
    */
@@ -46,12 +53,13 @@ export class DepositLiquidityOrder extends LiquidityOrder {
    */
   readonly lq?: Currency;
   private constructor(
-    { x, y, lq, ...rest }: DepositLiquidityOrderConfig,
+    { x, y, lq, type, ...rest }: DepositLiquidityOrderConfig,
     splash: Splash<{}>,
   ) {
     super(rest, splash);
     this.x = x;
     this.y = y;
     this.lq = lq;
+    this.type = type;
   }
 }

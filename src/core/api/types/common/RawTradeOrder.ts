@@ -2,6 +2,7 @@ import { TradeOrderStatus } from '../../../models/tradeOrder/TradeOrder.ts';
 import { AssetId, percent, TransactionHash, ts } from '../../../types/types.ts';
 
 export interface RawTradeOrder {
+  readonly orderType: 'spot';
   readonly orderStatus: TradeOrderStatus;
   readonly pendingTxId: TransactionHash;
   readonly evalTxId?: TransactionHash;
