@@ -8,11 +8,11 @@ import {
 import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
-export enum TradeOrderStatus {
-  Open = 'open',
-  Close = 'close',
-  Pending = 'pending',
-}
+export type TradeOrderStatus =
+  | 'open'
+  | 'closed'
+  | 'partiallyClosed'
+  | 'cancelled';
 export interface TradeOrderConfig {
   readonly status: TradeOrderStatus;
   readonly input: Currency;

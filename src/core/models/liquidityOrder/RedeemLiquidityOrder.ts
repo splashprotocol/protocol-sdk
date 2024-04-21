@@ -7,8 +7,8 @@ import {
 
 export interface RedeemLiquidityOrderConfig extends LiquidityOrderConfig {
   readonly lq: Currency;
-  readonly x?: Currency;
-  readonly y?: Currency;
+  readonly x: Currency;
+  readonly y: Currency;
 }
 
 /**
@@ -32,13 +32,13 @@ export class RedeemLiquidityOrder extends LiquidityOrder {
    * x of redeem order
    * @type {Currency}
    */
-  readonly x?: Currency;
+  readonly x: Currency;
 
   /**
    * y of redeem order
    * @type {Currency}
    */
-  readonly y?: Currency;
+  readonly y: Currency;
 
   /**
    * lq of redeem order

@@ -22,40 +22,31 @@ const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
     name: lqBase16Name,
     type: 'base16',
   });
-  const xInfo = rawLiquidityRedeemOrder.x
-    ? rawLiquidityRedeemOrder.x.asset.split('.')
-    : undefined;
-  let x: Currency | undefined;
-  if (xInfo) {
-    x = Currency.new(
-      BigInt(rawLiquidityRedeemOrder.x!.amount),
-      AssetInfo.new(
-        {
-          policyId: xInfo[0],
-          name: xInfo[1],
-          type: 'base16',
-        },
-        metadata ? metadata[rawLiquidityRedeemOrder.x!.asset] : undefined,
-      ),
-    );
-  }
-  const yInfo = rawLiquidityRedeemOrder.y
-    ? rawLiquidityRedeemOrder.y.asset.split('.')
-    : undefined;
-  let y: Currency | undefined;
-  if (yInfo) {
-    y = Currency.new(
-      BigInt(rawLiquidityRedeemOrder.y!.amount),
-      AssetInfo.new(
-        {
-          policyId: yInfo[0],
-          name: yInfo[1],
-          type: 'base16',
-        },
-        metadata ? metadata[rawLiquidityRedeemOrder.y!.asset] : undefined,
-      ),
-    );
-  }
+  const [xPolicyId, xBase16Name] = rawLiquidityRedeemOrder.xAsset.split('.');
+  const x: Currency = Currency.new(
+    BigInt(rawLiquidityRedeemOrder.xAmount || '0'),
+    AssetInfo.new(
+      {
+        policyId: xPolicyId,
+        name: xBase16Name,
+        type: 'base16',
+      },
+      metadata ? metadata[rawLiquidityRedeemOrder.xAsset] : undefined,
+    ),
+  );
+
+  const [yPolicyId, yBase16Name] = rawLiquidityRedeemOrder.yAsset.split('.');
+  const y: Currency = Currency.new(
+    BigInt(rawLiquidityRedeemOrder.yAmount || '0'),
+    AssetInfo.new(
+      {
+        policyId: yPolicyId,
+        name: yBase16Name,
+        type: 'base16',
+      },
+      metadata ? metadata[rawLiquidityRedeemOrder.yAsset] : undefined,
+    ),
+  );
 
   return RedeemLiquidityOrder.new(
     {

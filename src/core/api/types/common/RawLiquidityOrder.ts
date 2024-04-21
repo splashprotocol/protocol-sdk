@@ -1,4 +1,5 @@
 import {
+  AssetId,
   OutputReferenceHash,
   PoolId,
   TransactionHash,
@@ -30,6 +31,8 @@ export interface RawLiquidityDepositOrder extends RawLiquidityOrder {
 export interface RawLiquidityRedeemOrder extends RawLiquidityOrder {
   readonly orderType: 'cfmmRedeem' | 'weightedRedeem';
   readonly lq: CurrencyDescriptor;
-  readonly x?: CurrencyDescriptor;
-  readonly y?: CurrencyDescriptor;
+  readonly yAmount?: string;
+  readonly yAsset: AssetId;
+  readonly xAmount?: string;
+  readonly xAsset: AssetId;
 }

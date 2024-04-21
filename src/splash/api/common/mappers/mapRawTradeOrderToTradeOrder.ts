@@ -56,7 +56,7 @@ export const mapRawTradeOrderToTradeOrder = (
         base: output.asset,
         quote: input.asset,
         raw: Number(rawTradeOrder.price),
-      }),
+      }).invert(),
       orderTransactionId: orderTransactionId,
       orderId: rawTradeOrder.pendingTxId,
       orderTimestamp: rawTradeOrder.pendingTx * 1_000,
