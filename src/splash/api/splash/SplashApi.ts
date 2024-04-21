@@ -291,7 +291,7 @@ export class SplashApi implements Api {
     offset,
   }: GetLiquidityOrdersParams): Promise<GetLiquidityOrdersResult> {
     return fetch(
-      `${this.url}history/order/trades?limit=${limit}&offset=${offset}`,
+      `${this.url}history/order?limit=${limit}&offset=${offset}&entityTypeFilter=AnyLiquidityOps`,
       {
         method: 'POST',
         headers: {

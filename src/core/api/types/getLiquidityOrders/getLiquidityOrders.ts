@@ -12,5 +12,5 @@ export interface GetLiquidityOrdersParams {
 
 export interface GetLiquidityOrdersResult {
   readonly count: uint;
-  readonly orders: (RawLiquidityRedeemOrder | RawLiquidityDepositOrder)[];
+  readonly order: (RawLiquidityRedeemOrder | RawLiquidityDepositOrder)[];
 }

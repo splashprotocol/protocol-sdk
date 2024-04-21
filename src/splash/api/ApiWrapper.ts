@@ -500,10 +500,10 @@ export class ApiWrapper {
         }),
       ),
       this.getAssetsMetadata(),
-    ]).then(([trades, metadata]) => {
+    ]).then(([orders, metadata]) => {
       return {
-        count: trades.count,
-        operations: trades.orders.map((rawLiquidityOrder) =>
+        count: orders.count,
+        operations: orders.order.map((rawLiquidityOrder) =>
           mapRawLiquidityOrderToLiquidityOrder(
             {
               rawLiquidityOrder,
