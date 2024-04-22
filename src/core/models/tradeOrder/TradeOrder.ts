@@ -25,6 +25,7 @@ export interface TradeOrderConfig {
   readonly lastTransactionId?: TransactionHash;
   readonly orderTimestamp: lts;
   readonly lastTransactionTimestamp?: lts;
+  readonly latestPendingOrderId: OutputReferenceHash;
 }
 
 /**
@@ -89,6 +90,12 @@ export class TradeOrder {
   readonly orderId: OutputReferenceHash;
 
   /**
+   * Trade operation latest id
+   * @type {TransactionHash}
+   */
+  readonly latestPendingOrderId: OutputReferenceHash;
+
+  /**
    * Trade operation last evaluated transaction id
    * @type {TransactionHash}
    */
@@ -117,6 +124,7 @@ export class TradeOrder {
       lastTransactionId,
       orderTimestamp,
       lastTransactionTimestamp,
+      latestPendingOrderId,
       orderId,
     }: TradeOrderConfig,
     splash: Splash<{}>,
@@ -131,6 +139,7 @@ export class TradeOrder {
     this.lastTransactionId = lastTransactionId;
     this.orderTimestamp = orderTimestamp;
     this.orderId = orderId;
+    this.latestPendingOrderId = latestPendingOrderId;
     this.lastTransactionTimestamp = lastTransactionTimestamp;
   }
 
@@ -141,7 +150,7 @@ export class TradeOrder {
   async cancel(): Promise<TransactionHash> {
     return this.splash
       .newTx()
-      .cancelOperation(this.orderId)
+      .cancelOperation(this.filled ? this.latestPendingOrderId : this.orderId)
       .complete()
       .then((tx) => tx.signAndSubmit());
   }

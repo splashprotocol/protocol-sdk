@@ -1,5 +1,11 @@
 import { TradeOrderStatus } from '../../../models/tradeOrder/TradeOrder.ts';
-import { AssetId, percent, TransactionHash, ts } from '../../../types/types.ts';
+import {
+  AssetId,
+  OutputReferenceHash,
+  percent,
+  TransactionHash,
+  ts,
+} from '../../../types/types.ts';
 
 export interface RawTradeOrder {
   readonly orderType: 'spot';
@@ -13,5 +19,6 @@ export interface RawTradeOrder {
   readonly inputAmount: string;
   readonly outputAmount: string;
   readonly price: string;
+  readonly latestPendingTxId: OutputReferenceHash;
   readonly filled: percent;
 }
