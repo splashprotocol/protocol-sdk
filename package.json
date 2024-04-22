@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "source": "src/index.ts",
