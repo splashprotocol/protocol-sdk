@@ -59,6 +59,7 @@ export const mapRawTradeOrderToTradeOrder = (
       }),
       orderTransactionId: orderTransactionId,
       orderId: rawTradeOrder.pendingTxId,
+      latestPendingOrderId: rawTradeOrder.latestPendingTxId,
       orderTimestamp: rawTradeOrder.pendingTx * 1_000,
       filled: rawTradeOrder.filled,
       lastTransactionTimestamp: rawTradeOrder.evaluatedTx
