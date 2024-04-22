@@ -394,7 +394,9 @@ export class ApiWrapper {
     return Promise.all([
       this.getAssetsMetadata(),
       this.getWalletContext().then((ctx) =>
-        this.handleCIP30WalletError(ctx.getCollateral()),
+        ctx.getCollateral
+          ? this.handleCIP30WalletError(ctx.getCollateral())
+          : this.handleCIP30WalletError(ctx.experimental.getCollateral()),
       ),
     ]).then(([metadata, uTxOsCbors]) => {
       return (uTxOsCbors || []).map((uTxOsCbor) =>
