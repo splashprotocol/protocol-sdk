@@ -64,10 +64,10 @@ export const cancelOperation: Operation<
 
     transactionCandidate.addInput(uTxOToCancel, {
       redeemer: PlutusData.from_cbor_hex(operationConfig.refundData.redeemer),
-      scriptRef: {
-        txHash: operationConfig.refundData.refUtxo.txHash,
-        index: BigInt(operationConfig.refundData.refUtxo.index),
-      },
+      scriptRef:
+        network === 'mainnet'
+          ? operationConfig.refundData.refUtxo.mainnet
+          : operationConfig.refundData.refUtxo.preprod,
       // TODO: NEED TO REWRITE
       requiredSigners: [creds.requiredSigner],
       script: operationConfig.script,

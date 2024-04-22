@@ -4,8 +4,8 @@ import {
   Bech32String,
   CborHexString,
   HexString,
+  OutputReference,
   percent,
-  TransactionHash,
   uint,
 } from './types.ts';
 
@@ -15,8 +15,8 @@ export interface SplashRefundData {
     readonly steps: uint;
   };
   readonly refUtxo: {
-    readonly txHash: TransactionHash;
-    readonly index: uint;
+    readonly mainnet: OutputReference;
+    readonly preprod: OutputReference;
   };
   readonly plutusV2ScriptCbor: CborHexString;
   readonly redeemer: string;
