@@ -614,7 +614,7 @@ export class ApiWrapper {
             );
           }),
         new Promise((resolve) => {
-          setTimeout(() => resolve(undefined), 5_000);
+          setTimeout(() => resolve(undefined), 60_000);
         }).then(() => {
           throw new WalletEnablingError('can`t enable wallet');
         }),
