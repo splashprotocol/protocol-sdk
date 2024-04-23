@@ -17,6 +17,7 @@ export interface CardanoCIP30WalletContext {
     getCollateral(params?: {
       amount?: CborHexString;
     }): Promise<CborHexString[] | undefined>;
+    syncAccount?: () => Promise<boolean>;
   };
   getChangeAddress(): Promise<CborHexString>;
   getBalance(): Promise<CborHexString>;

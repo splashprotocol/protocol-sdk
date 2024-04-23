@@ -581,6 +581,16 @@ export class ApiWrapper {
     return this.api.getNetworkContext();
   }
 
+  /**
+   * Sync current wallet supports this one
+   * @return {Promise<void>}
+   */
+  async walletManualSync(): Promise<boolean> {
+    return this.getWalletContext().then((ctx) =>
+      ctx.experimental.syncAccount ? ctx.experimental.syncAccount() : false,
+    );
+  }
+
   private getWalletContext(): Promise<CardanoCIP30WalletContext> {
     if (!this.splash.wallet) {
       this.handleEmptyWallet();
