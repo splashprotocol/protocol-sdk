@@ -50,7 +50,7 @@ import { AssetId, Dictionary } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
 const mapNetworkToUrl: { [key in Network]: string } = {
-  mainnet: 'https://api-test-mainnet.splash.trade/v1/',
+  mainnet: 'https://api2.splash.trade/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
 };
@@ -312,7 +312,7 @@ export class SplashApi implements Api {
     const url =
       this.network === 'preprod'
         ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
-        : 'https://api-test-mainnet.splash.trade/mempool/v2/mempool/orders';
+        : 'https://api2.splash.trade/mempool/v2/mempool/orders';
 
     return fetch(url, {
       method: 'POST',
