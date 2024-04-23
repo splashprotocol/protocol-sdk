@@ -51,7 +51,12 @@ export const mapRawTradeOrderToTradeOrder = (
     {
       input,
       currentOutput: output,
-      status: rawTradeOrder.orderStatus,
+      status:
+        rawTradeOrder.orderStatus === 'mempool'
+          ? rawTradeOrder.evalTxId
+            ? 'open'
+            : 'mempool'
+          : rawTradeOrder.orderStatus,
       price: Price.new({
         base: output.asset,
         quote: input.asset,
