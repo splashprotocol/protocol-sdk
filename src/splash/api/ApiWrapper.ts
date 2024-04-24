@@ -597,6 +597,7 @@ export class ApiWrapper {
       return Promise.reject(new NoWalletError('please, provide wallet to sdk'));
     }
     if (!this.contextPromise) {
+      let timerId: any = undefined;
       this.contextPromise = Promise.race([
         this.splash.wallet
           .enable()
@@ -624,14 +625,19 @@ export class ApiWrapper {
             );
           }),
         new Promise((resolve) => {
-          setTimeout(() => resolve(undefined), 60_000);
+          timerId = setTimeout(() => resolve(undefined), 60_000);
         }).then(() => {
           throw new WalletEnablingError('can`t enable wallet');
         }),
-      ]).catch((err) => {
-        this.handleEmptyWallet();
-        throw err;
-      });
+      ])
+        .then((ctx) => {
+          clearTimeout(timerId);
+          return ctx;
+        })
+        .catch((err) => {
+          this.handleEmptyWallet();
+          throw err;
+        });
     }
     return this.contextPromise!;
   }
