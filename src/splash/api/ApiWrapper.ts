@@ -639,6 +639,14 @@ export class ApiWrapper {
   private async handleCIP30WalletError<T>(promise: Promise<T>): Promise<T> {
     return promise.catch((err) => {
       this.handleEmptyWallet();
+      if (
+        err instanceof WalletEnablingError ||
+        err instanceof InvalidWalletNetworkError ||
+        err instanceof NoWalletError
+      ) {
+        throw err;
+      }
+
       throw new WalletApiError(err instanceof Error ? err.message : err);
     });
   }
