@@ -129,6 +129,7 @@ export * from './core/utils/utxosSelector/UTxOsSelector.ts';
 // SPLASH_API_COMMON
 export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
 export * from './splash/api/common/errors/NoWalletError.ts';
+export * from './splash/api/common/errors/WalletAccountError.ts';
 export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
 export * from './splash/api/common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';

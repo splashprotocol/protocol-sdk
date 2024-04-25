@@ -38,6 +38,7 @@ import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
 import { NoWalletError } from './common/errors/NoWalletError.ts';
+import { WalletAccountError } from './common/errors/WalletAccountError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
 import { mapRawLiquidityOrderToLiquidityOrder } from './common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';
@@ -651,6 +652,13 @@ export class ApiWrapper {
         err instanceof NoWalletError
       ) {
         throw err;
+      }
+      // TODO: FIX FOR ALL WALLETS
+      if (
+        err?.message?.includes('account changed') ||
+        err?.message?.includes('no account changed')
+      ) {
+        throw new WalletAccountError(err.message);
       }
 
       throw new WalletApiError(err instanceof Error ? err.message : err);
