@@ -181,7 +181,11 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       outputAsset,
       Number(
         math
-          .evaluate(`${basePrice.raw} * 10^${basePrice.quote.decimals}`)
+          .evaluate(
+            `${basePrice.raw} * 10^${
+              basePrice.quote.decimals - basePrice.base.decimals
+            }`,
+          )
           .toFixed(),
       ),
       EXECUTOR_FEE.amount,
