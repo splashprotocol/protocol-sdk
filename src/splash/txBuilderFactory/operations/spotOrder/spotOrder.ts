@@ -13,6 +13,7 @@ import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
+import { math } from '../../../../core/utils/math/math.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
 
@@ -178,7 +179,11 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       orderStepCost.amount,
       minMarginalOutput.amount,
       outputAsset,
-      basePrice.raw,
+      Number(
+        math
+          .evaluate(`${basePrice.raw} * 10^${basePrice.quote.decimals}`)
+          .toFixed(),
+      ),
       EXECUTOR_FEE.amount,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
