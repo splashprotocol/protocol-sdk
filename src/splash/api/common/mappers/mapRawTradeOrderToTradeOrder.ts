@@ -4,6 +4,7 @@ import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
 import { TradeOrder } from '../../../../core/models/tradeOrder/TradeOrder.ts';
+import { math } from '../../../../core/utils/math/math.ts';
 import { Splash } from '../../../splash.ts';
 
 export interface MapRawTradeOrderToTradeOrderConfig {
@@ -60,7 +61,15 @@ export const mapRawTradeOrderToTradeOrder = (
       price: Price.new({
         base: output.asset,
         quote: input.asset,
-        raw: Number(rawTradeOrder.price),
+        raw: Number(
+          math
+            .evaluate(
+              `${rawTradeOrder.price} / 10^${
+                input.asset.decimals - output.asset.decimals
+              }`,
+            )
+            .toFixed(),
+        ),
       }),
       orderTransactionId: orderTransactionId,
       orderId: rawTradeOrder.pendingTxId,
