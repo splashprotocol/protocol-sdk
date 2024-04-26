@@ -132,6 +132,8 @@ export interface SpotOrderConfig {
   readonly maxStepCount?: bigint;
 }
 
+const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
+
 export const spotOrder: Operation<[SpotOrderConfig]> =
   ({ price, input, outputAsset }) =>
   async (context) => {
@@ -216,13 +218,22 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       ),
     });
 
+    // additional ada for cover min operation collateral. (1_500_000 lovelace)
+    const additionalDepositAda = depositAdaForOrder
+      .plus(depositAdaForReceive)
+      .gt(MINIMUM_COLLATERAL_ADA)
+      ? Currency.ada(0n)
+      : MINIMUM_COLLATERAL_ADA.minus(depositAdaForOrder).minus(
+          depositAdaForReceive,
+        );
+
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
         script: context.operationsConfig.operations.spotOrder.script,
         version: 'plutusV2',
       },
-      outputValue.plus([depositAdaForOrder]),
+      outputValue.plus([depositAdaForOrder, additionalDepositAda]),
       data,
       {
         stakeKeyHash: address.staking_cred()?.as_pub_key()?.to_hex(),
