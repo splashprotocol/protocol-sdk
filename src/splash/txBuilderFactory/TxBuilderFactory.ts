@@ -23,6 +23,7 @@ import {
 
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../core/models/currency/Currency.ts';
+import { Data } from '../../core/models/data/data.ts';
 import { Output } from '../../core/models/output/Output.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import {
@@ -157,6 +158,41 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
     return {
       operations: {
+        swapDefault: {
+          ...rawOperationsConfig.operations.swapDefault,
+          credsDeserializer: (networkId, data) => {
+            const deserializedData = Data.Tuple([
+              Data.AssetInfo,
+              Data.AssetInfo,
+              Data.AssetInfo,
+              Data.Int,
+              Data.BigInt,
+              Data.BigInt,
+              Data.Bytes,
+              Data.Optional(Data.Bytes),
+              Data.BigInt,
+              Data.BigInt,
+            ]).deserialize(data);
+            const pkh = deserializedData[6];
+            const skh = deserializedData[7];
+
+            const address = skh
+              ? BaseAddress.new(
+                  Number(networkId.network()),
+                  Credential.new_pub_key(Ed25519KeyHash.from_hex(pkh)),
+                  Credential.new_pub_key(Ed25519KeyHash.from_hex(skh)),
+                )
+              : EnterpriseAddress.new(
+                  Number(networkId.network()),
+                  Credential.new_pub_key(Ed25519KeyHash.from_hex(pkh)),
+                );
+
+            return {
+              requiredSigner: pkh,
+              address: address.to_address().to_bech32(),
+            };
+          },
+        },
         spotOrder: {
           ...rawOperationsConfig.operations.spotOrder,
           credsDeserializer: (networkId, data) => {
