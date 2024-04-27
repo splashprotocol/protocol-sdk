@@ -12,7 +12,6 @@ import { Splash } from '../../../splash.ts';
 import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
-import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
@@ -190,7 +189,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
           )
           .toFixed(),
       ),
-      EXECUTOR_FEE.amount,
+      0n,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
       [],
@@ -203,7 +202,6 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     const outputValue = Currencies.new([
       input,
       orderStepCost.multiply(orderMaxStepCount),
-      EXECUTOR_FEE,
       depositAdaForReceive,
     ]);
     const depositAdaForOrder = predictDepositAda(context.pParams, {
