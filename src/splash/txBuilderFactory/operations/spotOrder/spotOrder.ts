@@ -141,6 +141,12 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         context.operationsConfig.operations.spotOrder.settings.orderStepCost,
       ),
     );
+    const worstOrderStepCost = Currency.ada(
+      BigInt(
+        context.operationsConfig.operations.spotOrder.settings
+          .worstOrderStepCost,
+      ),
+    );
     const orderMaxStepCount = BigInt(
       price
         ? context.operationsConfig.operations.spotOrder.settings.maxStepCount
@@ -164,7 +170,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         basePrice,
         inputAsset: input.asset,
         outputAsset: outputAsset,
-        orderStepCost,
+        orderStepCost: worstOrderStepCost,
       },
       context.splash,
     );
@@ -177,7 +183,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       await getBeacon(firstUTxO),
       input.asset,
       input.amount,
-      orderStepCost.amount,
+      worstOrderStepCost.amount,
       minMarginalOutput.amount,
       outputAsset,
       Number(
@@ -201,7 +207,8 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
 
     const outputValue = Currencies.new([
       input,
-      orderStepCost.multiply(orderMaxStepCount),
+      worstOrderStepCost,
+      orderStepCost.multiply(orderMaxStepCount - 1n),
       depositAdaForReceive,
     ]);
     const depositAdaForOrder = predictDepositAda(context.pParams, {

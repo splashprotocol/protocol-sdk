@@ -29,6 +29,7 @@ export interface SplashOperation {
 
 export interface SplashSpotOrderSettings {
   readonly orderStepCost: uint;
+  readonly worstOrderStepCost: uint;
   readonly maxStepCount: uint;
   readonly maxStepCountMarket: uint;
   readonly approximatedTxFee: uint;
