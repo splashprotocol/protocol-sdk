@@ -102,9 +102,13 @@ export const normalizeAmount = (
  */
 export const numberToRational = (value: number | string): RationalNumber => {
   const fmtN = math.format(Number(value), formatOptions);
-  const [whole, decimals = ''] = String(fmtN).split('.');
-  const numDecimals = decimals.length;
-  const denominator = BigInt(math.evaluate(`10^${numDecimals}`).toFixed());
+  const [whole, rawDecimals = ''] = String(fmtN).split('.');
+  const numDecimals = Math.min(rawDecimals.length, 20);
+  const decimals =
+    rawDecimals.length > numDecimals
+      ? rawDecimals.slice(0, numDecimals)
+      : rawDecimals;
+  const denominator = BigInt(math.evaluate(`10^${numDecimals}`));
   const numerator = BigInt(whole) * denominator + BigInt(decimals);
 
   return {
