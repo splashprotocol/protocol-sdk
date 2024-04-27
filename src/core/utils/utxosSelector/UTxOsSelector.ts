@@ -23,7 +23,7 @@ const selectUTxOsByAsset = (
   const required = uTxOsByCurrency.required;
 
   for (const uTxO of uTxOsByCurrency.uTxOs) {
-    if (selectedUTxOs[uTxO.refHash]) {
+    if (selectedUTxOs.uTxOs[uTxO.refHash]) {
       continue;
     }
 
