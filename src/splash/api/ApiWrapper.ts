@@ -653,6 +653,7 @@ export class ApiWrapper {
       ) {
         throw err;
       }
+      console.log(err);
       // TODO: FIX FOR ALL WALLETS
       if (
         err?.message?.includes('account changed') ||
@@ -661,7 +662,9 @@ export class ApiWrapper {
         throw new WalletAccountError(err.message);
       }
 
-      throw new WalletApiError(err instanceof Error ? err.message : err);
+      throw new WalletApiError(
+        err instanceof Error ? err.message : err?.info ? err.info : err,
+      );
     });
   }
 
