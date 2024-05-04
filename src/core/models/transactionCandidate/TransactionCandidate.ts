@@ -5,6 +5,8 @@ import {
   HexString,
   OutputReference,
 } from '../../types/types.ts';
+import { MAX_TRANSACTION_FEE } from '../../utils/transactionFee/transactionFee.ts';
+import { Currency } from '../currency/Currency.ts';
 import { Output } from '../output/Output.ts';
 import { UTxO } from '../utxo/UTxO.ts';
 
@@ -31,6 +33,16 @@ export interface ExternalInputDescriptor {
   readonly extra: InputExtra;
 }
 
+export interface MintDescriptor {
+  readonly plutusV2ScriptCbor: CborHexString;
+  readonly currency: Currency;
+  readonly redeemer: PlutusData;
+  readonly exUnits: {
+    readonly mem: bigint;
+    readonly steps: bigint;
+  };
+}
+
 export type InputDescriptor = InternalInputDescriptor | ExternalInputDescriptor;
 
 /**
@@ -46,6 +58,12 @@ export class TransactionCandidate {
   }
 
   /**
+   * Current candidate mints
+   * @type {MintDescriptor[]}
+   */
+  readonly mints: MintDescriptor[] = [];
+
+  /**
    * Current candidate uTxOs
    * @type {UTxO[]}
    */
@@ -56,6 +74,15 @@ export class TransactionCandidate {
    * @type {UTxO[]}
    */
   readonly outputs: Output[] = [];
+
+  /**
+   * Returns max possible tx fee. TODO: REWRITE
+   */
+  get maxTxFee(): Currency {
+    return this.mints.length
+      ? MAX_TRANSACTION_FEE.multiply(3n)
+      : MAX_TRANSACTION_FEE;
+  }
 
   /**
    * Adds new output to candidate
@@ -77,6 +104,12 @@ export class TransactionCandidate {
       uTxO,
       extra,
     });
+
+    return this;
+  }
+
+  addMint(mintDescriptor: MintDescriptor): TransactionCandidate {
+    this.mints.push(mintDescriptor);
 
     return this;
   }

@@ -13,8 +13,10 @@ import {
   RedeemerTag,
   RedeemerWitnessKey,
   RequiredSigners,
+  Script,
   SignedTxBuilder,
   SingleInputBuilder,
+  SingleMintBuilder,
   SingleOutputBuilderResult,
   TransactionBuilder,
   TransactionBuilderConfig,
@@ -50,6 +52,7 @@ import {
   RedeemData,
 } from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
+import { createWeightedPool } from './operations/createWeightedPool/createWeightedPool.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
 import {
@@ -71,6 +74,7 @@ export const defaultOperations: {
   cfmmOrWeightedRedeem: typeof cfmmOrWeightedRedeem;
   spotOrder: typeof spotOrder;
   cancelOperation: typeof cancelOperation;
+  createWeightedPool: typeof createWeightedPool;
 } = {
   payToAddress,
   payToContract,
@@ -78,6 +82,7 @@ export const defaultOperations: {
   cfmmOrWeightedRedeem,
   spotOrder,
   cancelOperation,
+  createWeightedPool,
 };
 
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {
@@ -324,7 +329,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       collateralSelector,
       ...rest
     }: OperationContext,
-    txFee: Currency = MAX_TRANSACTION_FEE,
+    txFee: Currency = transactionCandidate.maxTxFee,
   ): Promise<{ txBuilder: SignedTxBuilder; partialSign: boolean }> {
     const transactionBuilder = TransactionBuilder.new(
       await this.transactionBuilderConfigP,
@@ -337,24 +342,32 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       (total, scriptInput) => total.plus(scriptInput.uTxO.value),
       Currencies.empty,
     );
+    const mints = transactionCandidate.mints;
+    const mintsInputValue = mints.reduce(
+      (total, mint) => total.plus([mint.currency]),
+      Currencies.empty,
+    );
 
     const totalOutputValue = transactionCandidate.outputs.reduce(
       (total, output) => total.plus(output.totalValue),
       Currencies.new([txFee]),
     );
     const maxCollateralsValue = Currencies.new([
-      MAX_TRANSACTION_FEE.multiply(3n),
+      transactionCandidate.maxTxFee.multiply(3n),
     ]);
-    const userUTxOsForOutput = scriptsInputsValue.isAssetsEnough(
-      totalOutputValue,
-    )
+    const userUTxOsForOutput = scriptsInputsValue
+      .plus(mintsInputValue)
+      .isAssetsEnough(totalOutputValue)
       ? []
       : uTxOsSelector['selectForTransactionBuilder'](
-          totalOutputValue.minus(scriptsInputsValue),
+          totalOutputValue.getInsufficientCurrenciesFor(
+            scriptsInputsValue.plus(mintsInputValue),
+          ),
         );
 
     const allUTxOs = this.normalizeUTxOsForChange(
       totalOutputValue,
+      mintsInputValue,
       userUTxOsForOutput.concat(
         scriptInputs.map((scriptInput) => scriptInput.uTxO),
       ),
@@ -378,10 +391,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
     // COLLATERALS
     let collaterals: UTxO[] = [];
-    if (scriptInputs.length && !collateralSelector['uTxOs'].length) {
+    if (
+      (scriptInputs.length || mints.length) &&
+      !collateralSelector['uTxOs'].length
+    ) {
       throw new NoCollateralError('wallet has no collateral UTxO');
     }
-    if (scriptInputs.length) {
+    if (scriptInputs.length || mints.length) {
       try {
         collaterals = collateralSelector.select(maxCollateralsValue);
       } catch (e) {
@@ -464,13 +480,31 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       ).plutus_script_inline_datum(partialPlutusWitness, requiredSigners);
       transactionBuilder.add_input(builder);
     });
+    mints.forEach((mint) => {
+      const requiredSigners = RequiredSigners.new();
+      const partialPlutusWitness = PartialPlutusWitness.new(
+        PlutusScriptWitness.new_script(
+          PlutusScript.from_v2(
+            PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
+          ),
+        ),
+        mint.redeemer,
+      );
+      transactionBuilder.add_mint(
+        SingleMintBuilder.new_single_asset(
+          mint.currency.asset.wasmName,
+          mint.currency.amount,
+        ).plutus_script(partialPlutusWitness, requiredSigners),
+      );
+    });
+
     transactionCandidate.outputs.forEach((output) =>
       transactionBuilder.add_output(SingleOutputBuilderResult.new(output.wasm)),
     );
     const wasmChangeAddress = Address.from_bech32(userAddress);
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
 
-    if (!scriptInputs.length) {
+    if (!collaterals.length) {
       return {
         txBuilder: transactionBuilder.build(
           changeSelectionAlgo,
@@ -485,6 +519,23 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       wasmChangeAddress,
     );
     const txForEvaluationInputs = txForEvaluations.draft_body().inputs();
+    const txForEvaluationMints = txForEvaluations.draft_body().mint()!;
+
+    mints.forEach((mint) => {
+      let mintIndex = 0n;
+      for (let i = 0; i < txForEvaluationMints.keys().len(); i++) {
+        const policyId = txForEvaluationMints.keys().get(i).to_hex();
+
+        if (policyId === mint.currency.asset.policyId) {
+          mintIndex = BigInt(i);
+          break;
+        }
+      }
+      transactionBuilder.set_exunits(
+        RedeemerWitnessKey.new(RedeemerTag.Mint, mintIndex),
+        ExUnits.new(mint.exUnits.mem, mint.exUnits.steps),
+      );
+    });
     scriptInputs.forEach((scriptInput) => {
       let txInputIndex = 0n;
 
@@ -554,6 +605,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         txWitnessSetBuilder.add_bootstrap(bootstrapWitnessesToAdd.get(i));
       }
     }
+    mints.forEach((mint) => {
+      txWitnessSetBuilder.add_script(
+        Script.new_plutus_v2(
+          PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
+        ),
+      );
+    });
     return {
       txBuilder: SignedTxBuilder.new_without_data(
         transactionBuilder.build(changeSelectionAlgo, wasmChangeAddress).body(),
@@ -566,12 +624,14 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
   private normalizeUTxOsForChange(
     totalOutputValue: Currencies,
+    mintsInputValue: Currencies,
     uTxOsForOutput: UTxO[],
     transactionBuilder: TransactionBuilder,
     context: OperationContext,
   ): UTxO[] {
     const estimatedChange = uTxOsForOutput
       .reduce((acc, uTxO) => acc.plus(uTxO.value), Currencies.empty)
+      .plus(mintsInputValue)
       .minus(totalOutputValue);
     const estimatedChangeOutput = Output.new(context.pParams, {
       address: context.userAddress,
@@ -610,6 +670,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     }
     return this.normalizeUTxOsForChange(
       totalOutputValue,
+      mintsInputValue,
       uTxOsForOutput.concat(additionalUTxOs),
       transactionBuilder,
       context,

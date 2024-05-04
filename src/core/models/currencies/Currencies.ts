@@ -239,6 +239,38 @@ export class Currencies {
   }
 
   /**
+   * Returns only insufficient assets
+   * @param {Currencies | Currency[]} currencies
+   * @return {Currencies}
+   */
+  getInsufficientCurrenciesFor(
+    currencies: Currencies | Currency[],
+  ): Currencies {
+    const toSubtract: Currencies =
+      currencies instanceof Currencies
+        ? currencies
+        : Currencies.fromCurrencyArray(currencies);
+
+    const resultMap = Array.from(toSubtract.currencyMap.values()).reduce<
+      Map<string, Currency>
+    >((map, item) => {
+      const splashId = item.asset.splashId;
+      if (!map.has(splashId)) {
+        return map;
+      }
+      if (map.get(splashId)!.lte(item)) {
+        map.delete(splashId);
+      } else {
+        const result = map.get(splashId)!.minus(item);
+        map.set(splashId, result);
+      }
+      return map;
+    }, new Map(this.currencyMap.entries()));
+
+    return Currencies.fromCurrencyArray(Array.from(resultMap.values()));
+  }
+
+  /**
    * Returns true if structure has enough assets for subtract
    * @param {Currencies | Currency[]} currencies
    * @returns {boolean}
