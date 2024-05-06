@@ -262,11 +262,7 @@ export class Currencies {
       if (map.get(splashId)!.lt(item)) {
         map.set(splashId, item.minus(map.get(splashId)!));
       }
-      if (map.get(splashId)!.gt(item)) {
-        const result = map.get(splashId)!.minus(item);
-        map.set(splashId, result);
-      }
-      if (map.get(splashId)!.eq(item)) {
+      if (map.get(splashId)!.gte(item)) {
         map.delete(splashId);
       }
       return map;

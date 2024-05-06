@@ -363,9 +363,9 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       .isAssetsEnough(totalOutputValue)
       ? []
       : uTxOsSelector['selectForTransactionBuilder'](
-          totalOutputValue.getInsufficientCurrenciesFor(
-            scriptsInputsValue.plus(mintsInputValue),
-          ),
+          scriptsInputsValue
+            .plus(mintsInputValue)
+            .getInsufficientCurrenciesFor(totalOutputValue),
         );
 
     const allUTxOs = this.normalizeUTxOsForChange(
