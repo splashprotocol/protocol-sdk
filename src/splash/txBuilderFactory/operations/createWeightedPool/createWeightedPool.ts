@@ -1,8 +1,3 @@
-import {
-  Address,
-  BaseAddress,
-} from '@dcspark/cardano-multiplatform-lib-browser';
-
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
@@ -38,7 +33,7 @@ const getPolicyAndScript = async ({
   emission,
   base16Name,
 }: GetPolicyAndScriptParams): Promise<GetPolicyAndScriptResult> => {
-  await fetch('http://88.99.59.114:8081/getData/', {
+  await fetch('https://meta.spectrum.fi/cardano/minting/data/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -51,7 +46,7 @@ const getPolicyAndScript = async ({
     }),
   });
 
-  return fetch('http://88.99.59.114:3490/getData/', {
+  return fetch('https://meta.spectrum.fi/cardano/minting/data/finalizeNew/', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
@@ -63,6 +58,21 @@ const getPolicyAndScript = async ({
       qty: emission.toString(),
     }),
   }).then((res) => res.json());
+};
+
+const getDaoPolicy = async (assetInfo: AssetInfo): Promise<HexString> => {
+  return fetch('https://meta.spectrum.fi/cardano/dao/balance/data/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=utf-8',
+    },
+    body: JSON.stringify({
+      nftCS: assetInfo.policyId,
+      nftTN: assetInfo.nameBase16,
+    }),
+  })
+    .then((res) => res.json())
+    .then((data) => data.curSymbol);
 };
 
 const createWeightPoolData = Data.Tuple([
@@ -165,9 +175,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const treasuryFeeNum = BigInt(
       math.evaluate(`${treasuryFee} / 100 * 100000`).toFixed(),
     );
-    const address = BaseAddress.from_address(
-      Address.from_bech32(context.userAddress),
-    );
+    const daoPolicy = await getDaoPolicy(nftAssetInfo);
 
     const data = createWeightPoolData([
       nftAssetInfo,
@@ -183,12 +191,12 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       [
         [
           {
-            hash: '1b810d1426ceb8a7a61d78899fe01a426ac770deb6daad335e2c59eb',
+            hash: daoPolicy,
             type: 'scriptCredential',
           },
         ],
       ],
-      address?.stake().as_pub_key()?.to_hex()!,
+      '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
       BigInt(invariant.toFixed()),
     ]);
     context.transactionCandidate.addMint({
