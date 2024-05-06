@@ -147,7 +147,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const invariant = math.evaluate(
       `${newX.amount}^${normalizedXWeight} * ${newY.amount}^${normalizedYWeight}`,
     );
-    const toSubtract = math.nthRoot(invariant, 5);
+    const toSubtract = math.floor(math.nthRoot(invariant, 5));
     const poolLpAmount = EMISSION_LP - BigInt((toSubtract as any).toFixed());
     const nftAssetInfo = AssetInfo.new({
       policyId: nftMintInfo.policyId,

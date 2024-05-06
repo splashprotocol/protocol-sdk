@@ -95,6 +95,20 @@ test('it should subtract set2 from set1', () => {
   expect(minusRes.ada?.amount).toBe(1n);
 });
 
+test('it should returns insufficient assets', () => {
+  const set1 = Currencies.new([Currency.ada(3n), Currency.usd(2n)]);
+  const set2 = Currencies.new([
+    Currency.ada(4n),
+    Currency.spf(3n),
+    Currency.usd(2n),
+  ]);
+  const insufficient = set1.getInsufficientCurrenciesFor(set2);
+
+  expect(insufficient).toBeInstanceOf(Currencies);
+  expect(insufficient.ada?.amount).toBe(1n);
+  expect(insufficient.spf?.amount).toBe(3n);
+});
+
 test('it should throws error after subtract same assets method call', () => {
   const set1 = Currencies.new([Currency.ada(4n)]);
   const set2 = Currencies.new([Currency.ada(3n)]);

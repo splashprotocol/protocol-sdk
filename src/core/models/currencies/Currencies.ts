@@ -256,13 +256,18 @@ export class Currencies {
     >((map, item) => {
       const splashId = item.asset.splashId;
       if (!map.has(splashId)) {
+        map.set(splashId, item);
         return map;
       }
-      if (map.get(splashId)!.lte(item)) {
-        map.delete(splashId);
-      } else {
+      if (map.get(splashId)!.lt(item)) {
+        map.set(splashId, item.minus(map.get(splashId)!));
+      }
+      if (map.get(splashId)!.gt(item)) {
         const result = map.get(splashId)!.minus(item);
         map.set(splashId, result);
+      }
+      if (map.get(splashId)!.eq(item)) {
+        map.delete(splashId);
       }
       return map;
     }, new Map(this.currencyMap.entries()));
