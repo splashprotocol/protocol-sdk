@@ -94,6 +94,10 @@ export class Price {
   getReceivedBaseFor(quoteCurrency: Currency | bigint): Currency {
     this.assertCurrency(this.quote, quoteCurrency, '"getReceivedBaseFor"');
 
+    if (!this.raw) {
+      return Currency.new(0n, this.base);
+    }
+
     const amountOfBaseCurrency = toBigNumRepresentation(
       normalizeAmount(
         math.evaluate(`${quoteCurrency.toString()} / ${this.raw}`).toFixed(),
