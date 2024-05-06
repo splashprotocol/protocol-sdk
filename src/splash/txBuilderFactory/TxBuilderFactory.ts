@@ -52,6 +52,7 @@ import {
   RedeemData,
 } from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
+import { createCfmmPool } from './operations/createCfmmPool/createCfmmPool.ts';
 import { createWeightedPool } from './operations/createWeightedPool/createWeightedPool.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
@@ -75,6 +76,7 @@ export const defaultOperations: {
   spotOrder: typeof spotOrder;
   cancelOperation: typeof cancelOperation;
   createWeightedPool: typeof createWeightedPool;
+  createCfmmPool: typeof createCfmmPool;
 } = {
   payToAddress,
   payToContract,
@@ -83,6 +85,7 @@ export const defaultOperations: {
   spotOrder,
   cancelOperation,
   createWeightedPool,
+  createCfmmPool,
 };
 
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {

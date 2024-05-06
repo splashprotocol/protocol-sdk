@@ -19,6 +19,20 @@ import { stringToHex } from '../../../../core/utils/stringToHex/stringToHex.ts';
 import { Operation } from '../common/Operation.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
 
+export function sqrt(x: bigint): bigint {
+  function go(n: bigint, x0: bigint): bigint {
+    const x1 = (n / x0 + x0) >> 1n;
+    if (x0 === x1 || x0 === x1 - 1n) {
+      return x0;
+    }
+    return go(n, x1);
+  }
+
+  if (x < 0n) throw 'Square root of negative number is not supported';
+  else if (x < 2n) return x;
+  else return go(x, 1n);
+}
+
 interface GetPolicyAndScriptParams {
   readonly txHash: TransactionHash;
   readonly index: bigint;
@@ -29,8 +43,6 @@ export interface GetPolicyAndScriptResult {
   readonly policyId: CborHexString;
   readonly script: CborHexString;
 }
-
-const WEIGHT_DENOM = 5n;
 
 const getPolicyAndScript = async ({
   txHash,
@@ -65,17 +77,13 @@ const getPolicyAndScript = async ({
   }).then((res) => res.json());
 };
 
-const createWeightPoolData = Data.Tuple([
+const createCfmmPoolData = Data.Tuple([
   // nft
   Data.AssetInfo,
   // x
   Data.AssetInfo,
-  // x weight
-  Data.BigInt,
   // y
   Data.AssetInfo,
-  // y weight
-  Data.BigInt,
   // lq
   Data.AssetInfo,
   // pool fee
@@ -88,25 +96,23 @@ const createWeightPoolData = Data.Tuple([
   Data.BigInt,
   // DAO
   Data.List(Data.DaoPolicy),
+  // lq bound
+  Data.BigInt,
   // address
   Data.Bytes,
-  // invariant
-  Data.BigInt,
 ]);
 
 export interface CreateWeightedPoolConfig {
   readonly x: Currency;
-  readonly xWeight: percent;
   readonly y: Currency;
-  readonly yWeight: percent;
   readonly poolFee?: percent;
   readonly treasuryFee?: percent;
 }
 
 export const MIN_POOL_ADA_VALUE = Currency.ada(5000000n);
 
-export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
-  ({ x, xWeight, y, yWeight, treasuryFee = 0.03, poolFee = 0.3 }) =>
+export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
+  ({ x, y, treasuryFee = 0.03, poolFee = 0.3 }) =>
   async (context) => {
     const newX = x.isAda() ? x : y;
     const newY = x.isAda() ? y : x;
@@ -115,9 +121,6 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     }
     if (newX.lt(MIN_POOL_ADA_VALUE)) {
       throw new Error('Min value ada for pool is 5 ADA');
-    }
-    if (xWeight + yWeight !== 100) {
-      throw new Error('xWeight + yWeight should be equals 100');
     }
 
     const [firstTokenUtxo] = context.uTxOsSelector.select(
@@ -138,17 +141,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       base16Name: base16LqName,
       emission: EMISSION_LP,
     });
-    const normalizedXWeight = math.evaluate(
-      `${xWeight} * ${WEIGHT_DENOM} / 100`,
-    );
-    const normalizedYWeight = math.evaluate(
-      `${yWeight} * ${WEIGHT_DENOM} / 100`,
-    );
-    const invariant = math.evaluate(
-      `${newX.amount}^${normalizedXWeight} * ${newY.amount}^${normalizedYWeight}`,
-    );
-    const toSubtract = math.nthRoot(invariant, 5);
-    const poolLpAmount = EMISSION_LP - BigInt((toSubtract as any).toFixed());
+    const poolLpAmount = EMISSION_LP - sqrt(x.amount * y.amount);
     const nftAssetInfo = AssetInfo.new({
       policyId: nftMintInfo.policyId,
       name: base16NftName,
@@ -169,12 +162,10 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       Address.from_bech32(context.userAddress),
     );
 
-    const data = createWeightPoolData([
+    const data = createCfmmPoolData([
       nftAssetInfo,
       x.asset,
-      BigInt(normalizedXWeight.toFixed()),
       y.asset,
-      BigInt(normalizedYWeight.toFixed()),
       lqAssetInfo,
       poolFeeNum,
       treasuryFeeNum,
@@ -188,8 +179,8 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
           },
         ],
       ],
+      0n,
       address?.stake().as_pub_key()?.to_hex()!,
-      BigInt(invariant.toFixed()),
     ]);
     context.transactionCandidate.addMint({
       currency: Currency.new(1n, nftAssetInfo),
@@ -212,7 +203,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
 
     return payToContract(
       {
-        script: 'cced077b21e5898610d411e174b8a7eca61669f8347ab04624fcfe4f',
+        script: 'f002facfd69d51b63e7046c6d40349b0b17c8dd775ee415c66af3ccc',
         version: 'plutusV2',
       },
       Currencies.new([
