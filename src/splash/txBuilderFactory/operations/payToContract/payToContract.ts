@@ -21,6 +21,7 @@ export interface PayToContractScript {
 
 export interface PayToContractOptions {
   stakeKeyHash?: HexString;
+  stakeKeyHashType?: 'script' | 'pubKey';
 }
 
 export const payToContract: Operation<
@@ -45,9 +46,12 @@ export const payToContract: Operation<
     const scriptCred = Credential.new_script(
       ScriptHash.from_hex(script.script),
     );
-    const stakeCred = options?.stakeKeyHash
-      ? Credential.new_pub_key(Ed25519KeyHash.from_hex(options.stakeKeyHash))
-      : undefined;
+    const stakeCred =
+      options?.stakeKeyHash && options.stakeKeyHashType === 'script'
+        ? Credential.new_script(ScriptHash.from_hex(options.stakeKeyHash))
+        : options?.stakeKeyHash
+        ? Credential.new_pub_key(Ed25519KeyHash.from_hex(options.stakeKeyHash))
+        : undefined;
 
     const contractAddress = stakeCred
       ? BaseAddress.new(networkId, scriptCred, stakeCred)

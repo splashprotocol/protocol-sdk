@@ -232,7 +232,8 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       data,
       {
         stakeKeyHash:
-          'f1b2f6abf60ccde92eae1a2f4fdf65f2eaf6208d872c6f0e597cc10b07',
+          'b2f6abf60ccde92eae1a2f4fdf65f2eaf6208d872c6f0e597cc10b07',
+        stakeKeyHashType: 'script',
       },
     )(context);
   };
