@@ -108,7 +108,7 @@ const createCfmmPoolData = Data.Tuple([
   Data.List(Data.DaoPolicy),
   // lq bound
   Data.BigInt,
-  // address
+  // treasury address
   Data.Bytes,
 ]);
 
