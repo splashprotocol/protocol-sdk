@@ -84,44 +84,54 @@ const getBeacon = async (uTxO: UTxO): Promise<string> =>
 
 interface getMarginalOutputConfig {
   readonly basePrice: Price;
-  readonly inputAsset: AssetInfo;
+  readonly input: Currency;
+  readonly stepCount: bigint;
   readonly outputAsset: AssetInfo;
-  readonly orderStepCost: Currency;
 }
-const getMarginalOutput = async (
-  {
+const getMarginalOutput = async ({
+  input,
+  basePrice,
+  stepCount,
+  outputAsset,
+}: getMarginalOutputConfig): Promise<Currency> => {
+  return Currency.new(
+    BigInt(
+      Math.floor(
+        math
+          .evaluate(
+            `${basePrice.getNecessaryQuoteFor(input).amount} / ${stepCount}`,
+          )
+          .toFixed(),
+      ),
+    ),
     outputAsset,
-    inputAsset,
-    basePrice,
-    orderStepCost,
-  }: getMarginalOutputConfig,
-  splash: Splash<{}>,
-): Promise<Currency> => {
-  if (outputAsset.isAda()) {
-    return orderStepCost;
-  }
-  if (inputAsset.isAda()) {
-    return basePrice.getNecessaryQuoteFor(orderStepCost);
-  }
-  const rates = splash.utils.selectRates({
-    pairs: await splash.api.getPairs(),
-    adaUsdPrice: Price.new({
-      base: AssetInfo.ada,
-      quote: AssetInfo.usd,
-      raw: 0,
-    }),
-  });
+  );
 
-  const outputAdaRate = rates.getPrice(outputAsset);
-  if (outputAdaRate) {
-    return outputAdaRate.getReceivedBaseFor(orderStepCost);
-  }
-  const inputAdaRate = rates.getPrice(inputAsset);
-  if (inputAdaRate) {
-    // TODO: CHECK IT ONE MORE TIME
-    return inputAdaRate.cross(basePrice).getReceivedBaseFor(orderStepCost);
-  }
-  return Currency.new(0n, outputAsset);
+  // if (outputAsset.isAda()) {
+  //   return orderStepCost;
+  // }
+  // if (inputAsset.isAda()) {
+  //   return basePrice.getNecessaryQuoteFor(orderStepCost);
+  // }
+  // const rates = splash.utils.selectRates({
+  //   pairs: await splash.api.getPairs(),
+  //   adaUsdPrice: Price.new({
+  //     base: AssetInfo.ada,
+  //     quote: AssetInfo.usd,
+  //     raw: 0,
+  //   }),
+  // });
+  //
+  // const outputAdaRate = rates.getPrice(outputAsset);
+  // if (outputAdaRate) {
+  //   return outputAdaRate.getReceivedBaseFor(orderStepCost);
+  // }
+  // const inputAdaRate = rates.getPrice(inputAsset);
+  // if (inputAdaRate) {
+  //   // TODO: CHECK IT ONE MORE TIME
+  //   return inputAdaRate.cross(basePrice).getReceivedBaseFor(orderStepCost);
+  // }
+  // return Currency.new(0n, outputAsset);
 };
 
 export interface SpotOrderConfig {
@@ -165,15 +175,12 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       },
       context.splash,
     );
-    const minMarginalOutput = await getMarginalOutput(
-      {
-        basePrice,
-        inputAsset: input.asset,
-        outputAsset: outputAsset,
-        orderStepCost: worstOrderStepCost,
-      },
-      context.splash,
-    );
+    const minMarginalOutput = await getMarginalOutput({
+      basePrice,
+      input: input,
+      stepCount: orderMaxStepCount,
+      outputAsset: outputAsset,
+    });
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
     const address = Address.from_bech32(context.userAddress);
     const data = createSpotOrderData(
