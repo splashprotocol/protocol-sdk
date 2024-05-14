@@ -239,10 +239,11 @@ export class ApiWrapper {
         Promise.all([
           this.handleCIP30WalletError(ctx.getUnusedAddresses()),
           this.handleCIP30WalletError(ctx.getUsedAddresses()),
+          this.handleCIP30WalletError(ctx.getChangeAddress()),
         ]),
       )
-      .then(([unusedAddresses, usedAddresses]) =>
-        unusedAddresses.concat(usedAddresses),
+      .then(([unusedAddresses, usedAddresses, changeAddress]) =>
+        unusedAddresses.concat(usedAddresses).concat([changeAddress]),
       )
       .then((addresses) =>
         addresses.map((cborAddressHex) =>
@@ -261,10 +262,11 @@ export class ApiWrapper {
         Promise.all([
           this.handleCIP30WalletError(ctx.getUnusedAddresses()),
           this.handleCIP30WalletError(ctx.getUsedAddresses()),
+          this.handleCIP30WalletError(ctx.getChangeAddress()),
         ]),
       )
-      .then(([unusedAddresses, usedAddresses]) =>
-        unusedAddresses.concat(usedAddresses),
+      .then(([unusedAddresses, usedAddresses, changeAddress]) =>
+        unusedAddresses.concat(usedAddresses).concat([changeAddress]),
       )
       .then((addresses) =>
         addresses.map(
