@@ -107,7 +107,7 @@ export class AssetInfo {
       decimals: 6,
       subject: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75535046',
       policyId: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75',
-      url: 'https://spectrum.fi/logos/cardano/09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75535046.webp',
+      logo: 'https://spectrum.fi/logos/cardano/09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75535046.webp',
     },
   );
 
