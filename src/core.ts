@@ -129,6 +129,7 @@ export * from './core/utils/utxosSelector/UTxOsSelector.ts';
 // SPLASH_API_COMMON
 export * from './splash/api/common/errors/InvalidWalletNetworkError.ts';
 export * from './splash/api/common/errors/NoWalletError.ts';
+export * from './splash/api/common/errors/UserDeclinedSignError.ts';
 export * from './splash/api/common/errors/WalletAccountError.ts';
 export * from './splash/api/common/errors/WalletApiError.ts';
 export * from './splash/api/common/errors/WalletEnablingError.ts';
@@ -151,7 +152,9 @@ export * from './splash/api/splash/types/RawProtocolParams.ts';
 export * from './splash/api/ApiWrapper.ts';
 
 // SPLASH_TX_BUILDER
+export * from './splash/txBuilderFactory/erors/InsufficientCollateralError.ts';
 export * from './splash/txBuilderFactory/erors/InsufficientFundsErrorForChange.ts';
+export * from './splash/txBuilderFactory/erors/NoCollateralError.ts';
 export * from './splash/txBuilderFactory/operations/cancelOperation/cancelOperation.ts';
 export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputAlreadySpentError.ts';
 export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputNotFoundError.ts';

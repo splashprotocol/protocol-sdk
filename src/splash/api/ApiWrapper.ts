@@ -38,6 +38,7 @@ import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
 import { NoWalletError } from './common/errors/NoWalletError.ts';
+import { UserDeclinedSignError } from './common/errors/UserDeclinedSignError.ts';
 import { WalletAccountError } from './common/errors/WalletAccountError.ts';
 import { WalletApiError } from './common/errors/WalletApiError.ts';
 import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
@@ -662,6 +663,9 @@ export class ApiWrapper {
         err?.message?.includes('no account changed')
       ) {
         throw new WalletAccountError(err.message);
+      }
+      if (err?.message?.includes('user declined sign tx')) {
+        throw new UserDeclinedSignError(err?.message);
       }
 
       throw new WalletApiError(
