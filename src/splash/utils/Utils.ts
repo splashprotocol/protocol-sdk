@@ -250,15 +250,22 @@ export class Utils {
     if (!orderBook.spotPrice.isPriceAssetsEquals(targetPrice)) {
       throw new AssetInfoMismatchError('received prices with different assets');
     }
-    const normalizedSpotPrice = orderBook.spotPrice.base.isEquals(
-      targetPrice.base,
-    )
-      ? orderBook.spotPrice
-      : orderBook.spotPrice.invert();
+    const isAsk = orderBook.base.isEquals(targetPrice.quote);
+
+    let firstBin = isAsk ? orderBook.bids[0]?.price : orderBook.asks[0]?.price;
+
+    if (!firstBin?.raw) {
+      console.warn('empty order book');
+      return 0;
+    }
+
+    firstBin = firstBin.base.isEquals(targetPrice.base)
+      ? firstBin
+      : firstBin.invert();
 
     return Math.abs(
       math.evaluate!(
-        `(${targetPrice.raw} * 100 / ${normalizedSpotPrice.raw}) - 100`,
+        `(${targetPrice.raw} * 100 / ${firstBin.raw}) - 100`,
       ).toFixed(2),
     );
   }
