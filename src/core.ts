@@ -162,6 +162,10 @@ export * from './splash/txBuilderFactory/operations/cancelOperation/errors/Suppo
 export * from './splash/txBuilderFactory/operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
 export * from './splash/txBuilderFactory/operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';
+export {
+  createCfmmPool,
+  createCfmmPoolData,
+} from './splash/txBuilderFactory/operations/createCfmmPool/createCfmmPool.ts';
 export * from './splash/txBuilderFactory/operations/createWeightedPool/createWeightedPool.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
