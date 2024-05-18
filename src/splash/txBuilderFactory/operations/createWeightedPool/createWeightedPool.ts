@@ -60,7 +60,10 @@ const getPolicyAndScript = async ({
   }).then((res) => res.json());
 };
 
-const getDaoPolicy = async (assetInfo: AssetInfo): Promise<HexString> => {
+const getDaoPolicy = async (
+  assetInfo: AssetInfo,
+  editableFee: boolean,
+): Promise<HexString> => {
   return fetch('https://meta.spectrum.fi/cardano/dao/balance/data/', {
     method: 'POST',
     headers: {
@@ -69,6 +72,7 @@ const getDaoPolicy = async (assetInfo: AssetInfo): Promise<HexString> => {
     body: JSON.stringify({
       nftCS: assetInfo.policyId,
       nftTN: assetInfo.nameBase16,
+      editableFee,
     }),
   })
     .then((res) => res.json())
@@ -111,12 +115,21 @@ export interface CreateWeightedPoolConfig {
   readonly yWeight: percent;
   readonly poolFee?: percent;
   readonly treasuryFee?: percent;
+  readonly editableFee?: boolean;
 }
 
 export const MIN_POOL_ADA_VALUE = Currency.ada(5000000n);
 
 export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
-  ({ x, xWeight, y, yWeight, treasuryFee = 0.03, poolFee = 0.3 }) =>
+  ({
+    x,
+    xWeight,
+    y,
+    yWeight,
+    treasuryFee = 0.03,
+    poolFee = 0.3,
+    editableFee = true,
+  }) =>
   async (context) => {
     const newX = x.isAda() ? x : y;
     const newY = x.isAda() ? y : x;
@@ -175,7 +188,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const treasuryFeeNum = BigInt(
       math.evaluate(`${treasuryFee} / 100 * 100000`).toFixed(),
     );
-    const daoPolicy = await getDaoPolicy(nftAssetInfo);
+    const daoPolicy = await getDaoPolicy(nftAssetInfo, editableFee);
 
     const data = createWeightPoolData([
       nftAssetInfo,
