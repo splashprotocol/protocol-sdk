@@ -33,19 +33,15 @@ const DaoPolicyInlineDataType = toDataType<DaoPolicyParams>({
       throw new Error('invalid dao policy data');
     }
 
-    if (constrPlutusData.fields().get(0)) {
+    if (constrPlutusData.alternative() === 0n) {
       return {
         type: 'verificationKeyCredential',
-        hash: BytesDataType.deserialize(
-          constrPlutusData.fields().get(0).as_list()?.get(0)!,
-        ),
+        hash: BytesDataType.deserialize(constrPlutusData.fields().get(0)!),
       };
     } else {
       return {
         type: 'scriptCredential',
-        hash: BytesDataType.deserialize(
-          constrPlutusData.fields().get(1).as_list()?.get(0)!,
-        ),
+        hash: BytesDataType.deserialize(constrPlutusData.fields().get(0)!),
       };
     }
   },

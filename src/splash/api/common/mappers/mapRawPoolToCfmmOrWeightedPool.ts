@@ -67,6 +67,10 @@ export const mapRawPoolToCfmmOrWeightedPool = (
   );
 
   const partialConfig = {
+    outputId: {
+      txHash: rawPool.pool.outputId.transactionId,
+      index: BigInt(rawPool.pool.outputId.transactionIndex),
+    },
     nft,
     lq: Currency.new(BigInt(rawPool.pool.lq.amount), lq),
     totalX: Currency.new(BigInt(rawPool.pool.x.amount), x),

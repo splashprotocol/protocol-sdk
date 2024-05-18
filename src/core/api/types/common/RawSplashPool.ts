@@ -1,4 +1,4 @@
-import { PoolId } from '../../../types/types.ts';
+import { HexString, PoolId } from '../../../types/types.ts';
 import { CurrencyDescriptor } from './CurrencyDescriptor.ts';
 
 export type RawSplashPoolVersion = 'v1' | 'v2' | 'v3' | 'v4';
@@ -14,6 +14,10 @@ export interface RawSplashPoolInfo {
   readonly treasuryX: string;
   readonly treasuryY: string;
   readonly verified: boolean;
+  readonly outputId: {
+    readonly transactionId: HexString;
+    readonly transactionIndex: number;
+  };
   readonly poolLqBound: string;
 }
 

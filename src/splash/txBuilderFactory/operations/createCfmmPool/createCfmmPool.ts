@@ -91,7 +91,7 @@ const getDaoPolicy = async (
     .then((data) => data.curSymbol);
 };
 
-const createCfmmPoolData = Data.Tuple([
+export const createCfmmPoolData = Data.Tuple([
   // nft
   Data.AssetInfo,
   // x

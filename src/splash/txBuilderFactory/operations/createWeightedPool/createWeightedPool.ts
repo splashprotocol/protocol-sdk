@@ -79,7 +79,7 @@ const getDaoPolicy = async (
     .then((data) => data.curSymbol);
 };
 
-const createWeightPoolData = Data.Tuple([
+export const createWeightPoolData = Data.Tuple([
   // nft
   Data.AssetInfo,
   // x

@@ -1,7 +1,7 @@
 import { PoolId } from '../../../../../build';
 import { Splash } from '../../../../splash/splash.ts';
 import { Pool } from '../../../types/Pool.ts';
-import { percent } from '../../../types/types.ts';
+import { OutputReference, percent } from '../../../types/types.ts';
 import { math } from '../../../utils/math/math.ts';
 import { ada } from '../../assetInfo/ada.ts';
 import { AssetInfo } from '../../assetInfo/AssetInfo.ts';
@@ -31,6 +31,7 @@ export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
   readonly lpFeeADA?: number | bigint | Currency;
   readonly lpFeeUSD?: number | bigint | Currency;
   readonly apr?: percent;
+  readonly outputId: OutputReference;
 }
 
 /**
@@ -39,6 +40,11 @@ export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
 export class XYPool<Type extends 'cfmm' | 'weighted'>
   implements Pool<Type, { x: Currency; y: Currency }>
 {
+  /**
+   * Last pool output id
+   */
+  readonly outputId: OutputReference;
+
   /**
    * Type of pool. Can bee cfmm, weight and 3stablePool
    * @type {string}
@@ -212,9 +218,11 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
       lpFeeADA,
       lpFeeUSD,
       apr,
+      outputId,
     }: XYPoolConfig<Type>,
     private splash: Splash<{}>,
   ) {
+    this.outputId = outputId;
     this.nft = nft;
     this.id = nft.splashId;
     this.lq = lq;
