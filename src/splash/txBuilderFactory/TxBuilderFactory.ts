@@ -221,6 +221,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           ...rawOperationsConfig.operations.redeemWeighted,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
         },
+        redeemWeightedV2: {
+          ...rawOperationsConfig.operations.redeemWeightedV2,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
         redeemDefault: {
           ...rawOperationsConfig.operations.redeemDefault,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),

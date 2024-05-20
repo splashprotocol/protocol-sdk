@@ -50,6 +50,7 @@ export interface SplashOperationsConfig {
     readonly redeemDefault: SplashOperation;
     readonly redeemFeeSwitch: SplashOperation;
     readonly redeemWeighted: SplashOperation;
+    readonly redeemWeightedV2: SplashOperation;
   };
 }
 
@@ -73,5 +74,6 @@ export interface SplashOperationsConfigWithCredsDeserializers {
     readonly redeemDefault: SplashOperation & WithCredsDeserializer;
     readonly redeemFeeSwitch: SplashOperation & WithCredsDeserializer;
     readonly redeemWeighted: SplashOperation & WithCredsDeserializer;
+    readonly redeemWeightedV2: SplashOperation & WithCredsDeserializer;
   };
 }
