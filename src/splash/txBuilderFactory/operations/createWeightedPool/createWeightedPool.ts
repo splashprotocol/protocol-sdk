@@ -84,12 +84,8 @@ export const createWeightPoolData = Data.Tuple([
   Data.AssetInfo,
   // x
   Data.AssetInfo,
-  // // x weight
-  // Data.BigInt,
   // y
   Data.AssetInfo,
-  // // y weight
-  // Data.BigInt,
   // lq
   Data.AssetInfo,
   // pool fee
@@ -104,8 +100,6 @@ export const createWeightPoolData = Data.Tuple([
   Data.List(Data.DaoPolicy),
   // address
   Data.Bytes,
-  // // invariant
-  // Data.BigInt,
 ]);
 
 export interface CreateWeightedPoolConfig {
