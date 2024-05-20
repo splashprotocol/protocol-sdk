@@ -236,7 +236,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
 
     return payToContract(
       {
-        script: 'cced077b21e5898610d411e174b8a7eca61669f8347ab04624fcfe4f',
+        script: 'b0d6640ed20e776b0c7593e7d0ce8bd09fc2fcf17f2c44901ef7fe75',
         version: 'plutusV2',
       },
       Currencies.new([
@@ -248,7 +248,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       data,
       {
         stakeKeyHash:
-          'b0d6640ed20e776b0c7593e7d0ce8bd09fc2fcf17f2c44901ef7fe75',
+          'b2f6abf60ccde92eae1a2f4fdf65f2eaf6208d872c6f0e597cc10b07',
         stakeKeyHashType: 'script',
       },
     )(context);
