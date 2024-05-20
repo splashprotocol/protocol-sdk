@@ -84,12 +84,12 @@ export const createWeightPoolData = Data.Tuple([
   Data.AssetInfo,
   // x
   Data.AssetInfo,
-  // x weight
-  Data.BigInt,
+  // // x weight
+  // Data.BigInt,
   // y
   Data.AssetInfo,
-  // y weight
-  Data.BigInt,
+  // // y weight
+  // Data.BigInt,
   // lq
   Data.AssetInfo,
   // pool fee
@@ -104,8 +104,8 @@ export const createWeightPoolData = Data.Tuple([
   Data.List(Data.DaoPolicy),
   // address
   Data.Bytes,
-  // invariant
-  Data.BigInt,
+  // // invariant
+  // Data.BigInt,
 ]);
 
 export interface CreateWeightedPoolConfig {
@@ -141,6 +141,9 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     }
     if (xWeight + yWeight !== 100) {
       throw new Error('xWeight + yWeight should be equals 100');
+    }
+    if (xWeight !== 20 && yWeight !== 80) {
+      throw new Error('now cdk supports only 20/80 pools creation');
     }
 
     const [firstTokenUtxo] = context.uTxOsSelector.select(
@@ -193,9 +196,9 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const data = createWeightPoolData([
       nftAssetInfo,
       x.asset,
-      BigInt(normalizedXWeight.toFixed()),
+      // BigInt(normalizedXWeight.toFixed()),
       y.asset,
-      BigInt(normalizedYWeight.toFixed()),
+      // BigInt(normalizedYWeight.toFixed()),
       lqAssetInfo,
       poolFeeNum,
       treasuryFeeNum,
@@ -210,7 +213,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
         ],
       ],
       '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
-      BigInt(invariant.toFixed()),
+      // BigInt(invariant.toFixed()),
     ]);
     context.transactionCandidate.addMint({
       currency: Currency.new(1n, nftAssetInfo),
@@ -245,7 +248,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       data,
       {
         stakeKeyHash:
-          'b2f6abf60ccde92eae1a2f4fdf65f2eaf6208d872c6f0e597cc10b07',
+          'b0d6640ed20e776b0c7593e7d0ce8bd09fc2fcf17f2c44901ef7fe75',
         stakeKeyHashType: 'script',
       },
     )(context);

@@ -117,6 +117,7 @@ export * from './core/utils/hexToCborBytes/hexToCborBytes.ts';
 export * from './core/utils/hexToCborHex/hexToCborHex.ts';
 export * from './core/utils/hexToString/hexToString.ts';
 export * from './core/utils/math/math.ts';
+export * from './core/utils/oldSplashPool/oldSplashPool.ts';
 export * from './core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 export * from './core/utils/stringToBytes/stringToBytes.ts';
 export * from './core/utils/stringToCborBytes/stringToCborBytes.ts';
