@@ -237,6 +237,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           ...rawOperationsConfig.operations.depositWeighted,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
         },
+        depositWeightedOld: {
+          ...rawOperationsConfig.operations.depositWeightedOld,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
         depositFeeSwitch: {
           ...rawOperationsConfig.operations.depositFeeSwitch,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
