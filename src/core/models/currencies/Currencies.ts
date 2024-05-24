@@ -307,6 +307,9 @@ export class Currencies {
   toWasmValue(): Value {
     const groupedAssetsByPolicyId = this.currencies
       .filter((asset) => asset.asset.splashId !== ada.splashId)
+      .sort((aCurrency, bCurrency) =>
+        Number(aCurrency.amount - bCurrency.amount),
+      )
       .reduce<Map<string, Currency[]>>((acc, item) => {
         if (!acc.has(item.asset.policyId)) {
           acc.set(item.asset.policyId, []);

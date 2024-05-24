@@ -52,6 +52,9 @@ const sortUTxOsByCurrency = (
       const currenciesCountA = utxoA.value.toArray().length;
       const currenciesCountB = utxoB.value.toArray().length;
 
+      if (!currency.isAda()) {
+        return Number(currencyB.amount - currencyA.amount);
+      }
       if (currenciesCountA === currenciesCountB) {
         return Number(currencyB.amount - currencyA.amount);
       }

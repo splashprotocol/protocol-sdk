@@ -20,6 +20,7 @@ import {
   SingleOutputBuilderResult,
   TransactionBuilder,
   TransactionBuilderConfig,
+  TransactionOutput,
   TransactionWitnessSetBuilder,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
@@ -514,6 +515,29 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
     const wasmChangeAddress = Address.from_bech32(userAddress);
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
+    const txForChangeCalc = transactionBuilder.build_for_evaluation(
+      changeSelectionAlgo,
+      wasmChangeAddress,
+    );
+    const txForChangeOutputs = txForChangeCalc.draft_body().outputs();
+    const changeOutputs: TransactionOutput[] = [];
+
+    for (let i = 0; i < txForChangeOutputs.len(); i++) {
+      if (!transactionCandidate.outputs[i]) {
+        changeOutputs.push(txForChangeOutputs.get(i));
+      }
+    }
+    transactionBuilder.add_output(
+      SingleOutputBuilderResult.new(
+        Output.new(rest.pParams, {
+          value: changeOutputs.reduce(
+            (value, wasmO) => value.plus(Currencies.new(wasmO.amount())),
+            Currencies.empty,
+          ),
+          address: userAddress,
+        }).wasm,
+      ),
+    );
 
     if (!collaterals.length) {
       return {
