@@ -259,7 +259,7 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
     this.lpFeeADA = this.toCurrencyOrUndefined(lpFeeADA, ada);
     this.lpFeeUSD = this.toCurrencyOrUndefined(lpFeeUSD, usd);
     this.apr = apr;
-    this.apr = apr30d;
+    this.apr30d = apr30d;
   }
 
   /**
