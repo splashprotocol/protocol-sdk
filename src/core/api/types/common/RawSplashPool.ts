@@ -41,6 +41,9 @@ export interface RawSplashPoolMetrics {
   readonly apr?: {
     readonly valueApr: number;
   };
+  readonly apr30d?: {
+    readonly valueApr: number;
+  };
   readonly lpFeeAda?: number;
   readonly lpFeeUsd?: number;
 }

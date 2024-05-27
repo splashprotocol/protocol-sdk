@@ -31,6 +31,7 @@ export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
   readonly lpFeeADA?: number | bigint | Currency;
   readonly lpFeeUSD?: number | bigint | Currency;
   readonly apr?: percent;
+  readonly apr30d?: percent;
   readonly outputId: OutputReference;
 }
 
@@ -195,6 +196,12 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
    */
   readonly apr?: percent;
 
+  /**
+   * Current pool apr 30d
+   * @type {percent}
+   */
+  readonly apr30d?: percent;
+
   private supplyLP: bigint;
 
   protected constructor(
@@ -218,6 +225,7 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
       lpFeeADA,
       lpFeeUSD,
       apr,
+      apr30d,
       outputId,
     }: XYPoolConfig<Type>,
     private splash: Splash<{}>,
@@ -251,6 +259,7 @@ export class XYPool<Type extends 'cfmm' | 'weighted'>
     this.lpFeeADA = this.toCurrencyOrUndefined(lpFeeADA, ada);
     this.lpFeeUSD = this.toCurrencyOrUndefined(lpFeeUSD, usd);
     this.apr = apr;
+    this.apr = apr30d;
   }
 
   /**

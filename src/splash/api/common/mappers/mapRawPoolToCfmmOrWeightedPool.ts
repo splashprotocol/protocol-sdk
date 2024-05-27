@@ -87,6 +87,7 @@ export const mapRawPoolToCfmmOrWeightedPool = (
     xFee: BigInt(rawPool.pool.poolFeeNumX),
     yFee: BigInt(rawPool.pool.poolFeeNumY),
     apr: rawPool.metrics?.apr?.valueApr,
+    apr30d: rawPool.metrics?.apr30d?.valueApr,
     volumeADA: rawPool.metrics?.volumeAda,
     volumeUSD: rawPool.metrics?.volumeUsd,
     tvlADA: rawPool.metrics?.tvlAda,
