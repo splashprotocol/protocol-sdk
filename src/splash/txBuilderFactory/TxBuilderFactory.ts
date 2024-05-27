@@ -99,10 +99,16 @@ export type TxBuilder<O extends Dictionary<Operation<any>>> = {
 export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
   private protocolParamsP: Promise<ProtocolParams>;
 
+  private additionalOperations: Dictionary<Operation<any>>;
+
   private transactionBuilderConfigP: Promise<TransactionBuilderConfig>;
 
-  constructor(public splash: Splash<{}>) {
+  constructor(
+    public splash: Splash<{}>,
+    additionalOperations: Dictionary<Operation<any>> = {},
+  ) {
     this.protocolParamsP = this.splash.api.getProtocolParams();
+    this.additionalOperations = additionalOperations;
     this.transactionBuilderConfigP = this.protocolParamsP.then(
       getTransactionBuilderConfig,
     );
@@ -112,7 +118,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     const tasks: ReturnType<Operation<any>>[] = [];
 
     //@ts-ignore
-    return Object.entries(defaultOperations).reduce<TxBuilder<any>>(
+    return Object.entries({
+      ...defaultOperations,
+      ...this.additionalOperations,
+    }).reduce<TxBuilder<any>>(
       (acc, [name, op]) =>
         ({
           ...acc,
@@ -515,31 +524,33 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
     const wasmChangeAddress = Address.from_bech32(userAddress);
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
-    const txForChangeCalc = transactionBuilder.build_for_evaluation(
-      changeSelectionAlgo,
-      wasmChangeAddress,
-    );
-    const txForChangeOutputs = txForChangeCalc.draft_body().outputs();
-    const changeOutputs: TransactionOutput[] = [];
-
-    for (let i = 0; i < txForChangeOutputs.len(); i++) {
-      if (!transactionCandidate.outputs[i]) {
-        changeOutputs.push(txForChangeOutputs.get(i));
-      }
-    }
-    transactionBuilder.add_output(
-      SingleOutputBuilderResult.new(
-        Output.new(rest.pParams, {
-          value: changeOutputs.reduce(
-            (value, wasmO) => value.plus(Currencies.new(wasmO.amount())),
-            Currencies.empty,
-          ),
-          address: userAddress,
-        }).wasm,
-      ),
-    );
 
     if (!collaterals.length) {
+      const txForChangeCalc = transactionBuilder.build_for_evaluation(
+        changeSelectionAlgo,
+        wasmChangeAddress,
+      );
+      const txForChangeOutputs = txForChangeCalc.draft_body().outputs();
+      const changeOutputs: TransactionOutput[] = [];
+
+      for (let i = 0; i < txForChangeOutputs.len(); i++) {
+        if (!transactionCandidate.outputs[i]) {
+          changeOutputs.push(txForChangeOutputs.get(i));
+        }
+      }
+      transactionBuilder.add_output(
+        SingleOutputBuilderResult.new(
+          Output.new(rest.pParams, {
+            value: changeOutputs.reduce(
+              (value, wasmO) => value.plus(Currencies.new(wasmO.amount())),
+              Currencies.empty,
+            ),
+            address: userAddress,
+            data: undefined,
+          }).wasm,
+        ),
+      );
+
       return {
         txBuilder: transactionBuilder.build(
           changeSelectionAlgo,
@@ -597,6 +608,17 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ),
       );
     });
+    // change here
+    // transactionBuilder.add_required_signer(
+    //   wasmChangeAddress.payment_cred()?.as_pub_key()!,
+    // );
+    // transactionBuilder.add_required_signer(
+    //   Address.from_bech32(
+    //     'addr1q8gapqxkzlxl0mrakpmh2tmnnvstzsaxpujqjemv0wghesn6kp96j7wmh4yydp7dr5qk0rhxejlg9akzhwf7528a2fqq9926pr',
+    //   )
+    //     .payment_cred()
+    //     ?.as_pub_key()!,
+    // );
 
     const uncheckedSignedTxBuilder = transactionBuilder.build(
       changeSelectionAlgo,
