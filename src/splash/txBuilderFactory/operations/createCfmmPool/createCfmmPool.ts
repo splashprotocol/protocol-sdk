@@ -193,7 +193,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
         ],
       ],
       0n,
-      '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
+      'bf02d7f5637906e58738fa91db633749edb0a1bc3d5e9bf6131ca1ba',
     ]);
     context.transactionCandidate.addMint({
       currency: Currency.new(1n, nftAssetInfo),
