@@ -203,14 +203,20 @@ export class AssetInfo {
    */
   public nameCbor: CborHexString;
 
+  /**
+   * Asset metadata
+   */
+  public metadata?: AssetInfoMetadata;
+
   private constructor(
     { policyId, nameBase16, nameCbor, name }: AssetInfoPrivateParams,
-    public metadata?: AssetInfoMetadata,
+    metadata?: AssetInfoMetadata,
   ) {
     this.policyId = policyId;
     this.name = name;
     this.nameBase16 = nameBase16;
     this.nameCbor = nameCbor;
+    this.metadata = metadata;
   }
 
   /**
