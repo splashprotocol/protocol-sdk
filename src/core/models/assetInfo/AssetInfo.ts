@@ -205,7 +205,7 @@ export class AssetInfo {
 
   private constructor(
     { policyId, nameBase16, nameCbor, name }: AssetInfoPrivateParams,
-    private metadata?: AssetInfoMetadata,
+    public metadata?: AssetInfoMetadata,
   ) {
     this.policyId = policyId;
     this.name = name;
