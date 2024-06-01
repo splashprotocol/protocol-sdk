@@ -70,7 +70,7 @@ export class Currency {
    * @returns {Currency}
    */
   static splash(amount: bigint): Currency {
-    return new Currency(amount, spf);
+    return new Currency(amount, AssetInfo.splash);
   }
 
   /**

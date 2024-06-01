@@ -101,7 +101,7 @@ export class AssetInfo {
         'Governance Token for Splash Protocol - the fully decentralized and open source exchange for efficient on-chain market making.',
       name: 'SPLASH',
       url: 'https://splash.trade',
-      logo: '/logos/cardano/ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e353504c415348.webp',
+      logo: 'https://spectrum.fi/logos/cardano/ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e353504c415348.webp',
     },
   );
 
