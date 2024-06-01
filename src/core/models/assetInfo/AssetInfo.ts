@@ -85,11 +85,25 @@ export class AssetInfo {
    * Splash asset info
    * @type {AssetInfo}
    */
-  static splash: AssetInfo = AssetInfo.new({
-    policyId: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75',
-    name: 'SPLASH',
-    type: 'raw',
-  });
+  static splash: AssetInfo = AssetInfo.new(
+    {
+      policyId: 'ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e3',
+      name: '53504c415348',
+      type: 'base16',
+    },
+    {
+      policyId: 'ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e3',
+      subject:
+        'ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e353504c415348',
+      decimals: 6,
+      ticker: 'SPLASH',
+      description:
+        'Governance Token for Splash Protocol - the fully decentralized and open source exchange for efficient on-chain market making.',
+      name: 'SPLASH',
+      url: 'https://splash.trade',
+      logo: '/logos/cardano/ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e353504c415348.webp',
+    },
+  );
 
   /**
    * Spf asset info
