@@ -56,6 +56,7 @@ export interface AssetInfoMetadata {
   readonly url?: string;
   readonly decimals?: number;
   readonly logo?: string;
+  readonly verified?: boolean;
 }
 
 /**
@@ -78,6 +79,7 @@ export class AssetInfo {
       subject: 'usd',
       decimals: 2,
       ticker: '$',
+      verified: true,
     },
   );
 
@@ -102,6 +104,7 @@ export class AssetInfo {
       name: 'SPLASH',
       url: 'https://splash.trade',
       logo: 'https://spectrum.fi/logos/cardano/ececc92aeaaac1f5b665f567b01baec8bc2771804b4c21716a87a4e353504c415348.webp',
+      verified: true,
     },
   );
 
@@ -122,6 +125,7 @@ export class AssetInfo {
       subject: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75535046',
       policyId: '09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75',
       logo: 'https://spectrum.fi/logos/cardano/09f2d4e4a5c3662f4c1e6a7d9600e9605279dbdcedb22d4507cb6e75535046.webp',
+      verified: true,
     },
   );
 
@@ -143,6 +147,7 @@ export class AssetInfo {
       logo: 'https://spectrum.fi/logos/cardano/token-ada.svg',
       decimals: 6,
       ticker: 'ADA',
+      verified: true,
     },
   );
 
