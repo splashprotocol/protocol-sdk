@@ -141,6 +141,7 @@ export class SplashApi implements Api {
               ticker: ada.ticker,
               name: ada.name,
               policyId: ada.policyId,
+              verified: true,
               logo: '',
             },
           },
