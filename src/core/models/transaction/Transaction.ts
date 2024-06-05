@@ -7,6 +7,7 @@ import { SignedTransaction } from '../signedTransaction/SignedTransaction.ts';
 export interface TransactionConfig {
   readonly transaction: SignedTxBuilder;
   readonly partialSign?: boolean;
+  readonly remoteCollateral?: boolean;
 }
 
 /**

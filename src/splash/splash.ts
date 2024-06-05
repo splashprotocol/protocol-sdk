@@ -1,8 +1,9 @@
 import { Api } from '../core/api/Api.ts';
+import { Transaction } from '../core/models/transaction/Transaction.ts';
 import { CardanoCIP30WalletBridge } from '../core/types/CardanoCIP30WalletBridge.ts';
 import { Network } from '../core/types/Network.ts';
 import { SplashOperationsConfig } from '../core/types/SplashOperationsConfig.ts';
-import { Dictionary } from '../core/types/types.ts';
+import { CborHexString, Dictionary } from '../core/types/types.ts';
 import { ApiWrapper, MetadataConfig } from './api/ApiWrapper.ts';
 import { Operation } from './txBuilderFactory/operations/common/Operation.ts';
 import {
@@ -10,11 +11,18 @@ import {
   TxBuilder,
   TxBuilderFactory,
 } from './txBuilderFactory/TxBuilderFactory.ts';
+import { RemoteCollateral } from './txBuilderFactory/types/RemoteCollateral.ts';
 import { Utils } from './utils/Utils.ts';
+
+export interface RemoteCollateralsConfig {
+  getCollaterals(): Promise<RemoteCollateral[]>;
+  sign(transaction: Transaction): Promise<CborHexString>;
+}
 
 export interface SplashConfig<O extends Dictionary<Operation<any>>> {
   readonly includesMetadata?: MetadataConfig | boolean;
   readonly operations?: O;
+  readonly remoteCollaterals?: RemoteCollateralsConfig;
 }
 
 export class Splash<O extends Dictionary<Operation<any>>> {
@@ -54,6 +62,8 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     'https://spectrum.fi/settings.json',
   ).then((res) => res.json());
 
+  protected readonly remoteCollaterals?: RemoteCollateralsConfig;
+
   private constructor(
     api: Api,
     public network: Network,
@@ -62,6 +72,7 @@ export class Splash<O extends Dictionary<Operation<any>>> {
     this.api = new ApiWrapper(this, api, config?.includesMetadata);
     this.utils = new Utils(this);
     this.txBuilderFactory = new TxBuilderFactory(this, config?.operations);
+    this.remoteCollaterals = config?.remoteCollaterals;
   }
 
   /**

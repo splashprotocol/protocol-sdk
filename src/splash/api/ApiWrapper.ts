@@ -193,18 +193,23 @@ export class ApiWrapper {
    * @return {Promise<SignedTransaction>}
    */
   async sign(transaction: Transaction): Promise<SignedTransaction> {
-    return this.getWalletContext()
-      .then((ctx) =>
+    return Promise.all([
+      this.getWalletContext().then((ctx) =>
         this.handleCIP30WalletError(
           ctx.signTx(transaction.cbor, transaction.partialSign),
         ),
-      )
-      .then((witnessSetWithSign) =>
-        SignedTransaction.new({
-          transaction,
-          witnessSetWithSign,
-        }),
-      );
+      ),
+      this.splash['remoteCollaterals']
+        ? this.splash['remoteCollaterals'].sign(transaction)
+        : Promise.resolve(undefined),
+    ]).then(([witnessSetWithSign, remoteCollaterals]) => {
+      return SignedTransaction.new({
+        transaction,
+        witnessSetsWithSign: remoteCollaterals
+          ? [witnessSetWithSign, remoteCollaterals]
+          : [witnessSetWithSign],
+      });
+    });
   }
 
   /**

@@ -36,7 +36,12 @@ import {
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { SplashOperationsConfigWithCredsDeserializers } from '../../core/types/SplashOperationsConfig.ts';
-import { Dictionary, OutputReference, uint } from '../../core/types/types.ts';
+import {
+  Dictionary,
+  HexString,
+  OutputReference,
+  uint,
+} from '../../core/types/types.ts';
 import { MAX_TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
@@ -297,7 +302,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     },
   ): Promise<Transaction> {
     try {
-      const { txBuilder, partialSign } =
+      const { txBuilder, partialSign, remoteCollateral } =
         await this.createSignedTransactionBuilder(
           context,
           Currency.ada(bestTxFee),
@@ -307,6 +312,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           {
             transaction: txBuilder,
             partialSign,
+            remoteCollateral,
           },
           context.splash,
         );
@@ -324,6 +330,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
                   ).txBuilder
                 : txBuilder,
             partialSign,
+            remoteCollateral,
           },
           context.splash,
         );
@@ -351,7 +358,11 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       ...rest
     }: OperationContext,
     txFee: Currency = transactionCandidate.maxTxFee,
-  ): Promise<{ txBuilder: SignedTxBuilder; partialSign: boolean }> {
+  ): Promise<{
+    txBuilder: SignedTxBuilder;
+    partialSign: boolean;
+    remoteCollateral: boolean;
+  }> {
     const transactionBuilder = TransactionBuilder.new(
       await this.transactionBuilderConfigP,
     );
@@ -412,19 +423,45 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
     // COLLATERALS
     let collaterals: UTxO[] = [];
-    if (
-      (scriptInputs.length || mints.length) &&
-      !collateralSelector['uTxOs'].length
-    ) {
-      throw new NoCollateralError('wallet has no collateral UTxO');
-    }
+    let remoteCollaterals: { uTxO: UTxO; requiredSigner: HexString }[] = [];
+
     if (scriptInputs.length || mints.length) {
       try {
+        if (!collateralSelector['uTxOs'].length) {
+          throw new NoCollateralError('wallet has no collateral UTxO');
+        }
         collaterals = collateralSelector.select(maxCollateralsValue);
       } catch (e) {
-        throw new InsufficientCollateralError(
-          'insufficient collateral in wallet',
-        );
+        if (this.splash['remoteCollaterals']) {
+          const collaterals =
+            await this.splash['remoteCollaterals'].getCollaterals();
+          remoteCollaterals = (
+            await Promise.all(
+              collaterals.map((c) => {
+                const [txHash, index] = c.outputReferenceHash.split(':');
+                return splash.api
+                  .getUTxOByRef({
+                    txHash,
+                    index: BigInt(index),
+                  })
+                  .then((uTxO) => ({
+                    uTxO: uTxO!,
+                    requiredSigner: Address.from_bech32(c.address)
+                      .payment_cred()
+                      ?.as_pub_key()
+                      ?.to_hex()!,
+                  }));
+              }),
+            )
+          ).filter((item) => item.uTxO);
+        }
+        if (!remoteCollaterals.length) {
+          throw e instanceof NoCollateralError
+            ? e
+            : new InsufficientCollateralError(
+                'insufficient collateral in wallet',
+              );
+        }
       }
     }
 
@@ -455,6 +492,16 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ).payment_key(),
       ),
     );
+    remoteCollaterals.forEach(({ uTxO, requiredSigner }) => {
+      transactionBuilder.add_collateral(
+        SingleInputBuilder.from_transaction_unspent_output(
+          uTxO.wasm,
+        ).payment_key(),
+      );
+      transactionBuilder.add_required_signer(
+        Ed25519KeyHash.from_hex(requiredSigner),
+      );
+    });
     if (collaterals.length) {
       const collateralReturnOutput = Output.new(rest.pParams, {
         address: userAddress,
@@ -525,7 +572,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     const wasmChangeAddress = Address.from_bech32(userAddress);
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
 
-    if (!collaterals.length) {
+    if (!collaterals.length && !remoteCollaterals.length) {
       const txForChangeCalc = transactionBuilder.build_for_evaluation(
         changeSelectionAlgo,
         wasmChangeAddress,
@@ -557,6 +604,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           wasmChangeAddress,
         ),
         partialSign: false,
+        remoteCollateral: false,
       };
     }
 
@@ -676,6 +724,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         txForEvaluations.draft_tx().is_valid(),
       ),
       partialSign: true,
+      remoteCollateral: remoteCollaterals.length > 0,
     };
   }
 

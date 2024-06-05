@@ -11,7 +11,7 @@ import { Transaction } from '../transaction/Transaction.ts';
 
 export interface SignedTransactionConfig {
   readonly transaction: Transaction;
-  readonly witnessSetWithSign: CborHexString | TransactionWitnessSet;
+  readonly witnessSetsWithSign: CborHexString[] | TransactionWitnessSet[];
 }
 
 /**
@@ -25,15 +25,16 @@ export class SignedTransaction {
    */
   static new({
     transaction,
-    witnessSetWithSign,
+    witnessSetsWithSign,
   }: SignedTransactionConfig): SignedTransaction {
-    if (witnessSetWithSign instanceof TransactionWitnessSet) {
-      return new SignedTransaction(transaction, witnessSetWithSign);
-    }
-    return new SignedTransaction(
-      transaction,
-      TransactionWitnessSet.from_cbor_hex(witnessSetWithSign),
-    );
+    const normalizedWitnessSetsWithSign =
+      witnessSetsWithSign[0] instanceof TransactionWitnessSet
+        ? (witnessSetsWithSign as TransactionWitnessSet[])
+        : witnessSetsWithSign.map((item) =>
+            TransactionWitnessSet.from_cbor_hex(item),
+          );
+
+    return new SignedTransaction(transaction, normalizedWitnessSetsWithSign);
   }
 
   /**
@@ -52,7 +53,7 @@ export class SignedTransaction {
 
   private constructor(
     transaction: Transaction,
-    witnessSetWithSign: TransactionWitnessSet,
+    witnessSetWithSign: TransactionWitnessSet[],
   ) {
     this.splash = transaction.splash;
     this.wasm = this.buildSignedWasmTransaction(
@@ -72,7 +73,7 @@ export class SignedTransaction {
 
   private buildSignedWasmTransaction(
     transaction: Transaction,
-    witnessSetWithSign: TransactionWitnessSet,
+    witnessSetsWithSign: TransactionWitnessSet[],
   ): WasmTransaction {
     const oldWitnessesBuilder = transaction.wasm.witness_set();
     const newWitnessSetBuilder = TransactionWitnessSetBuilder.new();
@@ -81,7 +82,9 @@ export class SignedTransaction {
       oldWitnessesBuilder.remaining_wits(),
     );
     newWitnessSetBuilder.add_existing(oldWitnessesBuilder.build());
-    newWitnessSetBuilder.add_existing(witnessSetWithSign);
+    witnessSetsWithSign.forEach((witnessSetWithSign) => {
+      newWitnessSetBuilder.add_existing(witnessSetWithSign);
+    });
 
     return SignedTxBuilder.new_without_data(
       transaction.wasm.body(),
