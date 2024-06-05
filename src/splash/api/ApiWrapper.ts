@@ -199,7 +199,7 @@ export class ApiWrapper {
           ctx.signTx(transaction.cbor, transaction.partialSign),
         ),
       ),
-      this.splash['remoteCollaterals']
+      this.splash['remoteCollaterals'] && transaction.remoteCollateral
         ? this.splash['remoteCollaterals'].sign(transaction)
         : Promise.resolve(undefined),
     ]).then(([witnessSetWithSign, remoteCollaterals]) => {

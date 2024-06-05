@@ -31,6 +31,11 @@ export class Transaction {
   readonly partialSign?: boolean;
 
   /**
+   * Is transaction use remote collaterals
+   */
+  readonly remoteCollateral?: boolean;
+
+  /**
    * Wasm Transaction structure
    * @type {Transaction}
    */
@@ -51,12 +56,13 @@ export class Transaction {
   }
 
   private constructor(
-    { transaction, partialSign }: TransactionConfig,
+    { transaction, partialSign, remoteCollateral }: TransactionConfig,
     splash: Splash<{}>,
   ) {
     this.wasm = transaction;
     this.partialSign = partialSign;
     this.splash = splash;
+    this.remoteCollateral = remoteCollateral;
   }
 
   /**
