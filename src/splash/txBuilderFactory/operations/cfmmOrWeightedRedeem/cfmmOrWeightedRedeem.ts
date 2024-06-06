@@ -10,7 +10,10 @@ import { Data } from '../../../../core/models/data/data.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
 import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
-import { OLD_SPLASH_POOL_NFT } from '../../../../core/utils/oldSplashPool/oldSplashPool.ts';
+import {
+  OLD_SPLASH_POOL_NFT,
+  OLD_SPLASH_POOLS_NFTS,
+} from '../../../../core/utils/oldSplashPool/oldSplashPool.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
 import { Operation } from '../common/Operation.ts';
@@ -45,7 +48,8 @@ export const cfmmOrWeightedRedeem: Operation<
   const estimatedAssets = pool.convertLpToAssets(lq);
   const redeemScript =
     pool instanceof WeightedPool
-      ? pool.id === OLD_SPLASH_POOL_NFT || OLD_SPLASH_POOL_NFT.includes(pool.id)
+      ? pool.id === OLD_SPLASH_POOL_NFT ||
+        OLD_SPLASH_POOLS_NFTS.includes(pool.id)
         ? context.operationsConfig.operations.redeemWeighted.script
         : context.operationsConfig.operations.redeemWeightedV2.script
       : pool.cfmmType === 'feeSwitch'
