@@ -49,7 +49,9 @@ import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, Dictionary } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 
-const mapNetworkToUrl: { [key in Network & 'premainnet']: string } = {
+type ExtendedNetwork = Network | 'premainnet';
+
+const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
   mainnet: 'https://api2.splash.trade/platform-api/v1/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
@@ -62,14 +64,18 @@ export class SplashApi implements Api {
    * @param {ProtocolParams["network"]} network
    * @returns {SplashApi}
    */
-  static new(network: ProtocolParams['network'] & 'premainnet'): SplashApi {
+  static new(network: ExtendedNetwork): SplashApi {
     return new SplashApi(network);
   }
 
+  public readonly network: Network;
+
   private get url() {
-    return mapNetworkToUrl[this.network];
+    return mapNetworkToUrl[this._network];
   }
-  private constructor(public network: ProtocolParams['network']) {}
+  private constructor(private _network: ExtendedNetwork) {
+    this.network = this._network === 'premainnet' ? 'mainnet' : this._network;
+  }
 
   async getTrendPools(): Promise<GetTrendPoolsResponse> {
     return fetch(`${this.url}pools/trended`).then((res) => res.json());
