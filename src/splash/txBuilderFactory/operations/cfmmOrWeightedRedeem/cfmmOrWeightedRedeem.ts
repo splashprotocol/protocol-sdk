@@ -45,7 +45,7 @@ export const cfmmOrWeightedRedeem: Operation<
   const estimatedAssets = pool.convertLpToAssets(lq);
   const redeemScript =
     pool instanceof WeightedPool
-      ? pool.id === OLD_SPLASH_POOL_NFT
+      ? pool.id === OLD_SPLASH_POOL_NFT || OLD_SPLASH_POOL_NFT.includes(pool.id)
         ? context.operationsConfig.operations.redeemWeighted.script
         : context.operationsConfig.operations.redeemWeightedV2.script
       : pool.cfmmType === 'feeSwitch'
