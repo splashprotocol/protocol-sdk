@@ -124,7 +124,7 @@ export interface CreateWeightedPoolConfig {
   readonly editableFee?: boolean;
 }
 
-export const MIN_POOL_ADA_VALUE = Currency.ada(1_000_000_000n);
+export const MIN_POOL_ADA_VALUE = Currency.ada(200_000_000n);
 
 export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
   ({ x, y, treasuryFee = 0.03, poolFee = 0.3, editableFee = true }) =>
