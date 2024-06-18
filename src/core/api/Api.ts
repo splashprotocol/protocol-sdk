@@ -5,6 +5,14 @@ import { GetAdaUsdRateResult } from './types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from './types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from './types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
+  GetChartHistoryParams,
+  GetChartHistoryResult,
+} from './types/getChartHistory/getChartHistory.ts';
+import {
+  GetChartLastBarParams,
+  GetChartLastBarResult,
+} from './types/getChartLastBar/getChartLastBar.ts';
+import {
   GetLiquidityOrdersParams,
   GetLiquidityOrdersResult,
 } from './types/getLiquidityOrders/getLiquidityOrders.ts';
@@ -48,6 +56,14 @@ import {
  *
  */
 export interface Api {
+  getChartLastBar(
+    params: GetChartLastBarParams,
+  ): Promise<GetChartLastBarResult>;
+
+  getChartHistory(
+    params: GetChartHistoryParams,
+  ): Promise<GetChartHistoryResult>;
+
   getProtocolParams(): Promise<ProtocolParams>;
 
   getNetworkContext(): Promise<NetworkContext>;

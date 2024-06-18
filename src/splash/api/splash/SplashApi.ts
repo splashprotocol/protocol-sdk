@@ -4,6 +4,14 @@ import { GetAdaUsdRateResult } from '../../../core/api/types/getAdaUsdRate/getAd
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
 import {
+  GetChartHistoryParams,
+  GetChartHistoryResult,
+} from '../../../core/api/types/getChartHistory/getChartHistory.ts';
+import {
+  GetChartLastBarParams,
+  GetChartLastBarResult,
+} from '../../../core/api/types/getChartLastBar/getChartLastBar.ts';
+import {
   GetLiquidityOrdersParams,
   GetLiquidityOrdersResult,
 } from '../../../core/api/types/getLiquidityOrders/getLiquidityOrders.ts';
@@ -329,6 +337,42 @@ export class SplashApi implements Api {
       },
       body: JSON.stringify(paymentKeyHashes),
     }).then((res) => res.json());
+  }
+
+  /**
+   * Returns chart pair history using params
+   * @param base {AssetInfo}
+   * @param quote {AssetInfo}
+   * @param to {number}
+   * @param from {number}
+   * @param resolution {"min1" | "min5" | "hour1" | "day1" | "week1" | "month1" | "year1"}
+   */
+  async getChartHistory({
+    base,
+    quote,
+    to,
+    from,
+    resolution,
+  }: GetChartHistoryParams): Promise<GetChartHistoryResult> {
+    return fetch(
+      `${this.url}charts/history?base=${base.splashId}&quote=${quote.splashId}&from=${from}&to=${to}&resolution=${resolution}`,
+    ).then((res) => res.json());
+  }
+
+  /**
+   * Returns chart pair last bar using params
+   * @param base {AssetInfo}
+   * @param quote {AssetInfo}
+   * @param resolution {"min1" | "min5" | "hour1" | "day1" | "week1" | "month1" | "year1"}
+   */
+  async getChartLastBar({
+    base,
+    quote,
+    resolution,
+  }: GetChartLastBarParams): Promise<GetChartLastBarResult> {
+    return fetch(
+      `${this.url}charts/last?base=${base.splashId}&quote=${quote.splashId}&resolution=${resolution}`,
+    ).then((res) => res.json());
   }
 
   async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetUTxOByRefResult> {

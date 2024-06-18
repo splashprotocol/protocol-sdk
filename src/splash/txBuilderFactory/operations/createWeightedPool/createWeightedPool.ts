@@ -131,7 +131,9 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       throw new Error('Only nt2 pool supported now');
     }
     if (newX.lt(MIN_POOL_ADA_VALUE)) {
-      throw new Error('Min value ada for pool is 5 ADA');
+      throw new Error(
+        `Min value ada for pool is ${MIN_POOL_ADA_VALUE.toString()} ADA`,
+      );
     }
     if (xWeight + yWeight !== 100) {
       throw new Error('xWeight + yWeight should be equals 100');

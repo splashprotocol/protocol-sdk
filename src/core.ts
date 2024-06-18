@@ -1,6 +1,7 @@
 // CORE_API
 export * from './core/api/Api.ts';
 export * from './core/api/types/common/AssetMetadata.ts';
+export * from './core/api/types/common/Bar.ts';
 export * from './core/api/types/common/ChartInterval.ts';
 export * from './core/api/types/common/ChartParams.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
@@ -15,6 +16,8 @@ export * from './core/api/types/common/RawTrendPool.ts';
 export * from './core/api/types/common/RawUTxO.ts';
 export * from './core/api/types/getAssetMetadata/getAssetMetadata.ts';
 export * from './core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
+export * from './core/api/types/getChartHistory/getChartHistory.ts';
+export * from './core/api/types/getChartLastBar/getChartLastBar.ts';
 export * from './core/api/types/getPairs/getPairs.ts';
 export * from './core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
 export * from './core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
@@ -182,6 +185,9 @@ export * from './splash/utils/types/selectLqAssetBalance.ts';
 export * from './splash/utils/types/selectPositionOrEmpty.ts';
 export * from './splash/utils/types/selectPositions.ts';
 export * from './splash/utils/Utils.ts';
+
+// DATAFEED
+export * from './splash/twDataFeed/SplashTVDataFeed.ts';
 
 // SPLASH
 export * from './splash/splash.ts';

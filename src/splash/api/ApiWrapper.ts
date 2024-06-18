@@ -8,6 +8,14 @@ import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { PoolChartPoint } from '../../core/api/types/common/PoolChartPoint.ts';
 import { RawTradeOrder } from '../../core/api/types/common/RawTradeOrder.ts';
+import {
+  GetChartHistoryParams,
+  GetChartHistoryResult,
+} from '../../core/api/types/getChartHistory/getChartHistory.ts';
+import {
+  GetChartLastBarParams,
+  GetChartLastBarResult,
+} from '../../core/api/types/getChartLastBar/getChartLastBar.ts';
 import { GetLiquidityOrdersParams } from '../../core/api/types/getLiquidityOrders/getLiquidityOrders.ts';
 import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBook.ts';
 import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
@@ -140,6 +148,26 @@ export class ApiWrapper {
           raw: 0,
         }),
       );
+  }
+
+  /**
+   * Returns chart pair history using params
+   * @param params {GetChartHistoryParams}
+   */
+  async getChartHistory(
+    params: GetChartHistoryParams,
+  ): Promise<GetChartHistoryResult> {
+    return this.api.getChartHistory(params);
+  }
+
+  /**
+   * Returns chart pair last bar using params
+   * @param params {GetChartLastBarParams}
+   */
+  async getChartLastBar(
+    params: GetChartLastBarParams,
+  ): Promise<GetChartLastBarResult> {
+    return this.api.getChartLastBar(params);
   }
 
   /**

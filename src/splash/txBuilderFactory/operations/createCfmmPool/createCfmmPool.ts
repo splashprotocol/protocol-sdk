@@ -135,7 +135,9 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       throw new Error('Only nt2 pool supported now');
     }
     if (newX.lt(MIN_POOL_ADA_VALUE)) {
-      throw new Error('Min value ada for pool is 5 ADA');
+      throw new Error(
+        `Min value ada for pool is ${MIN_POOL_ADA_VALUE.toString()} ADA`,
+      );
     }
 
     const [firstTokenUtxo] = context.uTxOsSelector.select(
