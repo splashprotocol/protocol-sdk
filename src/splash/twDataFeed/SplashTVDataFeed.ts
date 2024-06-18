@@ -21,16 +21,15 @@ export interface ExtendedLibrarySymbolInfo extends LibrarySymbolInfo {
   readonly quote: AssetInfo;
 }
 
-type TvResolution = '1' | '5' | '60' | 'D' | 'W' | 'M' | '12M';
+type TvResolution = '1' | '5' | '60' | '1D' | '1W' | '1M';
 
 const mapTvResolutionToApiResolution: { [key in TvResolution]: Resolution } = {
   1: 'min1',
   5: 'min5',
   60: 'hour1',
-  D: 'day1',
-  W: 'week1',
-  M: 'month1',
-  '12M': 'year1',
+  '1D': 'day1',
+  '1W': 'week1',
+  '1M': 'month1',
 };
 
 export interface SplashTVDataFeedParams {
@@ -80,7 +79,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       ],
       symbols_types: [],
       // @ts-ignore
-      supported_resolutions: ['1', '5', '60', 'D', 'W', 'M', 'Y'],
+      supported_resolutions: ['1', '5', '60', '1D', '1W', '1M'],
     });
   }
 
@@ -111,7 +110,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       has_weekly_and_monthly: true,
       exchange: 'Splash',
       // @ts-ignore
-      supported_resolutions: ['1', '5', '60', 'D', 'W', 'M', 'Y'],
+      supported_resolutions: ['1', '5', '60', '1D', '1W', '1M'],
       data_status: 'streaming',
       base: pair.base,
       quote: pair.quote,
@@ -128,6 +127,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     onTick: SubscribeBarsCallback,
     listenerGuid: string,
   ) {
+    console.log(resolution);
     const getLastBarParams: GetChartLastBarParams = {
       base: symbolInfo.base,
       quote: symbolInfo.quote,
@@ -175,6 +175,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
   }
 
   unsubscribeBars(listenerGuid: string) {
+    console.log(listenerGuid, this.mapListenerGuidToIntervalId);
     if (this.mapListenerGuidToIntervalId[listenerGuid]) {
       clearInterval(this.mapListenerGuidToIntervalId[listenerGuid]);
       delete this.mapListenerGuidToIntervalId[listenerGuid];
