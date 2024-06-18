@@ -21,7 +21,7 @@ export interface ExtendedLibrarySymbolInfo extends LibrarySymbolInfo {
   readonly quote: AssetInfo;
 }
 
-type TvResolution = '1' | '5' | '60' | 'D' | 'W' | 'M' | 'Y';
+type TvResolution = '1' | '5' | '60' | 'D' | 'W' | 'M' | '12M';
 
 const mapTvResolutionToApiResolution: { [key in TvResolution]: Resolution } = {
   1: 'min1',
@@ -30,7 +30,7 @@ const mapTvResolutionToApiResolution: { [key in TvResolution]: Resolution } = {
   D: 'day1',
   W: 'week1',
   M: 'month1',
-  Y: 'year1',
+  '12M': 'year1',
 };
 
 export interface SplashTVDataFeedParams {
