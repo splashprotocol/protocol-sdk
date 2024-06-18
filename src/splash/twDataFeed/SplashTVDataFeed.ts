@@ -127,7 +127,6 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     onTick: SubscribeBarsCallback,
     listenerGuid: string,
   ) {
-    console.log(resolution);
     const getLastBarParams: GetChartLastBarParams = {
       base: symbolInfo.base,
       quote: symbolInfo.quote,
@@ -175,7 +174,6 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
   }
 
   unsubscribeBars(listenerGuid: string) {
-    console.log(listenerGuid, this.mapListenerGuidToIntervalId);
     if (this.mapListenerGuidToIntervalId[listenerGuid]) {
       clearInterval(this.mapListenerGuidToIntervalId[listenerGuid]);
       delete this.mapListenerGuidToIntervalId[listenerGuid];
