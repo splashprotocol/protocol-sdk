@@ -2,7 +2,10 @@ import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
-import { EMISSION_LP } from '../../../../core/models/pool/common/emissionLp.ts';
+import {
+  BURN_LQ,
+  EMISSION_LP,
+} from '../../../../core/models/pool/common/emissionLp.ts';
 import {
   CborHexString,
   HexString,
@@ -140,6 +143,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       );
     }
 
+    const MINT_LQ = EMISSION_LP - BURN_LQ;
     const [firstTokenUtxo] = context.uTxOsSelector.select(
       Currencies.new([newY]),
     );
@@ -156,9 +160,9 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       txHash: firstTokenUtxo.txHash,
       index: firstTokenUtxo.index,
       base16Name: base16LqName,
-      emission: EMISSION_LP,
+      emission: MINT_LQ,
     });
-    const poolLpAmount = EMISSION_LP - sqrt(x.amount * y.amount);
+    const poolLpAmount = EMISSION_LP - (sqrt(x.amount * y.amount) - BURN_LQ);
     const nftAssetInfo = AssetInfo.new({
       policyId: nftMintInfo.policyId,
       name: base16NftName,
@@ -207,7 +211,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       },
     });
     context.transactionCandidate.addMint({
-      currency: Currency.new(EMISSION_LP, lqAssetInfo),
+      currency: Currency.new(MINT_LQ, lqAssetInfo),
       plutusV2ScriptCbor: lqMintInfo.script,
       redeemer: Data.Int(1),
       exUnits: {
