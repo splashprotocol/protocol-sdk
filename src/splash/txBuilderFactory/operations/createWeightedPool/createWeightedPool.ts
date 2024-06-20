@@ -2,7 +2,10 @@ import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
-import { EMISSION_LP } from '../../../../core/models/pool/common/emissionLp.ts';
+import {
+  BURN_LQ,
+  EMISSION_LP,
+} from '../../../../core/models/pool/common/emissionLp.ts';
 import {
   CborHexString,
   HexString,
@@ -142,6 +145,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       throw new Error('now cdk supports only 20/80 pools creation');
     }
 
+    const MINT_LQ = EMISSION_LP - BURN_LQ;
     const [firstTokenUtxo] = context.uTxOsSelector.select(
       Currencies.new([newY]),
     );
@@ -158,7 +162,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       txHash: firstTokenUtxo.txHash,
       index: firstTokenUtxo.index,
       base16Name: base16LqName,
-      emission: EMISSION_LP,
+      emission: MINT_LQ,
     });
     const normalizedXWeight = math.evaluate(
       `${xWeight} * ${WEIGHT_DENOM} / 100`,
@@ -220,7 +224,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       },
     });
     context.transactionCandidate.addMint({
-      currency: Currency.new(EMISSION_LP, lqAssetInfo),
+      currency: Currency.new(MINT_LQ, lqAssetInfo),
       plutusV2ScriptCbor: lqMintInfo.script,
       redeemer: Data.Int(1),
       exUnits: {
@@ -228,7 +232,6 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
         steps: 9000000000n,
       },
     });
-
     return payToContract(
       {
         script: 'f60fd1e70f4b9dfc09cdde8d7f7f1277de2694c82a516d7d3cc9e03e',
