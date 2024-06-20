@@ -174,8 +174,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
       `${newX.amount}^${normalizedXWeight} * ${newY.amount}^${normalizedYWeight}`,
     );
     const toSubtract = math.floor(math.nthRoot(invariant, 5));
-    const poolLpAmount =
-      EMISSION_LP - (BigInt((toSubtract as any).toFixed()) - BURN_LQ);
+    const poolLpAmount = EMISSION_LP - BigInt((toSubtract as any).toFixed());
     const nftAssetInfo = AssetInfo.new({
       policyId: nftMintInfo.policyId,
       name: base16NftName,
@@ -233,7 +232,6 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
         steps: 9000000000n,
       },
     });
-
     return payToContract(
       {
         script: 'f60fd1e70f4b9dfc09cdde8d7f7f1277de2694c82a516d7d3cc9e03e',

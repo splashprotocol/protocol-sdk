@@ -162,7 +162,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       base16Name: base16LqName,
       emission: MINT_LQ,
     });
-    const poolLpAmount = EMISSION_LP - (sqrt(x.amount * y.amount) - BURN_LQ);
+    const poolLpAmount = EMISSION_LP - sqrt(x.amount * y.amount);
     const nftAssetInfo = AssetInfo.new({
       policyId: nftMintInfo.policyId,
       name: base16NftName,
@@ -219,7 +219,6 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
         steps: 9000000000n,
       },
     });
-
     return payToContract(
       {
         script: 'f002facfd69d51b63e7046c6d40349b0b17c8dd775ee415c66af3ccc',
