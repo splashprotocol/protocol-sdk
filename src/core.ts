@@ -10,6 +10,7 @@ export * from './core/api/types/common/RawLiquidityOrder.ts';
 export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
+export * from './core/api/types/common/RawRecentTrade.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
 export * from './core/api/types/common/RawTradeOrder.ts';
 export * from './core/api/types/common/RawTrendPool.ts';
@@ -23,9 +24,13 @@ export * from './core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
 export * from './core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 export * from './core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
+export * from './core/api/types/getRecentTrades/getRecentTrades.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
 export * from './core/api/types/getTradeOrders/getTradeOrders.ts';
 export * from './core/api/types/getTrendPools/getTrendPools.ts';
+
+//CORE_RECENT_TRADE
+export * from './core/models/recentTrade/RecentTrade.ts';
 
 //CORE_MODELS_ASSET_INFO
 export * from './core/models/assetInfo/ada.ts';
@@ -142,6 +147,7 @@ export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
 export * from './splash/api/common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+export * from './splash/api/common/mappers/mapRawRecentTradeToRecentTrade.ts';
 export * from './splash/api/common/mappers/mapRawTradeOrderToTradeOrder.ts';
 export * from './splash/api/common/mappers/mapRawTrendPoolToTrendPool.ts';
 export * from './splash/api/common/types/OrderBook.ts';
@@ -151,6 +157,7 @@ export * from './splash/api/common/types/TrendPool.ts';
 // SPLASH_API_SPLASH
 export * from './splash/api/splash/SplashApi.ts';
 export * from './splash/api/splash/types/RawProtocolParams.ts';
+export * from './splash/api/splash/types/RawSplashRecentTrade.ts';
 
 // SPLASH_API
 export * from './splash/api/ApiWrapper.ts';

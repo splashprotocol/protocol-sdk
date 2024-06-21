@@ -38,6 +38,10 @@ import {
 } from '../../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetProtocolStatsResponse } from '../../../core/api/types/getProtocolStats/getProtocolStats.ts';
 import {
+  GetRecentTradesParams,
+  GetRecentTradesResult,
+} from '../../../core/api/types/getRecentTrades/getRecentTrades.ts';
+import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
@@ -54,8 +58,9 @@ import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { NetworkContext } from '../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
-import { AssetId, Dictionary } from '../../../core/types/types.ts';
+import { AssetId, Dictionary, uint } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
+import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 
 type ExtendedNetwork = Network | 'premainnet';
 
@@ -83,6 +88,25 @@ export class SplashApi implements Api {
   }
   private constructor(private _network: ExtendedNetwork) {
     this.network = this._network === 'premainnet' ? 'mainnet' : this._network;
+  }
+
+  async getRecentTrades({
+    base,
+    quote,
+    offset,
+    limit,
+  }: GetRecentTradesParams): Promise<GetRecentTradesResult> {
+    return fetch(
+      `${this.url}trading-view/recent-trades/feed?base=${base.splashId}&quote=${quote.splashId}&offset=${offset}&limit=${limit}`,
+    )
+      .then((res) => res.json())
+      .then((data: { count: uint; body: RawSplashRecentTrade[] }) => ({
+        count: data.count,
+        data: data.body.map((item) => ({
+          ...item,
+          timestamp: item.timestamp * 1_000,
+        })),
+      }));
   }
 
   async getTrendPools(): Promise<GetTrendPoolsResponse> {

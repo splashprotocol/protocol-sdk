@@ -21,6 +21,7 @@ import { GetOrderBookParams } from '../../core/api/types/getOrderBook/getOrderBo
 import { GetPoolFeesChartParams } from '../../core/api/types/getPoolFeesChart/getPoolFeesChart.ts';
 import { GetPoolTvlChartParams } from '../../core/api/types/getPoolTvlChart/getPoolTvlChart.ts';
 import { GetPoolVolumeChartParams } from '../../core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
+import { GetRecentTradesParams } from '../../core/api/types/getRecentTrades/getRecentTrades.ts';
 import { GetSplashPoolsParams } from '../../core/api/types/getSplashPools/getSplashPools.ts';
 import { GetTradeOrdersParams } from '../../core/api/types/getTradeOrders/getTradeOrders.ts';
 import { GetUTxOByRefParams } from '../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
@@ -34,6 +35,7 @@ import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Price } from '../../core/models/price/Price.ts';
+import { RecentTrade } from '../../core/models/recentTrade/RecentTrade.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
 import { TradeOrder } from '../../core/models/tradeOrder/TradeOrder.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
@@ -41,7 +43,7 @@ import { UTxO } from '../../core/models/utxo/UTxO.ts';
 import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
 import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
-import { Dictionary, TransactionHash } from '../../core/types/types.ts';
+import { Dictionary, TransactionHash, uint } from '../../core/types/types.ts';
 import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
@@ -55,6 +57,7 @@ import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOr
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
 import { mapRawPoolToCfmmOrWeightedPool } from './common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
+import { mapRawRecentTradeToRecentTrade } from './common/mappers/mapRawRecentTradeToRecentTrade.ts';
 import { mapRawTradeOrderToTradeOrder } from './common/mappers/mapRawTradeOrderToTradeOrder.ts';
 import { mapRawTrendPoolToTrendPool } from './common/mappers/mapRawTrendPoolToTrendPool.ts';
 import { mapRawUTxOToUTxO } from './common/mappers/mapRawUTxOToUTxO.ts';
@@ -148,6 +151,36 @@ export class ApiWrapper {
           raw: 0,
         }),
       );
+  }
+
+  /**
+   * Returns recent trades by pair
+   * @param params {GetRecentTradesParams}
+   * @return {Promise<{ count: uint; data: RecentTrade[] }>}
+   */
+  async getRecentTrades(
+    params: GetRecentTradesParams,
+  ): Promise<{ count: uint; data: RecentTrade[] }> {
+    return Promise.all([
+      this.api.getRecentTrades(params),
+      this.getAssetsMetadata(),
+    ]).then(([rawRecentTrades, metadata]) => {
+      const baseMetadata = metadata[params.base.splashId];
+      const quoteMetadata = metadata[params.quote.splashId];
+
+      return {
+        count: rawRecentTrades.count,
+        data: rawRecentTrades.data.map((rawRecentTrade) =>
+          mapRawRecentTradeToRecentTrade({
+            base: params.base,
+            quote: params.quote,
+            rawRecentTrade,
+            baseMetadata: baseMetadata,
+            quoteMetadata: quoteMetadata,
+          }),
+        ),
+      };
+    });
   }
 
   /**
