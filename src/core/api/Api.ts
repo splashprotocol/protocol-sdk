@@ -39,6 +39,10 @@ import {
 } from './types/getPoolVolumeChart/getPoolVolumeChart.ts';
 import { GetProtocolStatsResponse } from './types/getProtocolStats/getProtocolStats.ts';
 import {
+  GetRecentTradesParams,
+  GetRecentTradesResult,
+} from './types/getRecentTrades/getRecentTrades.ts';
+import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
@@ -56,6 +60,10 @@ import {
  *
  */
 export interface Api {
+  getRecentTrades(
+    params: GetRecentTradesParams,
+  ): Promise<GetRecentTradesResult>;
+
   getChartLastBar(
     params: GetChartLastBarParams,
   ): Promise<GetChartLastBarResult>;
