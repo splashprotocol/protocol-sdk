@@ -252,21 +252,47 @@ export class Utils {
     }
     const isAsk = orderBook.base.isEquals(targetPrice.quote);
 
-    let firstBin = isAsk ? orderBook.bids[0]?.price : orderBook.asks[0]?.price;
+    const firstBin = isAsk ? orderBook.bids[0] : orderBook.asks[0];
+    const secondBin = isAsk ? orderBook.bids[1] : orderBook.asks[1];
 
-    if (!firstBin?.raw) {
+    if (!firstBin) {
       console.warn('empty order book');
       return 0;
     }
 
-    firstBin = firstBin.base.isEquals(targetPrice.base)
-      ? firstBin
-      : firstBin.invert();
+    const firstBinPrice = firstBin.price.base.isEquals(targetPrice.base)
+      ? firstBin.price
+      : firstBin.price.invert();
 
-    return Math.abs(
+    const rawPriceImpact = Math.abs(
       math.evaluate!(
-        `(${targetPrice.raw} * 100 / ${firstBin.raw}) - 100`,
+        `(${targetPrice.raw} * 100 / ${firstBinPrice.raw}) - 100`,
       ).toFixed(2),
+    );
+
+    if (rawPriceImpact || input instanceof Price || !secondBin) {
+      return rawPriceImpact;
+    }
+
+    const totalBinLiquidity = input.asset.isEquals(firstBin.price.base)
+      ? firstBin.accumulatedAmount
+      : firstBin.accumulatedAmountInQuote;
+    const secondBinPrice = secondBin.price.base.isEquals(firstBinPrice.base)
+      ? secondBin.price
+      : secondBin.price.invert();
+
+    const binsRelation = Math.abs(
+      math.evaluate!(
+        `(${secondBinPrice.raw} * 100 / ${firstBinPrice.raw}) - 100`,
+      ).toFixed(2),
+    );
+
+    return Number(
+      math
+        .evaluate(
+          `(${input.amount} / ${totalBinLiquidity.amount}) * ${binsRelation}`,
+        )
+        .toFixed(2),
     );
   }
 
