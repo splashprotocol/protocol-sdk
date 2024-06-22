@@ -205,7 +205,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       0n,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
-      ['17979109209d255917b8563d1e50a5be8123d5e283fbc6fbb04550c6'],
+      ['2f9ff04d8914bf64d671a03d34ab7937eb417831ea6b9f7fbcab96f5'],
     ]);
     const depositAdaForReceive = predictDepositAda(context.pParams, {
       value: Currencies.new([basePrice.getNecessaryQuoteFor(input)]),
