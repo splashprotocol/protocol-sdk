@@ -139,12 +139,13 @@ export interface SpotOrderConfig {
   readonly outputAsset: AssetInfo;
   readonly price?: Price;
   readonly maxStepCount?: bigint;
+  readonly slippage?: number;
 }
 
 const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
 
 export const spotOrder: Operation<[SpotOrderConfig]> =
-  ({ price, input, outputAsset }) =>
+  ({ price, input, outputAsset, slippage }) =>
   async (context) => {
     const orderStepCost = Currency.ada(
       BigInt(
@@ -170,8 +171,10 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         outputAsset,
         input,
         slippage:
-          context.operationsConfig.operations.spotOrder.settings
-            .marketOrderPriceSlippage,
+          slippage !== undefined
+            ? slippage
+            : context.operationsConfig.operations.spotOrder.settings
+                .marketOrderPriceSlippage,
       },
       context.splash,
     );
