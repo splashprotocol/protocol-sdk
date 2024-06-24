@@ -158,9 +158,12 @@ export class ApiWrapper {
    * @param params {GetRecentTradesParams}
    * @return {Promise<{ count: uint; data: RecentTrade[] }>}
    */
-  async getRecentTrades(
-    params: GetRecentTradesParams,
-  ): Promise<{ count: uint; data: RecentTrade[] }> {
+  async getRecentTrades(params: GetRecentTradesParams): Promise<{
+    count: uint;
+    data: RecentTrade[];
+    base: AssetInfo;
+    quote: AssetInfo;
+  }> {
     return Promise.all([
       this.api.getRecentTrades(params),
       this.getAssetsMetadata(),
@@ -170,6 +173,8 @@ export class ApiWrapper {
 
       return {
         count: rawRecentTrades.count,
+        base: params.base.withMetadata(baseMetadata),
+        quote: params.quote.withMetadata(quoteMetadata),
         data: rawRecentTrades.data.map((rawRecentTrade) =>
           mapRawRecentTradeToRecentTrade({
             base: params.base,
