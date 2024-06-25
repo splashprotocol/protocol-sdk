@@ -22,6 +22,11 @@ import {
   SelectEstimatedPriceResult,
 } from './types/selectEstimatedPrice.ts';
 import {
+  isEstimatedPriceV2OutputType,
+  SelectEstimatedPriceV2Params,
+  SelectEstimatedPriceV2Result,
+} from './types/selectEstimatedPriceV2.ts';
+import {
   SelectLqAssetBalanceParams,
   SelectLqAssetBalanceResult,
 } from './types/selectLqAssetBalance.ts';
@@ -217,6 +222,72 @@ export class Utils {
           estimatedPrice = priceToNormalize.quote.isEquals(input.asset)
             ? priceToNormalize
             : priceToNormalize.invert();
+          break;
+        }
+      }
+    }
+    if (!estimatedPrice) {
+      throw new NoLiquidityError('no liquidity for this price');
+    }
+
+    return estimatedPrice;
+  }
+
+  selectEstimatedPriceV2(
+    params: SelectEstimatedPriceV2Params,
+  ): SelectEstimatedPriceV2Result {
+    const assetToFind = isEstimatedPriceV2OutputType(params)
+      ? params.output
+      : params.input;
+
+    const isActualOrderBool =
+      params.orderBook.spotPrice.base.isEquals(assetToFind.asset) ||
+      params.orderBook.spotPrice.quote.isEquals(assetToFind.asset);
+
+    if (!isActualOrderBool) {
+      throw new AssetInfoMismatchError(
+        `input asset is incorrect. Expected ${params.orderBook.spotPrice.base.splashId} or ${params.orderBook.spotPrice.quote.splashId}. Received ${assetToFind.asset.splashId}`,
+      );
+    }
+
+    const isAsk = isEstimatedPriceV2OutputType(params)
+      ? params.orderBook.quote.isEquals(assetToFind.asset)
+      : params.orderBook.base.isEquals(assetToFind.asset);
+    let estimatedPrice: Price | undefined;
+
+    if (isAsk) {
+      for (let i = 0; i < params.orderBook.bids.length; i++) {
+        const bid = params.orderBook.bids[i];
+        const accumulatedAmount = bid.accumulatedAmount.asset.isEquals(
+          assetToFind.asset,
+        )
+          ? bid.accumulatedAmount
+          : bid.accumulatedAmountInQuote;
+
+        if (accumulatedAmount.gt(assetToFind)) {
+          const priceToNormalize =
+            params.priceType === 'average'
+              ? bid.accumulatedAveragePrice
+              : bid.price;
+          estimatedPrice = priceToNormalize;
+          break;
+        }
+      }
+    } else {
+      for (let i = 0; i < params.orderBook.asks.length; i++) {
+        const ask = params.orderBook.asks[i];
+        const accumulatedAmount = ask.accumulatedAmount.asset.isEquals(
+          assetToFind.asset,
+        )
+          ? ask.accumulatedAmount
+          : ask.accumulatedAmountInQuote;
+
+        if (accumulatedAmount.gt(assetToFind)) {
+          const priceToNormalize =
+            params.priceType === 'average'
+              ? ask.accumulatedAveragePrice
+              : ask.price;
+          estimatedPrice = priceToNormalize;
           break;
         }
       }
