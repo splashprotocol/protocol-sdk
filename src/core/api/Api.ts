@@ -47,6 +47,10 @@ import {
   GetSplashPoolsResponse,
 } from './types/getSplashPools/getSplashPools.ts';
 import {
+  GetTradeOpenOrdersParams,
+  GetTradeOpenOrdersResult,
+} from './types/getTradeOpenOrders/getTradeOpenOrders.ts';
+import {
   GetTradeOrdersParams,
   GetTradeOrdersResult,
 } from './types/getTradeOrders/getTradeOrders.ts';
@@ -105,6 +109,10 @@ export interface Api {
   getOrderBook(params: GetOrderBookParams): Promise<GetOrderBookResponse>;
 
   getTradeOrders(params: GetTradeOrdersParams): Promise<GetTradeOrdersResult>;
+
+  getTradeOpenOrders(
+    params: GetTradeOpenOrdersParams,
+  ): Promise<GetTradeOpenOrdersResult>;
 
   getOrdersMempool(
     params: GetOrdersMempoolParams,

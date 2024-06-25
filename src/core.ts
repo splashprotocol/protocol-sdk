@@ -26,6 +26,7 @@ export * from './core/api/types/getPoolVolumeChart/getPoolVolumeChart.ts';
 export * from './core/api/types/getProtocolStats/getProtocolStats.ts';
 export * from './core/api/types/getRecentTrades/getRecentTrades.ts';
 export * from './core/api/types/getSplashPools/getSplashPools.ts';
+export * from './core/api/types/getTradeOpenOrders/getTradeOpenOrders.ts';
 export * from './core/api/types/getTradeOrders/getTradeOrders.ts';
 export * from './core/api/types/getTrendPools/getTrendPools.ts';
 

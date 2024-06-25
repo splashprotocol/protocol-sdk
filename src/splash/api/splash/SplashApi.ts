@@ -1,5 +1,6 @@
 import { Api } from '../../../core/api/Api.ts';
 import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
+import { RawTradeOrder } from '../../../core/api/types/common/RawTradeOrder.ts';
 import { GetAdaUsdRateResult } from '../../../core/api/types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
 import { GetAssetsMetadataResponse } from '../../../core/api/types/getAssetsMetadata/getAssetsMetadata.ts';
@@ -45,6 +46,10 @@ import {
   GetSplashPoolsParams,
   GetSplashPoolsResponse,
 } from '../../../core/api/types/getSplashPools/getSplashPools.ts';
+import {
+  GetTradeOpenOrdersParams,
+  GetTradeOpenOrdersResult,
+} from '../../../core/api/types/getTradeOpenOrders/getTradeOpenOrders.ts';
 import {
   GetTradeOrdersParams,
   GetTradeOrdersResult,
@@ -169,9 +174,10 @@ export class SplashApi implements Api {
                 ].join('.')
               : '.']: {
               ...asset,
-              logo: !asset.logo?.startsWith('http')
-                ? `https://spectrum.fi${asset.logo}`
-                : asset.logo,
+              logo:
+                asset.logo && !asset.logo?.startsWith('http')
+                  ? `https://spectrum.fi${asset.logo}`
+                  : asset.logo,
             },
           }),
           {
@@ -312,6 +318,23 @@ export class SplashApi implements Api {
           maxValueSize: data.maxValueSize,
         }),
       );
+  }
+
+  async getTradeOpenOrders({
+    paymentKeyHashes,
+  }: GetTradeOpenOrdersParams): Promise<GetTradeOpenOrdersResult> {
+    return fetch(`${this.url}history/order/open`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+      },
+      body: JSON.stringify(paymentKeyHashes),
+    })
+      .then((res) => res.json())
+      .then((openOrders: RawTradeOrder[]) => ({
+        orders: openOrders,
+        count: openOrders.length,
+      }));
   }
 
   async getTradeOrders({

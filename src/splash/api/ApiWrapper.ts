@@ -525,6 +525,38 @@ export class ApiWrapper {
   }
 
   /**
+   * Returns open orders list
+   * @return {Promise<{count: number, orders: TradeOrder[]}>}
+   */
+  async getTradeOpenOrders(): Promise<{
+    count: number;
+    operations: TradeOrder[];
+  }> {
+    return Promise.all([
+      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+        this.api.getTradeOpenOrders({
+          paymentKeyHashes,
+        }),
+      ),
+      this.getAssetsMetadata(),
+    ]).then(([trades, metadata]) => {
+      return {
+        count: trades.count,
+        operations: trades.orders.map((trade) =>
+          mapRawTradeOrderToTradeOrder(
+            {
+              rawTradeOrder: trade,
+              inputMetadata: metadata[trade.input],
+              outputMetadata: metadata[trade.output],
+            },
+            this.splash,
+          ),
+        ),
+      };
+    });
+  }
+
+  /**
    * Returns orders list using limit and asset
    * @param {P} params
    * @return {Promise<{count: number, orders: TradeOrder[]}>}
