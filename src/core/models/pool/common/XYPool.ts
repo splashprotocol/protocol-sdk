@@ -1,6 +1,6 @@
 import { PoolId } from '../../../../../build';
 import { Splash } from '../../../../splash/splash.ts';
-import { Pool } from '../../../types/Pool.ts';
+import { Pool, PoolType } from '../../../types/Pool.ts';
 import { OutputReference, percent } from '../../../types/types.ts';
 import { math } from '../../../utils/math/math.ts';
 import { ada } from '../../assetInfo/ada.ts';
@@ -11,7 +11,7 @@ import { AssetInfoMismatchError } from '../../currency/errors/AssetInfoMismatchE
 import { Transaction } from '../../transaction/Transaction.ts';
 import { EMISSION_LP } from './emissionLp.ts';
 
-export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
+export interface XYPoolConfig<Type extends PoolType> {
   readonly type: Type;
   readonly nft: AssetInfo;
   readonly lq: Currency;
@@ -38,7 +38,7 @@ export interface XYPoolConfig<Type extends 'cfmm' | 'weighted'> {
 /**
  * XY pool representation
  */
-export class XYPool<Type extends 'cfmm' | 'weighted'>
+export class XYPool<Type extends PoolType>
   implements Pool<Type, { x: Currency; y: Currency }>
 {
   /**

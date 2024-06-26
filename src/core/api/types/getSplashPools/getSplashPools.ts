@@ -1,5 +1,6 @@
 import {
   RawSplashCfmmPool,
+  RawSplashStablePool,
   RawSplashWeightedPool,
 } from '../common/RawSplashPool.ts';
 
@@ -11,4 +12,5 @@ export interface GetSplashPoolsParams {
 export type GetSplashPoolsResponse = (
   | RawSplashCfmmPool
   | RawSplashWeightedPool
+  | RawSplashStablePool
 )[];

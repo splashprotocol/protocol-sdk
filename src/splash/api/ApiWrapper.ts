@@ -33,6 +33,7 @@ import { RedeemLiquidityOrder } from '../../core/models/liquidityOrder/RedeemLiq
 import { OutputParams } from '../../core/models/output/Output.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
+import { StablePool } from '../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Price } from '../../core/models/price/Price.ts';
 import { RecentTrade } from '../../core/models/recentTrade/RecentTrade.ts';
@@ -506,7 +507,7 @@ export class ApiWrapper {
    */
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,
-  ): Promise<(CfmmPool | WeightedPool)[]> {
+  ): Promise<(CfmmPool | WeightedPool | StablePool)[]> {
     return Promise.all([
       this.api.getSplashPools(params),
       this.getAssetsMetadata(),

@@ -3,6 +3,7 @@ import { AssetInfoMismatchError } from '../../core/models/currency/errors/AssetI
 import { DepositLiquidityOrder } from '../../core/models/liquidityOrder/DepositLiquidityOrder.ts';
 import { RedeemLiquidityOrder } from '../../core/models/liquidityOrder/RedeemLiquidityOrder.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
+import { StablePool } from '../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
 import { Position } from '../../core/models/position/Position.ts';
 import { Price } from '../../core/models/price/Price.ts';
@@ -57,7 +58,7 @@ export class Utils {
 
   /**
    * Returns balance includes only assets
-   * @param {(CfmmPool | WeightedPool)[]} pools
+   * @param {(CfmmPool | WeightedPool | StablePool)[]} pools
    * @param {Currencies} balance
    * @returns {SelectAssetBalanceResult}
    */
@@ -65,12 +66,11 @@ export class Utils {
     pools,
     balance,
   }: SelectAssetBalanceParams): SelectAssetBalanceResult {
-    const poolsGroupedById = pools.reduce<Dictionary<CfmmPool | WeightedPool>>(
-      (acc, pool) => {
-        return { ...acc, [pool.lq.asset.splashId]: pool };
-      },
-      {},
-    );
+    const poolsGroupedById = pools.reduce<
+      Dictionary<CfmmPool | WeightedPool | StablePool>
+    >((acc, pool) => {
+      return { ...acc, [pool.lq.asset.splashId]: pool };
+    }, {});
 
     return Currencies.new(
       balance
@@ -81,7 +81,7 @@ export class Utils {
 
   /**
    * Returns balance includes only lq assets
-   * @param {(CfmmPool | WeightedPool)[]} pools
+   * @param {(CfmmPool | WeightedPool | StablePool)[]} pools
    * @param {Currencies} balance
    * @returns {SelectLqAssetBalanceResult}
    */
@@ -89,12 +89,11 @@ export class Utils {
     pools,
     balance,
   }: SelectLqAssetBalanceParams): SelectLqAssetBalanceResult {
-    const poolsGroupedById = pools.reduce<Dictionary<CfmmPool | WeightedPool>>(
-      (acc, pool) => {
-        return { ...acc, [pool.lq.asset.splashId]: pool };
-      },
-      {},
-    );
+    const poolsGroupedById = pools.reduce<
+      Dictionary<CfmmPool | WeightedPool | StablePool>
+    >((acc, pool) => {
+      return { ...acc, [pool.lq.asset.splashId]: pool };
+    }, {});
 
     return Currencies.new(
       balance
@@ -105,7 +104,7 @@ export class Utils {
 
   /**
    * Combines params and returns Positions array
-   * @param {(CfmmPool | WeightedPool)[]} pools
+   * @param {(CfmmPool | WeightedPool | StablePool)[]} pools
    * @param {Currencies} balance
    * @returns {SelectPositionsResult}
    */
@@ -123,13 +122,16 @@ export class Utils {
               lq: balance.get(pool.lq.asset),
             },
             this.splash,
-          ) as Position<WeightedPool> | Position<CfmmPool>,
+          ) as
+            | Position<WeightedPool>
+            | Position<CfmmPool>
+            | Position<StablePool>,
       );
   }
 
   /**
    * Returns Position or EmptyPosition from pool and balance
-   * @param {CfmmPool | WeightedPool} pool
+   * @param {CfmmPool | WeightedPool | StablePool} pool
    * @param {Currencies} balance
    * @returns {SelectPositionOrEmptyResult}
    */
@@ -143,7 +145,7 @@ export class Utils {
         lq: balance.get(pool.lq.asset),
       },
       this.splash,
-    ) as Position<WeightedPool> | Position<CfmmPool>;
+    ) as Position<WeightedPool> | Position<CfmmPool> | Position<StablePool>;
   }
 
   /**

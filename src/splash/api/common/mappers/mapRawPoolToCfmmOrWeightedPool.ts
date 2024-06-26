@@ -1,12 +1,14 @@
 import { AssetMetadata } from '../../../../core/api/types/common/AssetMetadata.ts';
 import {
   RawSplashCfmmPool,
+  RawSplashStablePool,
   RawSplashWeightedPool,
 } from '../../../../core/api/types/common/RawSplashPool.ts';
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
 import { CfmmPoolType } from '../../../../core/models/pool/cfmm/common/CfmmPoolType.ts';
+import { StablePool } from '../../../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { Splash } from '../../../splash.ts';
@@ -27,13 +29,16 @@ const mapVersionToCfmmType = (
 export interface MapRawPoolToCfmmPoolConfig {
   readonly xMetadata?: AssetMetadata;
   readonly yMetadata?: AssetMetadata;
-  readonly rawPool: RawSplashCfmmPool | RawSplashWeightedPool;
+  readonly rawPool:
+    | RawSplashCfmmPool
+    | RawSplashWeightedPool
+    | RawSplashStablePool;
 }
 
 export const mapRawPoolToCfmmOrWeightedPool = (
   { rawPool, xMetadata, yMetadata }: MapRawPoolToCfmmPoolConfig,
   splash: Splash<any>,
-): CfmmPool | WeightedPool => {
+): CfmmPool | WeightedPool | StablePool => {
   const [nftPolicyId, nftBase16Name] = rawPool.pool.id.split('.');
   const [lqPolicyId, lqBase16Name] = rawPool.pool.lq.asset.split('.');
   const [xPolicyId, xBase16Name] = rawPool.pool.x.asset.split('.');
@@ -104,6 +109,9 @@ export const mapRawPoolToCfmmOrWeightedPool = (
       },
       splash,
     );
+  }
+  if (rawPool.pool.poolType === 'stable') {
+    return StablePool.new(partialConfig, splash);
   }
   const stepPct = math
     .evaluate(`100 / (${rawPool.pool.xWeight} + ${rawPool.pool.yWeight})`)

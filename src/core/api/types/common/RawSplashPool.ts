@@ -26,6 +26,10 @@ export interface RawSplashCfmmPoolInfo extends RawSplashPoolInfo {
   readonly version: RawSplashPoolVersion;
 }
 
+export interface RawSplashStablePoolInfo extends RawSplashPoolInfo {
+  readonly poolType: 'stable';
+}
+
 export interface RawSplashWeightedPoolInfo extends RawSplashPoolInfo {
   readonly poolType: 'weighted';
   readonly xWeight: number;
@@ -55,5 +59,10 @@ export interface RawSplashCfmmPool {
 
 export interface RawSplashWeightedPool {
   readonly pool: RawSplashWeightedPoolInfo;
+  readonly metrics?: RawSplashPoolMetrics;
+}
+
+export interface RawSplashStablePool {
+  readonly pool: RawSplashStablePoolInfo;
   readonly metrics?: RawSplashPoolMetrics;
 }
