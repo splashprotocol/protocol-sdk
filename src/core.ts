@@ -147,7 +147,7 @@ export * from './splash/api/common/errors/WalletEnablingError.ts';
 export * from './splash/api/common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';
 export * from './splash/api/common/mappers/mapRawOrderBookToOrderBook.ts';
 export * from './splash/api/common/mappers/mapRawPairToPair.ts';
-export * from './splash/api/common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
+export * from './splash/api/common/mappers/mapRawPoolToPool.ts';
 export * from './splash/api/common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 export * from './splash/api/common/mappers/mapRawRecentTradeToRecentTrade.ts';
 export * from './splash/api/common/mappers/mapRawTradeOrderToTradeOrder.ts';
@@ -172,8 +172,6 @@ export * from './splash/txBuilderFactory/operations/cancelOperation/cancelOperat
 export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputAlreadySpentError.ts';
 export * from './splash/txBuilderFactory/operations/cancelOperation/errors/OutputNotFoundError.ts';
 export * from './splash/txBuilderFactory/operations/cancelOperation/errors/SupportedOperationNotFoundError.ts';
-export * from './splash/txBuilderFactory/operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
-export * from './splash/txBuilderFactory/operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 export * from './splash/txBuilderFactory/operations/common/Operation.ts';
 export {
   createCfmmPool,
@@ -182,6 +180,8 @@ export {
 export * from './splash/txBuilderFactory/operations/createWeightedPool/createWeightedPool.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
+export * from './splash/txBuilderFactory/operations/xyDeposit/xyDeposit.ts';
+export * from './splash/txBuilderFactory/operations/xyRedeem/xyRedeem.ts';
 export * from './splash/txBuilderFactory/TxBuilderFactory.ts';
 export * from './splash/txBuilderFactory/utils/getCostModels.ts';
 export * from './splash/txBuilderFactory/utils/getTransactionBuilderConfig.ts';

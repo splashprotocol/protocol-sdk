@@ -35,7 +35,7 @@ export interface MapRawPoolToCfmmPoolConfig {
     | RawSplashStablePool;
 }
 
-export const mapRawPoolToCfmmOrWeightedPool = (
+export const mapRawPoolToPool = (
   { rawPool, xMetadata, yMetadata }: MapRawPoolToCfmmPoolConfig,
   splash: Splash<any>,
 ): CfmmPool | WeightedPool | StablePool => {

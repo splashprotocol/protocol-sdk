@@ -140,7 +140,7 @@ export class Position<P extends Pool<any, any>> {
   redeem(lq: Currency): Promise<Transaction> {
     return this.splash
       .newTx()
-      .cfmmOrWeightedRedeem(this.pool as any, lq)
+      .xyRedeem(this.pool as any, lq)
       .complete();
   }
 

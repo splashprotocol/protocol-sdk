@@ -8,6 +8,7 @@ import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
+import { StablePool } from '../../../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
 import {
@@ -38,8 +39,8 @@ export const RedeemData = Data.Tuple([
 
 const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
 
-export const cfmmOrWeightedRedeem: Operation<
-  [CfmmPool | WeightedPool, Currency]
+export const xyRedeem: Operation<
+  [CfmmPool | WeightedPool | StablePool, Currency]
 > = (pool, lq) => (context) => {
   const executorFeeWithTxFee = EXECUTOR_FEE.multiply(3n);
   const address = BaseAddress.from_address(
@@ -52,6 +53,8 @@ export const cfmmOrWeightedRedeem: Operation<
         OLD_SPLASH_POOLS_NFTS.includes(pool.id)
         ? context.operationsConfig.operations.redeemWeighted.script
         : context.operationsConfig.operations.redeemWeightedV2.script
+      : pool instanceof StablePool
+      ? context.operationsConfig.operations.redeemStable.script
       : pool.cfmmType === 'feeSwitch'
       ? context.operationsConfig.operations.redeemFeeSwitch.script
       : context.operationsConfig.operations.redeemDefault.script;

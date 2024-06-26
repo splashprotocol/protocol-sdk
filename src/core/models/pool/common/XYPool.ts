@@ -399,7 +399,7 @@ export class XYPool<Type extends PoolType>
   deposit([x, y]: [Currency, Currency]): Promise<Transaction> {
     return this.splash
       .newTx()
-      .cfmmOrWeightedDeposit(this as any, [x, y])
+      .xyDeposit(this as any, [x, y])
       .complete();
   }
 }

@@ -9,6 +9,7 @@ import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
 import { Output } from '../../../../core/models/output/Output.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
+import { StablePool } from '../../../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../../../core/models/pool/weighted/WeightedPool.ts';
 import { EXECUTOR_FEE } from '../../../../core/utils/executorFee/executorFee.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
@@ -38,8 +39,8 @@ export const DepositData = Data.Tuple([
 
 const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
 
-export const cfmmOrWeightedDeposit: Operation<
-  [CfmmPool | WeightedPool, [Currency, Currency]]
+export const xyDeposit: Operation<
+  [CfmmPool | WeightedPool | StablePool, [Currency, Currency]]
 > =
   (pool, [x, y]) =>
   (context) => {
@@ -54,6 +55,8 @@ export const cfmmOrWeightedDeposit: Operation<
     const depositScript =
       pool instanceof WeightedPool
         ? context.operationsConfig.operations.depositWeighted.script
+        : pool instanceof StablePool
+        ? context.operationsConfig.operations.depositStable.script
         : pool.cfmmType === 'feeSwitch'
         ? context.operationsConfig.operations.depositFeeSwitch.script
         : context.operationsConfig.operations.depositDefault.script;

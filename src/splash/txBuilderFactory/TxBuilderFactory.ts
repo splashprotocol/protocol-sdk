@@ -49,14 +49,6 @@ import { InsufficientCollateralError } from './erors/InsufficientCollateralError
 import { InsufficientFundsErrorForChange } from './erors/InsufficientFundsErrorForChange.ts';
 import { NoCollateralError } from './erors/NoCollateralError.ts';
 import { cancelOperation } from './operations/cancelOperation/cancelOperation.ts';
-import {
-  cfmmOrWeightedDeposit,
-  DepositData,
-} from './operations/cfmmOrWeightedDeposit/cfmmOrWeightedDeposit.ts';
-import {
-  cfmmOrWeightedRedeem,
-  RedeemData,
-} from './operations/cfmmOrWeightedRedeem/cfmmOrWeightedRedeem.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
 import { createCfmmPool } from './operations/createCfmmPool/createCfmmPool.ts';
 import { createWeightedPool } from './operations/createWeightedPool/createWeightedPool.ts';
@@ -66,6 +58,8 @@ import {
   createSpotOrderData,
   spotOrder,
 } from './operations/spotOrder/spotOrder.ts';
+import { DepositData, xyDeposit } from './operations/xyDeposit/xyDeposit.ts';
+import { RedeemData, xyRedeem } from './operations/xyRedeem/xyRedeem.ts';
 import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig.ts';
 
 interface CreateTransactionExtra {
@@ -77,8 +71,8 @@ interface CreateTransactionExtra {
 export const defaultOperations: {
   payToAddress: typeof payToAddress;
   payToContract: typeof payToContract;
-  cfmmOrWeightedDeposit: typeof cfmmOrWeightedDeposit;
-  cfmmOrWeightedRedeem: typeof cfmmOrWeightedRedeem;
+  xyDeposit: typeof xyDeposit;
+  xyRedeem: typeof xyRedeem;
   spotOrder: typeof spotOrder;
   cancelOperation: typeof cancelOperation;
   createWeightedPool: typeof createWeightedPool;
@@ -86,8 +80,8 @@ export const defaultOperations: {
 } = {
   payToAddress,
   payToContract,
-  cfmmOrWeightedDeposit,
-  cfmmOrWeightedRedeem,
+  xyDeposit,
+  xyRedeem,
   spotOrder,
   cancelOperation,
   createWeightedPool,
@@ -244,6 +238,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           ...rawOperationsConfig.operations.redeemDefault,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
         },
+        redeemStable: {
+          ...rawOperationsConfig.operations.redeemStable,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
         depositDefault: {
           ...rawOperationsConfig.operations.depositDefault,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
@@ -258,6 +256,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         },
         depositFeeSwitch: {
           ...rawOperationsConfig.operations.depositFeeSwitch,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
+        depositStable: {
+          ...rawOperationsConfig.operations.depositStable,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
         },
       },

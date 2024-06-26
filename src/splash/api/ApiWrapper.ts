@@ -56,7 +56,7 @@ import { WalletEnablingError } from './common/errors/WalletEnablingError.ts';
 import { mapRawLiquidityOrderToLiquidityOrder } from './common/mappers/mapRawLiquidityOrderToLiquidityOrder.ts';
 import { mapRawOrderBookToOrderBook } from './common/mappers/mapRawOrderBookToOrderBook.ts';
 import { mapRawPairToPair } from './common/mappers/mapRawPairToPair.ts';
-import { mapRawPoolToCfmmOrWeightedPool } from './common/mappers/mapRawPoolToCfmmOrWeightedPool.ts';
+import { mapRawPoolToPool } from './common/mappers/mapRawPoolToPool.ts';
 import { mapRawProtocolStatsToProtocolStats } from './common/mappers/mapRawProtocolStatsToProtocolStats.ts';
 import { mapRawRecentTradeToRecentTrade } from './common/mappers/mapRawRecentTradeToRecentTrade.ts';
 import { mapRawTradeOrderToTradeOrder } from './common/mappers/mapRawTradeOrderToTradeOrder.ts';
@@ -513,7 +513,7 @@ export class ApiWrapper {
       this.getAssetsMetadata(),
     ]).then(([pools, metadata]) => {
       return pools.map((rawPool) =>
-        mapRawPoolToCfmmOrWeightedPool(
+        mapRawPoolToPool(
           {
             rawPool: rawPool,
             xMetadata: metadata[rawPool.pool.x.asset],
