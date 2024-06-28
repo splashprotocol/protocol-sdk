@@ -73,7 +73,7 @@ const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
   mainnet: 'https://api2.splash.trade/platform-api/v1/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
-  premainnet: 'https://api-test-mainnet.splash.trade/v1/',
+  premainnet: 'https://api.splash.trade/platform-api/v1/',
 };
 
 export class SplashApi implements Api {
