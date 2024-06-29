@@ -153,7 +153,8 @@ export const mapRawLiquidityOrderToLiquidityOrder = (
 ): DepositLiquidityOrder | RedeemLiquidityOrder => {
   if (
     rawLiquidityOrder.orderType === 'cfmmDeposit' ||
-    rawLiquidityOrder.orderType === 'weightedDeposit'
+    rawLiquidityOrder.orderType === 'weightedDeposit' ||
+    rawLiquidityOrder.orderType === 'stableDeposit'
   ) {
     return mapRawLiquidityDepositOrderToDepositLiquidityOrder(
       rawLiquidityOrder,
@@ -163,7 +164,8 @@ export const mapRawLiquidityOrderToLiquidityOrder = (
   }
   if (
     rawLiquidityOrder.orderType === 'cfmmRedeem' ||
-    rawLiquidityOrder.orderType === 'weightedRedeem'
+    rawLiquidityOrder.orderType === 'weightedRedeem' ||
+    rawLiquidityOrder.orderType === 'stableRedeem'
   ) {
     return mapRawLiquidityRedeemOrderToRedeemLiquidityOrder(
       rawLiquidityOrder,

@@ -6,7 +6,7 @@ import {
 } from './common/LiquidityOrder.ts';
 
 export interface RedeemLiquidityOrderConfig extends LiquidityOrderConfig {
-  readonly type: 'weighted' | 'cfmm';
+  readonly type: 'weighted' | 'cfmm' | 'stable';
   readonly lq: Currency;
   readonly x: Currency;
   readonly y: Currency;
@@ -49,9 +49,9 @@ export class RedeemLiquidityOrder extends LiquidityOrder {
 
   /**
    * Type of pool
-   * @type {"weighted" | "cfmm"}
+   * @type {"weighted" | "cfmm" | "stable"}
    */
-  readonly type: 'weighted' | 'cfmm';
+  readonly type: 'weighted' | 'cfmm' | 'stable';
 
   private constructor(
     { x, lq, y, type, ...rest }: RedeemLiquidityOrderConfig,

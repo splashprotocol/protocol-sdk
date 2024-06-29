@@ -24,7 +24,7 @@ export interface RawLiquidityOrder {
 }
 
 export interface RawLiquidityDepositOrder extends RawLiquidityOrder {
-  readonly orderType: 'cfmmDeposit' | 'weightedDeposit';
+  readonly orderType: 'cfmmDeposit' | 'weightedDeposit' | 'stableDeposit';
   readonly x: CurrencyDescriptor;
   readonly y: CurrencyDescriptor;
   readonly actualX?: string;
@@ -33,7 +33,7 @@ export interface RawLiquidityDepositOrder extends RawLiquidityOrder {
 }
 
 export interface RawLiquidityRedeemOrder extends RawLiquidityOrder {
-  readonly orderType: 'cfmmRedeem' | 'weightedRedeem';
+  readonly orderType: 'cfmmRedeem' | 'weightedRedeem' | 'stableRedeem';
   readonly lq: CurrencyDescriptor;
   readonly yAmount?: string;
   readonly yAsset: AssetId;

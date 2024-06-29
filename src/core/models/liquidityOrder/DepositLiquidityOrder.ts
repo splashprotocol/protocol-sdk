@@ -8,7 +8,7 @@ import {
 export interface DepositLiquidityOrderConfig extends LiquidityOrderConfig {
   readonly x: Currency;
   readonly y: Currency;
-  readonly type: 'weighted' | 'cfmm';
+  readonly type: 'weighted' | 'cfmm' | 'stable';
   readonly lq?: Currency;
 }
 
@@ -31,9 +31,9 @@ export class DepositLiquidityOrder extends LiquidityOrder {
 
   /**
    * Type of pool
-   * @type {"weighted" | "cfmm"}
+   * @type {"weighted" | "cfmm" | "stable"}
    */
-  readonly type: 'weighted' | 'cfmm';
+  readonly type: 'weighted' | 'cfmm' | 'stable';
 
   /**
    * x of Liquidity order
