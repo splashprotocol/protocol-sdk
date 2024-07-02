@@ -198,5 +198,8 @@ export * from './splash/utils/Utils.ts';
 // DATAFEED
 export * from './splash/twDataFeed/SplashTVDataFeed.ts';
 
+// REMOTE_COLLATERALS
+export * from './splash/remoteCollaterals/SplashRemoteCollaterals.ts';
+
 // SPLASH
 export * from './splash/splash.ts';
