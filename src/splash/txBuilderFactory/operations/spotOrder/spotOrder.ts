@@ -160,7 +160,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     });
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
     const address = Address.from_bech32(context.userAddress);
-    console.log(basePrice.raw);
+
     const data = createSpotOrderData(
       context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
     )([

@@ -94,7 +94,7 @@ export class Price {
       baseCurrency instanceof Currency ? baseCurrency.amount : baseCurrency;
 
     return Currency.new(
-      BigInt(math.evaluate(`${this.raw} * ${amount}`).toFixed(0)),
+      BigInt(Math.floor(math.evaluate(`${this.raw} * ${amount}`))),
       this.quote,
     );
   }
@@ -116,7 +116,7 @@ export class Price {
       quoteCurrency instanceof Currency ? quoteCurrency.amount : quoteCurrency;
 
     return Currency.new(
-      BigInt(math.evaluate(`${amount} / ${this.raw}`).toFixed(0)),
+      BigInt(Math.floor(math.evaluate(`${amount} / ${this.raw}`))),
       this.base,
     );
   }
