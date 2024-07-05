@@ -1,6 +1,7 @@
 import { lts, price } from '../../../types/types.ts';
 
 export interface RawRecentTrade {
+  readonly entityId: string;
   readonly price: price;
   readonly from: string;
   readonly to: string;

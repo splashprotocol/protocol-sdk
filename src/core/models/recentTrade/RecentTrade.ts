@@ -3,6 +3,7 @@ import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
 export interface RecentTrade {
+  readonly id: string;
   readonly from: Currency;
   readonly to: Currency;
   readonly price: Price;

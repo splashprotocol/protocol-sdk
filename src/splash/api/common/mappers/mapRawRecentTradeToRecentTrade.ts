@@ -24,6 +24,7 @@ export const mapRawRecentTradeToRecentTrade = ({
   const newQuote = quoteMetadata ? quote.withMetadata(quoteMetadata) : quote;
 
   return {
+    id: rawRecentTrade.entityId,
     side: rawRecentTrade.side,
     timestamp: rawRecentTrade.timestamp,
     price: Price.new({
