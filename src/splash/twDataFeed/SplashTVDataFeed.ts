@@ -1,8 +1,9 @@
-import { Resolution } from '../../core/api/types/common/Bar.ts';
+import { RawBar, Resolution } from '../../core/api/types/common/RawBar.ts';
 import { GetChartLastBarParams } from '../../core/api/types/getChartLastBar/getChartLastBar.ts';
 import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
-import { Dictionary, uint } from '../../core/types/types.ts';
+import { Price } from '../../core/models/price/Price.ts';
+import { Dictionary, price, uint } from '../../core/types/types.ts';
 import { Splash } from '../splash.ts';
 import {
   ErrorCallback,
@@ -132,13 +133,13 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       quote: symbolInfo.quote,
       resolution: mapTvResolutionToApiResolution[resolution],
     };
+
     try {
       this.mapListenerGuidToIntervalId[listenerGuid] = setInterval(
-        async () =>
-          onTick(await this.splash.api.getChartLastBar(getLastBarParams)),
+        async () => onTick(await this.getLastBar(getLastBarParams)),
         this.lastBarTickInterval,
       );
-      onTick(await this.splash.api.getChartLastBar(getLastBarParams));
+      onTick(await this.getLastBar(getLastBarParams));
     } catch (e) {
       console.error('[subscribeBars]: Fetch last bar error', e);
     }
@@ -160,9 +161,14 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
         resolution: mapTvResolutionToApiResolution[resolution],
       });
       if (bars.length) {
-        onResult(bars, {
-          noData: false,
-        });
+        onResult(
+          bars.map((bar) =>
+            this.normalizeBar(bar, symbolInfo.base, symbolInfo.quote),
+          ),
+          {
+            noData: false,
+          },
+        );
       } else {
         onResult([], {
           noData: true,
@@ -178,5 +184,34 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       clearInterval(this.mapListenerGuidToIntervalId[listenerGuid]);
       delete this.mapListenerGuidToIntervalId[listenerGuid];
     }
+  }
+
+  private async getLastBar(params: GetChartLastBarParams) {
+    return this.splash.api
+      .getChartLastBar(params)
+      .then((bar) => this.normalizeBar(bar, params.base, params.quote));
+  }
+
+  private normalizeBar(bar: RawBar, base: AssetInfo, quote: AssetInfo) {
+    return {
+      open: this.normalizePrice(bar.open, base, quote),
+      close: this.normalizePrice(bar.close, base, quote),
+      low: this.normalizePrice(bar.low, base, quote),
+      high: this.normalizePrice(bar.high, base, quote),
+      volume: Number(bar.volume),
+      time: Number(bar.time),
+    };
+  }
+
+  private normalizePrice(
+    rawPrice: price,
+    base: AssetInfo,
+    quote: AssetInfo,
+  ): number {
+    return Price.new({
+      raw: rawPrice,
+      base,
+      quote,
+    }).toNumber();
   }
 }

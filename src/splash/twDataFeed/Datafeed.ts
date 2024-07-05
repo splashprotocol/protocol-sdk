@@ -22,10 +22,10 @@ export declare type Nominal<T, Name extends string> = T & {
   /* eslint-disable-next-line jsdoc/require-jsdoc */ [Symbol.species]: Name;
 };
 /**
- * Bar data point
+ * RawBar data point
  */
 export interface Bar {
-  /** Bar time.
+  /** RawBar time.
    * Amount of **milliseconds** since Unix epoch start in **UTC** timezone.
    * `time` for daily, weekly, and monthly bars is expected to be a trading day (not session start day) at 00:00 UTC.
    * The library adjusts time according to `session` from {@link LibrarySymbolInfo}.
@@ -308,7 +308,7 @@ export interface IDatafeedChartApi {
    *
    * @param symbolInfo A SymbolInfo object
    * @param resolution Resolution of the symbol
-   * @param onTick Callback function returning a Bar object
+   * @param onTick Callback function returning a RawBar object
    * @param listenerGuid
    * @param onResetCacheNeededCallback Function to be executed when bar data has changed
    */

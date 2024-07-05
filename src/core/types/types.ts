@@ -33,7 +33,7 @@ export type PoolId = string;
 
 export type percent = number;
 
-export type price = number;
+export type price = string;
 
 export type uint = number;
 

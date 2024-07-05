@@ -149,7 +149,7 @@ export class ApiWrapper {
         Price.new({
           base: AssetInfo.ada,
           quote: AssetInfo.usd,
-          raw: 0,
+          raw: '0',
         }),
       );
   }
@@ -370,8 +370,8 @@ export class ApiWrapper {
     ]).then(([orderBook, metadata]) => {
       return mapRawOrderBookToOrderBook({
         rawOrderBook: orderBook,
-        baseMetadata: metadata[orderBook.pair.base],
-        quoteMetadata: metadata[orderBook.pair.quote],
+        baseMetadata: metadata[params.base.splashId],
+        quoteMetadata: metadata[params.quote.splashId],
       });
     });
   }

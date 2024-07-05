@@ -30,17 +30,21 @@ test('it should return valid order book', async () => {
   expect(orderBook.asks[1].price).toBeInstanceOf(Price);
   expect(orderBook.asks[1].accumulatedAveragePrice).toBeInstanceOf(Price);
 
-  expect(orderBook.asks[0].price.raw).toBeLessThan(orderBook.asks[1].price.raw);
-  expect(orderBook.asks[0].accumulatedAveragePrice.raw).toBeLessThan(
-    orderBook.asks[1].accumulatedAveragePrice.raw,
+  expect(orderBook.asks[0].price.toNumber()).toBeLessThan(
+    orderBook.asks[1].price.toNumber(),
+  );
+  expect(orderBook.asks[0].accumulatedAveragePrice.toNumber()).toBeLessThan(
+    orderBook.asks[1].accumulatedAveragePrice.toNumber(),
   );
   expect(orderBook.asks[0].accumulatedAmount.amount).toBeLessThan(
     orderBook.asks[1].accumulatedAmount.amount,
   );
 
-  expect(orderBook.bids[1].price.raw).toBeLessThan(orderBook.bids[0].price.raw);
-  expect(orderBook.bids[1].accumulatedAveragePrice.raw).toBeLessThan(
-    orderBook.bids[0].accumulatedAveragePrice.raw,
+  expect(orderBook.bids[1].price.toNumber()).toBeLessThan(
+    orderBook.bids[0].price.toNumber(),
+  );
+  expect(orderBook.bids[1].accumulatedAveragePrice.toNumber()).toBeLessThan(
+    orderBook.bids[0].accumulatedAveragePrice.toNumber(),
   );
   expect(orderBook.bids[0].accumulatedAmount.amount).toBeLessThan(
     orderBook.bids[1].accumulatedAmount.amount,

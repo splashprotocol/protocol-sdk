@@ -1,6 +1,6 @@
 import { AssetInfo } from '../../../models/assetInfo/AssetInfo.ts';
 import { ts } from '../../../types/types.ts';
-import { Bar, Resolution } from '../common/Bar.ts';
+import { RawBar, Resolution } from '../common/RawBar.ts';
 
 export interface GetChartHistoryParams {
   readonly base: AssetInfo;
@@ -10,4 +10,4 @@ export interface GetChartHistoryParams {
   readonly resolution: Resolution;
 }
 
-export type GetChartHistoryResult = Bar[];
+export type GetChartHistoryResult = RawBar[];

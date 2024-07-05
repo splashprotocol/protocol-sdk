@@ -12,13 +12,8 @@ export interface OrderBookItem {
   readonly ordersAmount: Currency;
   readonly ammAmount: Currency;
   readonly amount: Currency;
-
   readonly accumulatedAmount: Currency;
-  readonly accumulatedOrderAmount: Currency;
-  readonly accumulatedAmmAmount: Currency;
   readonly accumulatedAmountInQuote: Currency;
-  readonly accumulatedOrderAmountInQuote: Currency;
-  readonly accumulatedAmmAmountInQuote: Currency;
   readonly accumulatedAmountRelation: percent;
 }
 

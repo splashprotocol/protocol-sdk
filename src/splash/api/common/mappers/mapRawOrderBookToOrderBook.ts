@@ -6,97 +6,8 @@ import {
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
-import {
-  math,
-  normalizeAmount,
-  toBigNumRepresentation,
-  toNumberRepresentation,
-} from '../../../../core/utils/math/math.ts';
+import { math } from '../../../../core/utils/math/math.ts';
 import { OrderBook, OrderBookItem } from '../types/OrderBook.ts';
-
-interface OrderBookItemAdditionalInfo {
-  readonly accumulatedAveragePrice: number;
-  readonly accumulatedOrderAmount: Currency;
-  readonly accumulatedAmmAmount: Currency;
-  readonly accumulatedAmountInQuote: Currency;
-  readonly accumulatedOrderAmountInQuote: Currency;
-  readonly accumulatedAmmAmountInQuote: Currency;
-  readonly items: OrderBookItem[];
-}
-
-const getNextOrderBookItemAdditionalInfo = (
-  additionalInfo: OrderBookItemAdditionalInfo,
-  item: RawOrderBookItem,
-  base: AssetInfo,
-  quote: AssetInfo,
-): OrderBookItemAdditionalInfo => {
-  const newAveragePrice = additionalInfo.items.reduce(
-    (acc, i) => {
-      return Number(
-        math.evaluate(
-          `${acc} + ${i.price.raw} * (${i.ordersAmount.amount} / ${item.accumulatedVolume})`,
-        ),
-      );
-    },
-    Number(
-      math.evaluate(
-        `${item.spot} * ((${item.ordersVolume} + ${item.poolsVolume}) / ${item.accumulatedVolume})`,
-      ),
-    ),
-  );
-
-  const newPoolsInAmountQuote = toBigNumRepresentation(
-    normalizeAmount(
-      math
-        .evaluate(
-          `${toNumberRepresentation(item.poolsVolume, base.decimals)} * ${
-            item.spot
-          }`,
-        )
-        .toFixed(),
-      quote.decimals,
-    ),
-    quote.decimals,
-  );
-
-  const newOrdersAmountInQuote = toBigNumRepresentation(
-    normalizeAmount(
-      math
-        .evaluate(
-          `${toNumberRepresentation(item.ordersVolume, base.decimals)} * ${
-            item.spot
-          }`,
-        )
-        .toFixed(),
-      quote.decimals,
-    ),
-    quote.decimals,
-  );
-
-  const newAdditionalData: OrderBookItemAdditionalInfo = {
-    accumulatedAveragePrice: newAveragePrice,
-    accumulatedAmmAmount: Currency.new(BigInt(item.poolsVolume), base),
-    accumulatedOrderAmount: additionalInfo.accumulatedOrderAmount.plus(
-      Currency.new(BigInt(item.ordersVolume), base),
-    ),
-    accumulatedAmmAmountInQuote: Currency.new(newPoolsInAmountQuote, quote),
-    accumulatedOrderAmountInQuote:
-      additionalInfo.accumulatedOrderAmountInQuote.plus(
-        Currency.new(newOrdersAmountInQuote, quote),
-      ),
-    accumulatedAmountInQuote: Currency.new(newPoolsInAmountQuote, quote)
-      .plus(newOrdersAmountInQuote)
-      .plus(additionalInfo.accumulatedOrderAmountInQuote),
-    items: additionalInfo.items,
-  };
-
-  return {
-    ...newAdditionalData,
-    items: newAdditionalData.items.concat([
-      mapRawOrderBookItemToOrderBookItem(base, quote, item, newAdditionalData),
-    ]),
-  };
-};
 
 export interface MapRawOrderBookToOrderBookConfig {
   readonly baseMetadata?: AssetMetadata;
@@ -108,41 +19,35 @@ export const mapRawOrderBookItemToOrderBookItem = (
   base: AssetInfo,
   quote: AssetInfo,
   rawItem: RawOrderBookItem,
-  {
-    accumulatedAveragePrice,
-    accumulatedOrderAmount,
-    accumulatedAmmAmount,
-    accumulatedAmountInQuote,
-    accumulatedOrderAmountInQuote,
-    accumulatedAmmAmountInQuote,
-  }: OrderBookItemAdditionalInfo,
-): OrderBookItem => ({
-  price: Price.new({
+): OrderBookItem => {
+  const avgPrice = Price.new({
     base,
     quote,
-    raw: rawItem.spot,
-  }),
-  accumulatedAveragePrice: Price.new({
-    base,
-    quote,
-    raw: accumulatedAveragePrice,
-  }),
-  ordersAmount: Currency.new(BigInt(rawItem.ordersVolume), base),
-  ammAmount: Currency.new(BigInt(rawItem.poolsVolume), base),
-  amount: Currency.new(
-    BigInt(rawItem.poolsVolume) + BigInt(rawItem.ordersVolume),
-    base,
-  ),
-  accumulatedAmount: Currency.new(BigInt(rawItem.accumulatedVolume), base),
-  accumulatedOrderAmount: accumulatedOrderAmount,
-  accumulatedAmmAmount: accumulatedAmmAmount,
-  accumulatedAmountInQuote: accumulatedAmountInQuote,
-  accumulatedOrderAmountInQuote: accumulatedOrderAmountInQuote,
-  accumulatedAmmAmountInQuote: accumulatedAmmAmountInQuote,
-  accumulatedAmountRelation: math
-    .evaluate(`${rawItem.accumulatedVolumeRelation} * 100`)
-    .toFixed(2),
-});
+    raw: rawItem.avgPrice,
+  });
+
+  return {
+    price: Price.new({
+      base,
+      quote,
+      raw: rawItem.price,
+    }),
+    accumulatedAveragePrice: avgPrice,
+    ordersAmount: Currency.new(BigInt(rawItem.ordersLiquidity), base),
+    ammAmount: Currency.new(BigInt(rawItem.poolsLiquidity), base),
+    amount: Currency.new(
+      BigInt(rawItem.poolsLiquidity) + BigInt(rawItem.ordersLiquidity),
+      base,
+    ),
+    accumulatedAmount: Currency.new(BigInt(rawItem.accumulatedLiquidity), base),
+    accumulatedAmountInQuote: avgPrice.getNecessaryQuoteFor(
+      Currency.new(BigInt(rawItem.accumulatedLiquidity), base),
+    ),
+    accumulatedAmountRelation: math
+      .evaluate(`${rawItem.volumeRelation} * 100`)
+      .toFixed(2),
+  };
+};
 
 export const mapRawOrderBookToOrderBook = ({
   rawOrderBook,
@@ -169,41 +74,12 @@ export const mapRawOrderBookToOrderBook = ({
     quoteMetadata,
   );
 
-  const asks = rawOrderBook.asksOrderBook
-    .sort((item1, item2) => item1.spot - item2.spot)
-    .reduce(
-      (
-        acc: { items: OrderBookItem[] } & OrderBookItemAdditionalInfo,
-        item: RawOrderBookItem,
-      ) => getNextOrderBookItemAdditionalInfo(acc, item, base, quote),
-      {
-        accumulatedAveragePrice: 0,
-        accumulatedAmmAmount: Currency.new(0n, base),
-        accumulatedOrderAmount: Currency.new(0n, base),
-        accumulatedAmountInQuote: Currency.new(0n, quote),
-        accumulatedAmmAmountInQuote: Currency.new(0n, quote),
-        accumulatedOrderAmountInQuote: Currency.new(0n, quote),
-        items: [],
-      } as { items: OrderBookItem[] } & OrderBookItemAdditionalInfo,
-    );
-
-  const bids = rawOrderBook.bidsOrderBook
-    .sort((item1, item2) => item2.spot - item1.spot)
-    .reduce(
-      (
-        acc: { items: OrderBookItem[] } & OrderBookItemAdditionalInfo,
-        item: RawOrderBookItem,
-      ) => getNextOrderBookItemAdditionalInfo(acc, item, base, quote),
-      {
-        accumulatedAveragePrice: 0,
-        accumulatedAmmAmount: Currency.new(0n, base),
-        accumulatedOrderAmount: Currency.new(0n, base),
-        accumulatedAmountInQuote: Currency.new(0n, quote),
-        accumulatedAmmAmountInQuote: Currency.new(0n, quote),
-        accumulatedOrderAmountInQuote: Currency.new(0n, quote),
-        items: [],
-      } as { items: OrderBookItem[] } & OrderBookItemAdditionalInfo,
-    );
+  const asks = rawOrderBook.asks.map((rawOrderBookItem) =>
+    mapRawOrderBookItemToOrderBookItem(base, quote, rawOrderBookItem),
+  );
+  const bids = rawOrderBook.bids.map((rawOrderBookItem) =>
+    mapRawOrderBookItemToOrderBookItem(base, quote, rawOrderBookItem),
+  );
 
   return {
     base,
@@ -213,9 +89,9 @@ export const mapRawOrderBookToOrderBook = ({
       base,
       quote,
     }),
-    previousSpotPrice: rawOrderBook.previousSpotPrice
+    previousSpotPrice: rawOrderBook.previousSpot
       ? Price.new({
-          raw: rawOrderBook.previousSpotPrice,
+          raw: rawOrderBook.previousSpot,
           base,
           quote,
         })
@@ -228,7 +104,7 @@ export const mapRawOrderBookToOrderBook = ({
       BigInt(rawOrderBook.ammTotalLiquidityQuote),
       quote,
     ),
-    asks: asks.items,
-    bids: bids.items,
+    asks,
+    bids,
   };
 };

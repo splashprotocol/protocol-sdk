@@ -65,7 +65,7 @@ test('it should create wasm transaction', async () => {
       price: Price.new({
         base: AssetInfo.ada,
         quote: someAsset,
-        raw: 1000,
+        raw: '1000',
       }),
     })
     .complete();

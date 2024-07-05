@@ -51,12 +51,19 @@ export const mapRawPairToPair = ({
     raw: rawPair.quoteAdaRate,
   });
 
+  const priceMinStep = Price.new({
+    base,
+    quote: ada,
+    raw: rawPair.priceMinStep,
+  });
+
   return Pair.new({
     base,
     quote,
-    change: rawPair.change,
+    change: Number(rawPair.change),
     spotPrice,
     baseAdaPrice,
     quoteAdaPrice,
+    priceMinStep,
   });
 };

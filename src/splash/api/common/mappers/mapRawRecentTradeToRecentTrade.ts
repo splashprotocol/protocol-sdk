@@ -4,7 +4,6 @@ import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
 import { RecentTrade } from '../../../../core/models/recentTrade/RecentTrade.ts';
-import { math } from '../../../../core/utils/math/math.ts';
 
 export interface MapRawRecentTradeToRecentTradeConfig {
   readonly base: AssetInfo;
@@ -28,15 +27,7 @@ export const mapRawRecentTradeToRecentTrade = ({
     side: rawRecentTrade.side,
     timestamp: rawRecentTrade.timestamp,
     price: Price.new({
-      raw: Number(
-        math
-          .evaluate(
-            `${rawRecentTrade.price} / 10^${
-              newQuote.decimals - newBase.decimals
-            }`,
-          )
-          .toFixed(),
-      ),
+      raw: rawRecentTrade.price,
       base: newBase,
       quote: newQuote,
     }),

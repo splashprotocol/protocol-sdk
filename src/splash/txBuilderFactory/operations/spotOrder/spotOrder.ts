@@ -106,32 +106,6 @@ const getMarginalOutput = async ({
     ),
     outputAsset,
   );
-
-  // if (outputAsset.isAda()) {
-  //   return orderStepCost;
-  // }
-  // if (inputAsset.isAda()) {
-  //   return basePrice.getNecessaryQuoteFor(orderStepCost);
-  // }
-  // const rates = splash.utils.selectRates({
-  //   pairs: await splash.api.getPairs(),
-  //   adaUsdPrice: Price.new({
-  //     base: AssetInfo.ada,
-  //     quote: AssetInfo.usd,
-  //     raw: 0,
-  //   }),
-  // });
-  //
-  // const outputAdaRate = rates.getPrice(outputAsset);
-  // if (outputAdaRate) {
-  //   return outputAdaRate.getReceivedBaseFor(orderStepCost);
-  // }
-  // const inputAdaRate = rates.getPrice(inputAsset);
-  // if (inputAdaRate) {
-  //   // TODO: CHECK IT ONE MORE TIME
-  //   return inputAdaRate.cross(basePrice).getReceivedBaseFor(orderStepCost);
-  // }
-  // return Currency.new(0n, outputAsset);
 };
 
 export interface SpotOrderConfig {
@@ -186,6 +160,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     });
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
     const address = Address.from_bech32(context.userAddress);
+    console.log(basePrice.raw);
     const data = createSpotOrderData(
       context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
     )([
@@ -196,15 +171,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       worstOrderStepCost.amount,
       minMarginalOutput.amount,
       outputAsset,
-      Number(
-        math
-          .evaluate(
-            `${basePrice.raw} * 10^${
-              basePrice.quote.decimals - basePrice.base.decimals
-            }`,
-          )
-          .toFixed(),
-      ),
+      basePrice.raw,
       0n,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),

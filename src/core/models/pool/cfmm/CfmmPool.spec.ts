@@ -11,6 +11,7 @@ const splash = Splash.new(SplashApi.new('mainnet'), 'mainnet');
 
 const cfmmPool = CfmmPool.new(
   {
+    outputId: { txHash: '', index: 0n },
     cfmmType: 'feeSwitch',
     totalX: Currency.ada(20000000n),
     totalY: Currency.spf(20000000n),

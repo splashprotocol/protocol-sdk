@@ -232,9 +232,7 @@ export class SplashApi implements Api {
    * @return {Promise<GetAdaUsdRateResult>}
    */
   async getAdaUsdRate(): Promise<GetAdaUsdRateResult> {
-    return fetch(`${this.url}ada-usd/rate`)
-      .then((res) => res.json())
-      .then((rate) => Number(rate));
+    return fetch(`${this.url}ada-usd/rate`).then((res) => res.json());
   }
 
   /**

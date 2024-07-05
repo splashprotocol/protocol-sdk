@@ -15,8 +15,8 @@ const RationalTuple = TupleDataType([BigIntegerDataType, BigIntegerDataType]);
  * @example  { fields: [{ "int": <number> }, { "int": <number> }] }
  * @type {{serialize(value: bigint): PlutusData, deserialize(pd: PlutusData): bigint}}
  */
-export const RationalDataType: DataType<number> = toDataType({
-  serialize(value: number): PlutusData {
+export const RationalDataType: DataType<number | string> = toDataType({
+  serialize(value: number | string): PlutusData {
     const rational = numberToRational(value);
 
     return RationalTuple([rational.numerator, rational.denominator]);

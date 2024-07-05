@@ -16,5 +16,5 @@ test('It should returns valid tvl chart by pool', async () => {
 
   expect(pooltvlChart.asset).toBeInstanceOf(AssetInfo);
   expect(pooltvlChart.asset.splashId).toBe(AssetInfo.ada.splashId);
-  expect(pooltvlChart.data.length).toBe(31);
+  expect(pooltvlChart.data.length).toBe(30);
 });

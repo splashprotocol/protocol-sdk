@@ -1,1 +1,3 @@
-export type GetAdaUsdRateResult = number;
+import { price } from '../../../types/types.ts';
+
+export type GetAdaUsdRateResult = price;

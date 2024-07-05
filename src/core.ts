@@ -1,11 +1,11 @@
 // CORE_API
 export * from './core/api/Api.ts';
 export * from './core/api/types/common/AssetMetadata.ts';
-export * from './core/api/types/common/Bar.ts';
 export * from './core/api/types/common/ChartInterval.ts';
 export * from './core/api/types/common/ChartParams.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
 export * from './core/api/types/common/PoolChartPoint.ts';
+export * from './core/api/types/common/RawBar.ts';
 export * from './core/api/types/common/RawLiquidityOrder.ts';
 export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';

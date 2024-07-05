@@ -12,13 +12,13 @@ test('It should create valid instance of CurrencyConverter', () => {
       Price.new({
         base: spf,
         quote: ada,
-        raw: 0.02,
+        raw: '0.02',
       }),
     ],
     adaUsdPrice: Price.new({
       base: ada,
       quote: usd,
-      raw: 0.7,
+      raw: '0.7',
     }),
   });
 

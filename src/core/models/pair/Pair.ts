@@ -1,11 +1,6 @@
 import { percent } from '../../types/types.ts';
-import {
-  math,
-  normalizeAmount,
-  toBigNumRepresentation,
-} from '../../utils/math/math.ts';
+import { math } from '../../utils/math/math.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
-import { Currency } from '../currency/Currency.ts';
 import { Price } from '../price/Price.ts';
 
 export interface PairParams {
@@ -15,6 +10,7 @@ export interface PairParams {
   readonly spotPrice: Price;
   readonly baseAdaPrice: Price;
   readonly quoteAdaPrice: Price;
+  readonly priceMinStep: Price;
 }
 
 /**
@@ -49,12 +45,6 @@ export class Pair {
   public change: percent;
 
   /**
-   * 24h change in quote asset
-   * @type {percent}
-   */
-  public changeInQuote: Currency;
-
-  /**
    * Current spot price
    * @type {Price}
    */
@@ -79,6 +69,11 @@ export class Pair {
   public quoteAdaPrice: Price;
 
   /**
+   * Price min step in order book
+   */
+  public priceMinStep: Price;
+
+  /**
    * Returns true if pair includes specified asses
    * @param {AssetInfo} asset1
    * @param {AssetInfo} asset2
@@ -100,24 +95,11 @@ export class Pair {
     spotPrice,
     quoteAdaPrice,
     baseAdaPrice,
+    priceMinStep,
   }: PairParams) {
     const rawPreviousSpotPrice: string = change
       ? math.evaluate(`${spotPrice.raw} * 100 / (100 + ${change})`).toFixed()
       : spotPrice.toString();
-
-    const changeInQuoteAmount = toBigNumRepresentation(
-      normalizeAmount(
-        Math.abs(
-          Number(
-            math
-              .evaluate(`${spotPrice.raw} - ${rawPreviousSpotPrice}`)
-              .toFixed(),
-          ),
-        ).toString(),
-        quote.decimals,
-      ),
-      quote.decimals,
-    );
 
     this.base = base;
     this.quote = quote;
@@ -126,10 +108,10 @@ export class Pair {
     this.prevSpotPrice = Price.new({
       base,
       quote,
-      raw: Number(rawPreviousSpotPrice),
+      raw: rawPreviousSpotPrice,
     });
-    this.changeInQuote = Currency.new(changeInQuoteAmount, quote);
     this.quoteAdaPrice = quoteAdaPrice;
     this.baseAdaPrice = baseAdaPrice;
+    this.priceMinStep = priceMinStep;
   }
 }

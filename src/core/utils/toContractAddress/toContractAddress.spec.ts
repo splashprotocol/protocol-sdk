@@ -1,6 +1,5 @@
 import { NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
 
-import { scripts } from '../scripts/scripts.ts';
 import { toContractAddress } from './toContractAddress.ts';
 
 test('it should returns valid address from script', () => {

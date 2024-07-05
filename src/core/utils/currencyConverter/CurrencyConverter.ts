@@ -30,7 +30,7 @@ export class CurrencyConverter {
   private adaAdaPrice = Price.new({
     base: ada,
     quote: ada,
-    raw: 1,
+    raw: '1',
   });
 
   /**
@@ -61,7 +61,7 @@ export class CurrencyConverter {
       return Price.new({
         base: asset,
         quote: outputAsset,
-        raw: 0,
+        raw: '0',
       });
     }
     if (to === 'ada') {

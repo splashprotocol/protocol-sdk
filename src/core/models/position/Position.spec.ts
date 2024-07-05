@@ -14,6 +14,7 @@ const cfmmPool = CfmmPool.new(
     totalY: Currency.spf(20000000n),
     treasuryY: 15n,
     treasuryX: 10n,
+    outputId: { txHash: '', index: 0n },
     tvlADA: 334925.440093,
     tvlUSD: 334925.44,
     volumeUSD: 2274.49,

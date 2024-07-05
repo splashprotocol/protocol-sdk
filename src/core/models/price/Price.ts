@@ -1,17 +1,33 @@
-import { percent } from '../../types/types.ts';
-import {
-  math,
-  normalizeAmount,
-  toBigNumRepresentation,
-} from '../../utils/math/math.ts';
+import { percent, RationalNumber } from '../../types/types.ts';
+import { math, numberToRational } from '../../utils/math/math.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { Currency } from '../currency/Currency.ts';
 import { AssetInfoMismatchError } from '../currency/errors/AssetInfoMismatchError.ts';
 
+export const toRawPrice = (
+  input: string,
+  base: AssetInfo,
+  quote: AssetInfo,
+): string => {
+  return math
+    .evaluate(`${input} * 10^${quote.decimals - base.decimals}`)
+    .toFixed();
+};
+
+export const fromRawPrice = (
+  input: string,
+  base: AssetInfo,
+  quote: AssetInfo,
+): string => {
+  return math
+    .evaluate(`${input} / 10^${quote.decimals - base.decimals}`)
+    .toFixed();
+};
+
 export interface PriceParams {
   readonly base: AssetInfo;
   readonly quote: AssetInfo;
-  readonly raw: number;
+  readonly raw: string;
 }
 
 /**
@@ -43,12 +59,12 @@ export class Price {
    * Raw price number
    * @type {number}
    */
-  public readonly raw: number;
+  public readonly raw: string;
 
   private constructor({ base, quote, raw }: PriceParams) {
     this.base = base;
     this.quote = quote;
-    this.raw = raw;
+    this.raw = raw || '0';
   }
 
   /**
@@ -61,7 +77,7 @@ export class Price {
     return Price.new({
       base: this.quote,
       quote: this.base,
-      raw: Number(invertedRawPrice),
+      raw: invertedRawPrice,
     });
   }
 
@@ -74,15 +90,13 @@ export class Price {
   getNecessaryQuoteFor(baseCurrency: Currency | bigint): Currency {
     this.assertCurrency(this.base, baseCurrency, '"getNecessaryQuoteFor"');
 
-    const amountOfQuoteCurrency = toBigNumRepresentation(
-      normalizeAmount(
-        math.evaluate(`${this.raw} * ${baseCurrency.toString()}`).toFixed(),
-        this.quote.decimals,
-      ),
-      this.quote.decimals,
-    );
+    const amount =
+      baseCurrency instanceof Currency ? baseCurrency.amount : baseCurrency;
 
-    return Currency.new(amountOfQuoteCurrency, this.quote);
+    return Currency.new(
+      BigInt(math.evaluate(`${this.raw} * ${amount}`).toFixed(0)),
+      this.quote,
+    );
   }
 
   /**
@@ -94,19 +108,17 @@ export class Price {
   getReceivedBaseFor(quoteCurrency: Currency | bigint): Currency {
     this.assertCurrency(this.quote, quoteCurrency, '"getReceivedBaseFor"');
 
-    if (!this.raw) {
+    if (!Number(this.raw)) {
       return Currency.new(0n, this.base);
     }
 
-    const amountOfBaseCurrency = toBigNumRepresentation(
-      normalizeAmount(
-        math.evaluate(`${quoteCurrency.toString()} / ${this.raw}`).toFixed(),
-        this.base.decimals,
-      ),
-      this.base.decimals,
-    );
+    const amount =
+      quoteCurrency instanceof Currency ? quoteCurrency.amount : quoteCurrency;
 
-    return Currency.new(amountOfBaseCurrency, this.base);
+    return Currency.new(
+      BigInt(math.evaluate(`${amount} / ${this.raw}`).toFixed(0)),
+      this.base,
+    );
   }
 
   /**
@@ -142,14 +154,14 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
       return this;
     }
 
-    const newPriceAmount = math.evaluate(
-      `${this.raw} * ${normalizedPriceToCross.raw}`,
-    );
+    const newPriceAmount = math
+      .evaluate(`${this.raw} * ${normalizedPriceToCross.raw}`)
+      .toFixed();
 
     const newPrice = Price.new({
       base: this.base,
       quote: priceToCross.quote,
-      raw: Number(newPriceAmount),
+      raw: newPriceAmount,
     });
 
     return newPrice.base.isAda() ? newPrice.invert() : newPrice;
@@ -180,8 +192,16 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
     return Price.new({
       base: this.base,
       quote: this.quote,
-      raw: Number(newPriceRaw),
+      raw: newPriceRaw,
     });
+  }
+
+  /**
+   * Returns price number representation
+   * @return {number}
+   */
+  toNumber(): number {
+    return Number(this.toString());
   }
 
   /**
@@ -189,21 +209,17 @@ Current price: ${this.base.ticker} / ${this.quote.ticker}. Received ${priceToCro
    * @return {string}
    */
   toString(): string {
-    const fractions = this.raw.toString().split('.')[1];
-    if (!fractions) {
-      return this.raw.toString();
-    }
+    return math
+      .evaluate(`${this.raw} / 10^${this.quote.decimals - this.base.decimals}`)
+      .toFixed();
+  }
 
-    const firstPositiveFraction =
-      fractions.split('').findIndex((fraction) => fraction !== '0') + 1;
-    if (!firstPositiveFraction) {
-      return this.raw.toString();
-    }
-
-    return normalizeAmount(
-      this.raw.toString(),
-      Math.max(this.quote.decimals, firstPositiveFraction),
-    );
+  /**
+   * Returns price RationalNumber representation
+   * @return {RationalNumber}
+   */
+  toRational(): RationalNumber {
+    return numberToRational(this.raw);
   }
 
   private assertCurrency(
