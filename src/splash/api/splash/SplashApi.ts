@@ -70,7 +70,7 @@ import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 type ExtendedNetwork = Network | 'premainnet' | 'premainnet2';
 
 const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
-  mainnet: 'https://api2.splash.trade/platform-api/v1/',
+  mainnet: 'https://api3.splash.trade/platform-api/v1/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
   premainnet: 'https://api3.splash.trade/platform-api/v1/',
