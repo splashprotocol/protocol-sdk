@@ -7,6 +7,10 @@ import {
   EMISSION_LP,
 } from '../../../../core/models/pool/common/emissionLp.ts';
 import {
+  MIN_POOL_ADA_VALUE_N2T,
+  MIN_POOL_ADA_VALUE_T2T,
+} from '../../../../core/models/pool/common/minPoolAdaValue.ts';
+import {
   CborHexString,
   HexString,
   percent,
@@ -127,19 +131,15 @@ export interface CreateWeightedPoolConfig {
   readonly editableFee?: boolean;
 }
 
-export const MIN_POOL_ADA_VALUE = Currency.ada(200_000_000n);
-
 export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
   ({ x, y, treasuryFee = 0.03, poolFee = 0.3, editableFee = true }) =>
   async (context) => {
     const newX = x.isAda() ? x : y;
     const newY = x.isAda() ? y : x;
-    if (!newX.isAda()) {
-      throw new Error('Only nt2 pool supported now');
-    }
-    if (newX.lt(MIN_POOL_ADA_VALUE)) {
+
+    if (newX.isAda() && newX.lt(MIN_POOL_ADA_VALUE_N2T)) {
       throw new Error(
-        `Min value ada for pool is ${MIN_POOL_ADA_VALUE.toString()} ADA`,
+        `Min value ada for pool is ${MIN_POOL_ADA_VALUE_N2T.toString()} ADA`,
       );
     }
 
@@ -201,6 +201,8 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
       0n,
       '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
     ]);
+    const depositAda = newX.isAda() ? Currency.ada(0n) : MIN_POOL_ADA_VALUE_T2T;
+
     context.transactionCandidate.addMint({
       currency: Currency.new(1n, nftAssetInfo),
       plutusV2ScriptCbor: nftMintInfo.script,
@@ -229,6 +231,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
         y,
         Currency.new(poolLpAmount, lqAssetInfo),
         Currency.new(1n, nftAssetInfo),
+        depositAda,
       ]),
       data,
       {
