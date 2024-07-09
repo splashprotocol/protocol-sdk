@@ -4,10 +4,10 @@ export interface RawTrendPool {
   readonly poolId: PoolId;
   readonly x: AssetId;
   readonly y: AssetId;
-  readonly tvlAda: number;
-  readonly tvlUsd: number;
-  readonly volumeAda: number;
-  readonly volumeUsd: number;
+  readonly tvlAda: string;
+  readonly tvlUsd: string;
+  readonly volumeAda: string;
+  readonly volumeUsd: string;
   readonly apr: number;
   readonly aprTrend: number;
 }
