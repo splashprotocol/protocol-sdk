@@ -1,8 +1,8 @@
 export interface RawProtocolStats {
-  readonly tvlAda: number;
-  readonly volumeAda: number;
-  readonly tvlUsd: number;
-  readonly volumeUsd: number;
-  readonly lpFeesAda: number;
-  readonly lpFeeUsd: number;
+  readonly tvlAda: string;
+  readonly volumeAda: string;
+  readonly tvlUsd: string;
+  readonly volumeUsd: string;
+  readonly lpFeesAda: string;
+  readonly lpFeeUsd: string;
 }
