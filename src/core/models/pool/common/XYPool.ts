@@ -355,7 +355,7 @@ export class XYPool<Type extends PoolType>
   }
 
   private toCurrencyOrUndefined(
-    value: number | bigint | Currency | undefined,
+    value: number | bigint | Currency | string | undefined,
     assetInfo: AssetInfo,
   ): Currency | undefined {
     if (!value) {
@@ -364,19 +364,7 @@ export class XYPool<Type extends PoolType>
     if (value instanceof Currency) {
       return value;
     }
-    const amount =
-      typeof value === 'bigint'
-        ? value
-        : BigInt(
-            math
-              .evaluate(
-                `${value.toFixed(assetInfo.decimals)} * ${math.pow(
-                  10,
-                  assetInfo.decimals,
-                )}`,
-              )
-              .toFixed(),
-          );
+    const amount = typeof value === 'bigint' ? value : BigInt(value);
     return Currency.new(amount, assetInfo);
   }
 

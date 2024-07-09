@@ -68,6 +68,7 @@ export * from './core/models/output/Output.ts';
 export * from './core/models/pool/cfmm/CfmmPool.ts';
 export * from './core/models/pool/cfmm/common/CfmmPoolType.ts';
 export * from './core/models/pool/common/emissionLp.ts';
+export * from './core/models/pool/common/minPoolAdaValue.ts';
 export * from './core/models/pool/common/XYPool.ts';
 export * from './core/models/pool/stable/StablePool.ts';
 export * from './core/models/pool/weighted/WeightedPool.ts';
