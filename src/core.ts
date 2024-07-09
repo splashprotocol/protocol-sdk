@@ -4,11 +4,11 @@ export * from './core/api/types/common/AssetMetadata.ts';
 export * from './core/api/types/common/ChartInterval.ts';
 export * from './core/api/types/common/ChartParams.ts';
 export * from './core/api/types/common/CurrencyDescriptor.ts';
-export * from './core/api/types/common/PoolChartPoint.ts';
 export * from './core/api/types/common/RawBar.ts';
 export * from './core/api/types/common/RawLiquidityOrder.ts';
 export * from './core/api/types/common/RawOrderBook.ts';
 export * from './core/api/types/common/RawPair.ts';
+export * from './core/api/types/common/RawPoolChartPoint.ts';
 export * from './core/api/types/common/RawProtocolStats.ts';
 export * from './core/api/types/common/RawRecentTrade.ts';
 export * from './core/api/types/common/RawSplashPool.ts';
@@ -72,6 +72,9 @@ export * from './core/models/pool/common/minPoolAdaValue.ts';
 export * from './core/models/pool/common/XYPool.ts';
 export * from './core/models/pool/stable/StablePool.ts';
 export * from './core/models/pool/weighted/WeightedPool.ts';
+
+// CORE_MODELS_POOL_CHART_POINT
+export * from './core/models/poolChartPoint/PoolChartPoint.ts';
 
 // CORE_MODELS_PAIR
 export * from './core/models/pair/Pair.ts';

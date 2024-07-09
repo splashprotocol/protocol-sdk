@@ -6,7 +6,6 @@ import {
 
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
-import { PoolChartPoint } from '../../core/api/types/common/PoolChartPoint.ts';
 import { RawTradeOrder } from '../../core/api/types/common/RawTradeOrder.ts';
 import {
   GetChartHistoryParams,
@@ -35,6 +34,7 @@ import { Pair } from '../../core/models/pair/Pair.ts';
 import { CfmmPool } from '../../core/models/pool/cfmm/CfmmPool.ts';
 import { StablePool } from '../../core/models/pool/stable/StablePool.ts';
 import { WeightedPool } from '../../core/models/pool/weighted/WeightedPool.ts';
+import { PoolChartPoint } from '../../core/models/poolChartPoint/PoolChartPoint.ts';
 import { Price } from '../../core/models/price/Price.ts';
 import { RecentTrade } from '../../core/models/recentTrade/RecentTrade.ts';
 import { SignedTransaction } from '../../core/models/signedTransaction/SignedTransaction.ts';
@@ -220,7 +220,10 @@ export class ApiWrapper {
   }> {
     return this.api.getPoolTvlChart(params).then((data) => ({
       asset: AssetInfo.ada,
-      data,
+      data: data.map((item) => ({
+        value: Currency.ada(BigInt(item.value)),
+        timestamp: item.timestamp,
+      })),
     }));
   }
 
@@ -235,7 +238,10 @@ export class ApiWrapper {
   }> {
     return this.api.getPoolVolumeChart(params).then((data) => ({
       asset: AssetInfo.ada,
-      data,
+      data: data.map((item) => ({
+        value: Currency.ada(BigInt(item.value)),
+        timestamp: item.timestamp,
+      })),
     }));
   }
 
@@ -250,7 +256,10 @@ export class ApiWrapper {
   }> {
     return this.api.getPoolFeesChart(params).then((data) => ({
       asset: AssetInfo.ada,
-      data,
+      data: data.map((item) => ({
+        value: Currency.ada(BigInt(item.value)),
+        timestamp: item.timestamp,
+      })),
     }));
   }
 

@@ -1,6 +1,6 @@
 import { ChartParams } from '../common/ChartParams.ts';
-import { PoolChartPoint } from '../common/PoolChartPoint.ts';
+import { RawPoolChartPoint } from '../common/RawPoolChartPoint.ts';
 
 export type GetPoolFeesChartParams = ChartParams;
 
-export type GetPoolFeesChartResponse = PoolChartPoint[];
+export type GetPoolFeesChartResponse = RawPoolChartPoint[];
