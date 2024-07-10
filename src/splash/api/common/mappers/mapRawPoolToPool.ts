@@ -18,6 +18,7 @@ const mapVersionToCfmmType = (
 ): CfmmPoolType => {
   switch (version) {
     case 'v4':
+    case 'v5':
       return 'feeSwitch';
     case 'v3':
       return 'bidirectionalFees';
