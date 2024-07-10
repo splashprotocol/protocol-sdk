@@ -223,7 +223,7 @@ export const createCfmmPool: Operation<[CreateWeightedPoolConfig]> =
     });
     return payToContract(
       {
-        script: 'f002facfd69d51b63e7046c6d40349b0b17c8dd775ee415c66af3ccc',
+        script: '9dee0659686c3ab807895c929e3284c11222affd710b09be690f924d',
         version: 'plutusV2',
       },
       Currencies.new([

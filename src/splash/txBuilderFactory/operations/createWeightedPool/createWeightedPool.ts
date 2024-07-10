@@ -236,7 +236,7 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     });
     return payToContract(
       {
-        script: 'f60fd1e70f4b9dfc09cdde8d7f7f1277de2694c82a516d7d3cc9e03e',
+        script: 'c5283689ea30e0920c50adf77345b5809c05c962cc111e0f1d2dbedb',
         version: 'plutusV2',
       },
       Currencies.new([
