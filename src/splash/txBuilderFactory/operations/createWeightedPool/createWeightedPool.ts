@@ -149,8 +149,12 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const [firstTokenUtxo] = context.uTxOsSelector.select(
       Currencies.new([newY]),
     );
-    const base16NftName = stringToHex(`${newY.asset.name}_ADA_NFT`);
-    const base16LqName = stringToHex(`${newY.asset.name}_ADA_LQ`);
+    const base16NftName = stringToHex(
+      `${newY.asset.name}_${newX.asset.name || 'ADA'}_NFT`,
+    );
+    const base16LqName = stringToHex(
+      `${newY.asset.name}_${newX.asset.name || 'ADA'}_LQ`,
+    );
 
     const nftMintInfo = await getPolicyAndScript({
       txHash: firstTokenUtxo.txHash,
