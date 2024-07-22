@@ -43,6 +43,17 @@ export interface MintDescriptor {
   };
 }
 
+export interface WithdrawDescriptor {
+  readonly plutusV2ScriptCbor: CborHexString;
+  readonly amount: bigint;
+  readonly rewardAddress: string;
+  readonly redeemer: PlutusData;
+  readonly exUnits: {
+    readonly mem: bigint;
+    readonly steps: bigint;
+  };
+}
+
 export type InputDescriptor = InternalInputDescriptor | ExternalInputDescriptor;
 
 /**
@@ -58,10 +69,22 @@ export class TransactionCandidate {
   }
 
   /**
+   * Transaction required signers (pkh)
+   * @type {string[]}
+   */
+  readonly requiredSigners: HexString[] = [];
+
+  /**
    * Current candidate mints
    * @type {MintDescriptor[]}
    */
   readonly mints: MintDescriptor[] = [];
+
+  /**
+   * Current candidate withdrawals
+   * @type {WithdrawDescriptor[]}
+   */
+  readonly withdrawals: WithdrawDescriptor[] = [];
 
   /**
    * Current candidate uTxOs
@@ -79,7 +102,7 @@ export class TransactionCandidate {
    * Returns max possible tx fee. TODO: REWRITE
    */
   get maxTxFee(): Currency {
-    return this.mints.length
+    return this.mints.length || this.withdrawals.length
       ? MAX_TRANSACTION_FEE.multiply(3n)
       : MAX_TRANSACTION_FEE;
   }
@@ -110,6 +133,20 @@ export class TransactionCandidate {
 
   addMint(mintDescriptor: MintDescriptor): TransactionCandidate {
     this.mints.push(mintDescriptor);
+
+    return this;
+  }
+
+  addWithdrawal(
+    withdrawalDescriptor: WithdrawDescriptor,
+  ): TransactionCandidate {
+    this.withdrawals.push(withdrawalDescriptor);
+
+    return this;
+  }
+
+  addRequiredSigners(signers: HexString[]): TransactionCandidate {
+    this.requiredSigners.push(...signers);
 
     return this;
   }

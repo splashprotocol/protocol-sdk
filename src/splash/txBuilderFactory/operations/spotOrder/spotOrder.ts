@@ -123,19 +123,19 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
   async (context) => {
     const orderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrder.settings.orderStepCost,
+        context.operationsConfig.operations.spotOrderV2.settings.orderStepCost,
       ),
     );
     const worstOrderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrder.settings
+        context.operationsConfig.operations.spotOrderV2.settings
           .worstOrderStepCost,
       ),
     );
     const orderMaxStepCount = BigInt(
       price
-        ? context.operationsConfig.operations.spotOrder.settings.maxStepCount
-        : context.operationsConfig.operations.spotOrder.settings
+        ? context.operationsConfig.operations.spotOrderV2.settings.maxStepCount
+        : context.operationsConfig.operations.spotOrderV2.settings
             .maxStepCountMarket,
     );
 
@@ -147,7 +147,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         slippage:
           slippage !== undefined
             ? slippage
-            : context.operationsConfig.operations.spotOrder.settings
+            : context.operationsConfig.operations.spotOrderV2.settings
                 .marketOrderPriceSlippage,
       },
       context.splash,
@@ -195,7 +195,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         context.network === 'mainnet'
           ? NetworkId.mainnet()
           : NetworkId.testnet(),
-        context.operationsConfig.operations.spotOrder.script,
+        context.operationsConfig.operations.spotOrderV2.script,
         address.staking_cred()?.as_pub_key()?.to_hex(),
       ),
     });
@@ -212,7 +212,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: context.operationsConfig.operations.spotOrder.script,
+        script: context.operationsConfig.operations.spotOrderV2.script,
         version: 'plutusV2',
       },
       outputValue.plus([depositAdaForOrder, additionalDepositAda]),

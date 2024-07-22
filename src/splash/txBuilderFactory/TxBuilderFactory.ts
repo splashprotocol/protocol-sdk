@@ -13,11 +13,13 @@ import {
   RedeemerTag,
   RedeemerWitnessKey,
   RequiredSigners,
+  RewardAddress,
   Script,
   SignedTxBuilder,
   SingleInputBuilder,
   SingleMintBuilder,
   SingleOutputBuilderResult,
+  SingleWithdrawalBuilder,
   TransactionBuilder,
   TransactionBuilderConfig,
   TransactionOutput,
@@ -222,6 +224,18 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
             };
           },
         },
+        spotOrderV2: {
+          ...rawOperationsConfig.operations.spotOrderV2,
+          credsDeserializer: (networkId, data) => {
+            const deserializedData =
+              createSpotOrderData(networkId).deserialize(data);
+
+            return {
+              address: deserializedData[9],
+              requiredSigner: deserializedData[10],
+            };
+          },
+        },
         redeemFeeSwitch: {
           ...rawOperationsConfig.operations.redeemFeeSwitch,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
@@ -376,6 +390,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       (total, scriptInput) => total.plus(scriptInput.uTxO.value),
       Currencies.empty,
     );
+    const withdrawals = transactionCandidate.withdrawals;
     const mints = transactionCandidate.mints;
     const mintsInputValue = mints.reduce(
       (total, mint) => total.plus([mint.currency]),
@@ -567,10 +582,36 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ).plutus_script(partialPlutusWitness, requiredSigners),
       );
     });
+    withdrawals.forEach((withdrawal) => {
+      const requiredSigners = RequiredSigners.new();
+      const partialPlutusWitness = PartialPlutusWitness.new(
+        PlutusScriptWitness.new_script(
+          PlutusScript.from_v2(
+            PlutusV2Script.from_cbor_hex(withdrawal.plutusV2ScriptCbor),
+          ),
+        ),
+        withdrawal.redeemer,
+      );
+      transactionBuilder.add_withdrawal(
+        SingleWithdrawalBuilder.new(
+          RewardAddress.from_address(
+            Address.from_bech32(withdrawal.rewardAddress),
+          )!,
+          withdrawal.amount,
+        ).plutus_script(partialPlutusWitness, requiredSigners),
+      );
+    });
 
     transactionCandidate.outputs.forEach((output) =>
       transactionBuilder.add_output(SingleOutputBuilderResult.new(output.wasm)),
     );
+
+    transactionCandidate.requiredSigners.forEach((requiredSigners) =>
+      transactionBuilder.add_required_signer(
+        Ed25519KeyHash.from_hex(requiredSigners),
+      ),
+    );
+
     const wasmChangeAddress = Address.from_bech32(userAddress);
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
 
@@ -616,7 +657,29 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
     const txForEvaluationInputs = txForEvaluations.draft_body().inputs();
     const txForEvaluationMints = txForEvaluations.draft_body().mint()!;
+    const txForEvaluationWithdrawals = txForEvaluations
+      .draft_body()
+      .withdrawals()!;
 
+    withdrawals.forEach((withdrawal) => {
+      let withdrawalIndex = 0n;
+      for (let i = 0; i < txForEvaluationWithdrawals.keys().len(); i++) {
+        const rewardAddress = txForEvaluationWithdrawals
+          .keys()
+          .get(i)
+          .to_address()
+          .to_bech32();
+
+        if (rewardAddress === withdrawal.rewardAddress) {
+          withdrawalIndex = BigInt(i);
+          break;
+        }
+      }
+      transactionBuilder.set_exunits(
+        RedeemerWitnessKey.new(RedeemerTag.Reward, withdrawalIndex),
+        ExUnits.new(withdrawal.exUnits.mem, withdrawal.exUnits.steps),
+      );
+    });
     mints.forEach((mint) => {
       let mintIndex = 0n;
       for (let i = 0; i < txForEvaluationMints.keys().len(); i++) {
@@ -716,6 +779,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       txWitnessSetBuilder.add_script(
         Script.new_plutus_v2(
           PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
+        ),
+      );
+    });
+    withdrawals.forEach((withdrawal) => {
+      txWitnessSetBuilder.add_script(
+        Script.new_plutus_v2(
+          PlutusV2Script.from_cbor_hex(withdrawal.plutusV2ScriptCbor),
         ),
       );
     });

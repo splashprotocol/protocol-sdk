@@ -43,6 +43,7 @@ export interface SplashSpotOrder extends SplashOperation {
 export interface SplashOperationsConfig {
   readonly operations: {
     readonly spotOrder: SplashSpotOrder;
+    readonly spotOrderV2: SplashSpotOrder;
     readonly depositDefault: SplashOperation;
     readonly depositFeeSwitch: SplashOperation;
     readonly swapDefault: SplashOperation;
@@ -70,6 +71,7 @@ export interface WithCredsDeserializer {
 export interface SplashOperationsConfigWithCredsDeserializers {
   readonly operations: {
     readonly spotOrder: SplashSpotOrder & WithCredsDeserializer;
+    readonly spotOrderV2: SplashSpotOrder & WithCredsDeserializer;
     readonly swapDefault: SplashOperation & WithCredsDeserializer;
     readonly depositDefault: SplashOperation & WithCredsDeserializer;
     readonly depositFeeSwitch: SplashOperation & WithCredsDeserializer;

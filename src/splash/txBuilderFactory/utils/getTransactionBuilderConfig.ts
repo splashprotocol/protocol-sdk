@@ -27,7 +27,7 @@ export const getTransactionBuilderConfig = (
     .collateral_percentage(pParams.collateralPercentage)
     .coins_per_utxo_byte(pParams.coinsPerUtxoByte)
     .max_value_size(pParams.maxValueSize)
-    .max_tx_size(pParams.maxTxSize)
+    .max_tx_size(Math.floor(pParams.maxTxSize * 2))
     .fee_algo(LinearFee.new(pParams.txFeePerByte, pParams.txFeeFixed))
     .key_deposit(pParams.keyDeposit)
     .pool_deposit(pParams.poolDeposit)

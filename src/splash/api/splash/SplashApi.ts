@@ -1,5 +1,4 @@
 import { Api } from '../../../core/api/Api.ts';
-import { AssetMetadata } from '../../../core/api/types/common/AssetMetadata.ts';
 import { RawTradeOrder } from '../../../core/api/types/common/RawTradeOrder.ts';
 import { GetAdaUsdRateResult } from '../../../core/api/types/getAdaUsdRate/getAdaUsdRate.ts';
 import { GetAssetMetadataResponse } from '../../../core/api/types/getAssetMetadata/getAssetMetadata.ts';
@@ -59,11 +58,10 @@ import {
   GetUTxOByRefParams,
   GetUTxOByRefResult,
 } from '../../../core/api/types/getUTxOByRef/getUTxOByRef.ts';
-import { ada } from '../../../core/models/assetInfo/ada.ts';
 import { Network } from '../../../core/types/Network.ts';
 import { NetworkContext } from '../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
-import { AssetId, Dictionary, uint } from '../../../core/types/types.ts';
+import { AssetId, uint } from '../../../core/types/types.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 
@@ -164,40 +162,9 @@ export class SplashApi implements Api {
    * @returns {Promise<GetAssetsMetadataResponse>}
    */
   async getAssetsMetadata(): Promise<GetAssetsMetadataResponse> {
-    return fetch('https://spectrum.fi/cardano-token-list.json')
+    return fetch('https://spectrum.fi/cardano-token-list-v2.json')
       .then((res) => res.json())
-      .then((data) => data.tokens)
-      .then((assets: AssetMetadata[]) =>
-        assets.reduce<Dictionary<AssetMetadata>>(
-          (acc, asset) => ({
-            ...acc,
-            [asset.subject
-              ? [
-                  asset.subject.slice(0, 56),
-                  asset.subject.slice(56, asset.subject.length),
-                ].join('.')
-              : '.']: {
-              ...asset,
-              logo:
-                asset.logo && !asset.logo?.startsWith('http')
-                  ? `https://spectrum.fi${asset.logo}`
-                  : asset.logo,
-            },
-          }),
-          {
-            [ada.splashId]: {
-              subject: ada.subject,
-              decimals: ada.decimals,
-              description: ada.description,
-              ticker: ada.ticker,
-              name: ada.name,
-              policyId: ada.policyId,
-              verified: true,
-              logo: '',
-            },
-          },
-        ),
-      );
+      .then((data) => data.tokens);
   }
 
   /**
