@@ -346,7 +346,7 @@ export class SplashApi implements Api {
     const url =
       this.network === 'preprod'
         ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
-        : 'https://api2.splash.trade/mempool/v2/mempool/orders';
+        : 'https://api3.splash.trade/mempool/v2/mempool/orders';
 
     return fetch(url, {
       method: 'POST',
