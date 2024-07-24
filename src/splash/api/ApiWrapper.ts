@@ -41,7 +41,10 @@ import { SignedTransaction } from '../../core/models/signedTransaction/SignedTra
 import { TradeOrder } from '../../core/models/tradeOrder/TradeOrder.ts';
 import { Transaction } from '../../core/models/transaction/Transaction.ts';
 import { UTxO } from '../../core/models/utxo/UTxO.ts';
-import { CardanoCIP30WalletContext } from '../../core/types/CardanoCIP30WalletBridge.ts';
+import {
+  CardanoCIP30WalletBridge,
+  CardanoCIP30WalletContext,
+} from '../../core/types/CardanoCIP30WalletBridge.ts';
 import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import { Dictionary, TransactionHash, uint } from '../../core/types/types.ts';
@@ -78,6 +81,8 @@ export interface MetadataConfig {
 const DEFAULT_UPDATE_TIME = 300_000;
 
 export class ApiWrapper {
+  private currentWallet: CardanoCIP30WalletBridge | undefined;
+
   private contextPromise: Promise<CardanoCIP30WalletContext> | undefined;
 
   private assetsMetadataCache: Promise<Dictionary<AssetMetadata>> | undefined;
@@ -710,11 +715,16 @@ export class ApiWrapper {
 
   private getWalletContext(): Promise<CardanoCIP30WalletContext> {
     if (!this.splash.wallet) {
-      this.handleEmptyWallet();
+      this.clearCache();
       return Promise.reject(new NoWalletError('please, provide wallet to sdk'));
+    }
+    if (this.splash.wallet !== this.currentWallet) {
+      console.log('new wallet');
+      this.clearCache();
     }
     if (!this.contextPromise) {
       let timerId: any = undefined;
+      this.currentWallet = this.splash.wallet;
       this.contextPromise = Promise.race([
         this.splash.wallet
           .enable()
@@ -752,7 +762,7 @@ export class ApiWrapper {
           return ctx;
         })
         .catch((err) => {
-          this.handleEmptyWallet();
+          this.clearCache();
           throw err;
         });
     }
@@ -761,7 +771,7 @@ export class ApiWrapper {
 
   private async handleCIP30WalletError<T>(promise: Promise<T>): Promise<T> {
     return promise.catch((err) => {
-      this.handleEmptyWallet();
+      this.clearCache();
       if (
         err instanceof WalletEnablingError ||
         err instanceof InvalidWalletNetworkError ||
@@ -787,8 +797,9 @@ export class ApiWrapper {
     });
   }
 
-  private handleEmptyWallet() {
+  private clearCache() {
     if (this.contextPromise) {
+      this.currentWallet = undefined;
       this.contextPromise = undefined;
     }
   }
