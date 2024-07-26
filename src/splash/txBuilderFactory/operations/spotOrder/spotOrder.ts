@@ -12,6 +12,7 @@ import { Splash } from '../../../splash.ts';
 import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
 import stringToArrayBuffer = encoder.stringToArrayBuffer;
+import { HexString } from '../../../../core/types/types.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
@@ -114,28 +115,31 @@ export interface SpotOrderConfig {
   readonly price?: Price;
   readonly maxStepCount?: bigint;
   readonly slippage?: number;
+  readonly batcherPkh?: HexString;
 }
 
 const MINIMUM_COLLATERAL_ADA = Currency.ada(1_500_000n);
 
 export const spotOrder: Operation<[SpotOrderConfig]> =
-  ({ price, input, outputAsset, slippage }) =>
+  ({ price, input, outputAsset, slippage, batcherPkh }) =>
   async (context) => {
     const orderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV2.settings.orderStepCost,
+        context.operationsConfig.operations.spotOrderV2.settingsV2
+          .orderStepCost,
       ),
     );
     const worstOrderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV2.settings
+        context.operationsConfig.operations.spotOrderV2.settingsV2
           .worstOrderStepCost,
       ),
     );
     const orderMaxStepCount = BigInt(
       price
-        ? context.operationsConfig.operations.spotOrderV2.settings.maxStepCount
-        : context.operationsConfig.operations.spotOrderV2.settings
+        ? context.operationsConfig.operations.spotOrderV2.settingsV2
+            .maxStepCount
+        : context.operationsConfig.operations.spotOrderV2.settingsV2
             .maxStepCountMarket,
     );
 
@@ -147,7 +151,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         slippage:
           slippage !== undefined
             ? slippage
-            : context.operationsConfig.operations.spotOrderV2.settings
+            : context.operationsConfig.operations.spotOrderV2.settingsV2
                 .marketOrderPriceSlippage,
       },
       context.splash,
@@ -175,7 +179,10 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       0n,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
-      ['2f9ff04d8914bf64d671a03d34ab7937eb417831ea6b9f7fbcab96f5'],
+      [
+        batcherPkh ||
+          '2f9ff04d8914bf64d671a03d34ab7937eb417831ea6b9f7fbcab96f5',
+      ],
     ]);
     const depositAdaForReceive = predictDepositAda(context.pParams, {
       value: Currencies.new([basePrice.getNecessaryQuoteFor(input)]),
