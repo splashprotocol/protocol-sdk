@@ -37,6 +37,7 @@ export interface SplashTVDataFeedParams {
   readonly pairs: Pair[];
   readonly splash: Splash<{}>;
   readonly lastBarTickInterval?: uint;
+  readonly avoidCollision?: boolean;
 }
 
 export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
@@ -48,6 +49,8 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   private lastBarTickInterval: uint;
 
+  private avoidCollision: boolean;
+
   static new(params: SplashTVDataFeedParams): SplashTVDataFeed {
     return new SplashTVDataFeed(params);
   }
@@ -56,10 +59,12 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     pairs,
     splash,
     lastBarTickInterval,
+    avoidCollision = false,
   }: SplashTVDataFeedParams) {
     this.pairs = pairs;
     this.splash = splash;
     this.lastBarTickInterval = lastBarTickInterval || 5_000;
+    this.avoidCollision = avoidCollision;
   }
 
   updatePairs(pairs: Pair[]) {
@@ -89,8 +94,10 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     onResolve: (esi: ExtendedLibrarySymbolInfo) => void,
     onError: ErrorCallback,
   ) {
-    const pair = this.pairs.find(
-      ({ base, quote }) => `${base.ticker}/${quote.ticker}` === symbolName,
+    const pair = this.pairs.find(({ base, quote }) =>
+      this.avoidCollision
+        ? `${base.splashId}/${quote.splashId}` === symbolName
+        : `${base.ticker}/${quote.ticker}` === symbolName,
     );
     if (!pair) {
       onError('cannot resolve symbol');

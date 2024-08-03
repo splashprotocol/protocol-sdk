@@ -75,14 +75,18 @@ const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
   premainnet2: 'https://api-test-mainnet.splash.trade/v1/',
 };
 
+export interface SplashApiConfig {
+  readonly metadataUrl?: string;
+}
+
 export class SplashApi implements Api {
   /**
    * Create splash api instance using network name
    * @param {ProtocolParams["network"]} network
    * @returns {SplashApi}
    */
-  static new(network: ExtendedNetwork): SplashApi {
-    return new SplashApi(network);
+  static new(network: ExtendedNetwork, config?: SplashApiConfig): SplashApi {
+    return new SplashApi(network, config);
   }
 
   public readonly network: Network;
@@ -90,7 +94,10 @@ export class SplashApi implements Api {
   private get url() {
     return mapNetworkToUrl[this._network];
   }
-  private constructor(private _network: ExtendedNetwork) {
+  private constructor(
+    private _network: ExtendedNetwork,
+    private config?: SplashApiConfig,
+  ) {
     this.network =
       this._network === 'premainnet' || this._network === 'premainnet2'
         ? 'mainnet'
@@ -162,7 +169,10 @@ export class SplashApi implements Api {
    * @returns {Promise<GetAssetsMetadataResponse>}
    */
   async getAssetsMetadata(): Promise<GetAssetsMetadataResponse> {
-    return fetch('https://spectrum.fi/cardano-token-list-v2.json')
+    return fetch(
+      this.config?.metadataUrl ||
+        'https://spectrum.fi/cardano-token-list-v2.json',
+    )
       .then((res) => res.json())
       .then((data) => data.tokens);
   }

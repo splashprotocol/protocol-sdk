@@ -74,7 +74,7 @@ const getBasePrice = async (
   return basePrice.base.isEquals(input.asset) ? basePrice : basePrice.invert();
 };
 
-const getBeacon = async (uTxO: UTxO): Promise<string> =>
+export const getBeacon = async (uTxO: UTxO): Promise<string> =>
   blake2b(
     Uint8Array.from([
       ...stringToArrayBuffer(uTxO.ref.txHash),

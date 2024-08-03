@@ -238,6 +238,7 @@ export class Utils {
   selectEstimatedPriceV2(
     params: SelectEstimatedPriceV2Params,
   ): SelectEstimatedPriceV2Result {
+    const isOutput = isEstimatedPriceV2OutputType(params);
     const assetToFind = isEstimatedPriceV2OutputType(params)
       ? params.output
       : params.input;
@@ -260,18 +261,23 @@ export class Utils {
     if (isAsk) {
       for (let i = 0; i < params.orderBook.bids.length; i++) {
         const bid = params.orderBook.bids[i];
+        console.log(bid);
         const accumulatedAmount = bid.accumulatedAmount.asset.isEquals(
           assetToFind.asset,
         )
           ? bid.accumulatedAmount
           : bid.accumulatedAmountInQuote;
 
-        if (accumulatedAmount.gt(assetToFind)) {
+        if (accumulatedAmount.gte(assetToFind)) {
           const priceToNormalize =
             params.priceType === 'average'
               ? bid.accumulatedAveragePrice
               : bid.price;
-          estimatedPrice = priceToNormalize;
+          estimatedPrice =
+            (isOutput && priceToNormalize.base.isEquals(assetToFind.asset)) ||
+            (!isOutput && priceToNormalize.quote.isEquals(assetToFind.asset))
+              ? priceToNormalize
+              : priceToNormalize.invert();
           break;
         }
       }
@@ -284,12 +290,16 @@ export class Utils {
           ? ask.accumulatedAmount
           : ask.accumulatedAmountInQuote;
 
-        if (accumulatedAmount.gt(assetToFind)) {
+        if (accumulatedAmount.gte(assetToFind)) {
           const priceToNormalize =
             params.priceType === 'average'
               ? ask.accumulatedAveragePrice
               : ask.price;
-          estimatedPrice = priceToNormalize;
+          estimatedPrice =
+            (isOutput && priceToNormalize.base.isEquals(assetToFind.asset)) ||
+            (!isOutput && priceToNormalize.quote.isEquals(assetToFind.asset))
+              ? priceToNormalize
+              : priceToNormalize.invert();
           break;
         }
       }
