@@ -236,6 +236,18 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
             };
           },
         },
+        spotOrderV3: {
+          ...rawOperationsConfig.operations.spotOrderV3,
+          credsDeserializer: (networkId, data) => {
+            const deserializedData =
+              createSpotOrderData(networkId).deserialize(data);
+
+            return {
+              address: deserializedData[9],
+              requiredSigner: deserializedData[10],
+            };
+          },
+        },
         redeemFeeSwitch: {
           ...rawOperationsConfig.operations.redeemFeeSwitch,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
