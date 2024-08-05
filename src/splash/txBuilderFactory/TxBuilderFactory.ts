@@ -329,6 +329,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
             transaction: txBuilder,
             partialSign,
             remoteCollateral,
+            additionalData: context.transactionCandidate.additionalData,
           },
           context.splash,
         );
@@ -347,6 +348,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
                 : txBuilder,
             partialSign,
             remoteCollateral,
+            additionalData: context.transactionCandidate.additionalData,
           },
           context.splash,
         );

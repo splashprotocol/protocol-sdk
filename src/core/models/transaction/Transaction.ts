@@ -1,13 +1,18 @@
 import { SignedTxBuilder } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { Splash } from '../../../splash/splash.ts';
-import { CborHexString, TransactionHash } from '../../types/types.ts';
+import {
+  CborHexString,
+  Dictionary,
+  TransactionHash,
+} from '../../types/types.ts';
 import { SignedTransaction } from '../signedTransaction/SignedTransaction.ts';
 
 export interface TransactionConfig {
   readonly transaction: SignedTxBuilder;
   readonly partialSign?: boolean;
   readonly remoteCollateral?: boolean;
+  readonly additionalData?: Dictionary<any>;
 }
 
 /**
@@ -23,6 +28,8 @@ export class Transaction {
   static new(config: TransactionConfig, splash: Splash<{}>) {
     return new Transaction(config, splash);
   }
+
+  readonly additionalData?: Dictionary<any>;
 
   /**
    * Request only partial sign flag
@@ -56,13 +63,19 @@ export class Transaction {
   }
 
   private constructor(
-    { transaction, partialSign, remoteCollateral }: TransactionConfig,
+    {
+      transaction,
+      partialSign,
+      remoteCollateral,
+      additionalData,
+    }: TransactionConfig,
     splash: Splash<{}>,
   ) {
     this.wasm = transaction;
     this.partialSign = partialSign;
     this.splash = splash;
     this.remoteCollateral = remoteCollateral;
+    this.additionalData = additionalData;
   }
 
   /**

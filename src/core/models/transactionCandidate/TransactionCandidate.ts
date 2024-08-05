@@ -1,5 +1,6 @@
 import { PlutusData } from '@dcspark/cardano-multiplatform-lib-browser';
 
+import { Dictionary } from '../../../../build';
 import {
   CborHexString,
   HexString,
@@ -67,6 +68,11 @@ export class TransactionCandidate {
   static new(): TransactionCandidate {
     return new TransactionCandidate();
   }
+
+  /**
+   * Transaction additional data.
+   */
+  readonly additionalData: Dictionary<any> = {};
 
   /**
    * Transaction required signers (pkh)
@@ -147,6 +153,12 @@ export class TransactionCandidate {
 
   addRequiredSigners(signers: HexString[]): TransactionCandidate {
     this.requiredSigners.push(...signers);
+
+    return this;
+  }
+
+  addAdditionalData(key: string, value: any): TransactionCandidate {
+    this.additionalData[key] = value;
 
     return this;
   }
