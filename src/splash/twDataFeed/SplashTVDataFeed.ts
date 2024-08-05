@@ -105,6 +105,9 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     }
 
     const pairTicker = `${pair.base.ticker}/${pair.quote.ticker}`;
+    const pairName = this.avoidCollision
+      ? `${pair.base.splashId}/${pair.quote.splashId}`
+      : pairTicker;
 
     let priceScalePow: number = pair.quote.decimals;
     const fractions = pair.priceMinStep?.toString().split('.')[1];
@@ -115,9 +118,9 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     }
 
     onResolve({
-      ticker: pairTicker,
-      name: pairTicker,
-      description: `${pairTicker} Pair`,
+      ticker: pairName,
+      name: pairName,
+      description: `${pairTicker}`,
       session: '24x7',
       minmov: 1,
       volume_precision: pair.quote.decimals,
