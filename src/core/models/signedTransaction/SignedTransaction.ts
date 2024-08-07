@@ -75,7 +75,16 @@ export class SignedTransaction {
     transaction: Transaction,
     witnessSetsWithSign: TransactionWitnessSet[],
   ): WasmTransaction {
-    const oldWitnessesBuilder = transaction.wasm.witness_set();
+    const unsignedWasmTransaction = WasmTransaction.from_cbor_hex(
+      transaction.cbor,
+    );
+    const signedTxBuilder = SignedTxBuilder.new_without_data(
+      unsignedWasmTransaction.body(),
+      transaction.wasm.witness_set(),
+      unsignedWasmTransaction.is_valid(),
+    );
+
+    const oldWitnessesBuilder = signedTxBuilder.witness_set();
     const newWitnessSetBuilder = TransactionWitnessSetBuilder.new();
 
     newWitnessSetBuilder.add_required_wits(
@@ -87,9 +96,9 @@ export class SignedTransaction {
     });
 
     return SignedTxBuilder.new_without_data(
-      transaction.wasm.body(),
+      signedTxBuilder.body(),
       newWitnessSetBuilder,
-      transaction.wasm.is_valid(),
+      signedTxBuilder.is_valid(),
     ).build_checked();
   }
 }
