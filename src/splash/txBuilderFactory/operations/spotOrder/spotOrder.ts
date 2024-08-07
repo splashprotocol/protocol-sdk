@@ -181,7 +181,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       address.payment_cred()!.as_pub_key()!.to_hex(),
       [
         batcherPkh ||
-          '2f9ff04d8914bf64d671a03d34ab7937eb417831ea6b9f7fbcab96f5',
+          '5cb2c968e5d1c7197a6ce7615967310a375545d9bc65063a964335b2',
       ],
     ]);
     const depositAdaForReceive = predictDepositAda(context.pParams, {
