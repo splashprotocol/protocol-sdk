@@ -38,6 +38,7 @@ export interface SplashTVDataFeedParams {
   readonly splash: Splash<{}>;
   readonly lastBarTickInterval?: uint;
   readonly avoidCollision?: boolean;
+  readonly exchange?: string;
 }
 
 export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
@@ -51,6 +52,8 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   private avoidCollision: boolean;
 
+  private exchange: string;
+
   static new(params: SplashTVDataFeedParams): SplashTVDataFeed {
     return new SplashTVDataFeed(params);
   }
@@ -59,12 +62,14 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     pairs,
     splash,
     lastBarTickInterval,
+    exchange = 'Splash',
     avoidCollision = false,
   }: SplashTVDataFeedParams) {
     this.pairs = pairs;
     this.splash = splash;
     this.lastBarTickInterval = lastBarTickInterval || 5_000;
     this.avoidCollision = avoidCollision;
+    this.exchange = exchange;
   }
 
   updatePairs(pairs: Pair[]) {
@@ -78,9 +83,9 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       supports_time: true,
       exchanges: [
         {
-          name: 'Splash',
-          desc: 'Splash',
-          value: 'Splash',
+          name: this.exchange,
+          desc: this.exchange,
+          value: this.exchange,
         },
       ],
       symbols_types: [],
@@ -127,7 +132,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       pricescale: 10 ** priceScalePow,
       has_intraday: true,
       has_weekly_and_monthly: true,
-      exchange: 'Splash',
+      exchange: this.exchange,
       // @ts-ignore
       supported_resolutions: ['1', '5', '60', '1D', '1W', '1M'],
       data_status: 'streaming',
