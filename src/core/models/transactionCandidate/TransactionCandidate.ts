@@ -38,6 +38,11 @@ export interface MintDescriptor {
   readonly plutusV2ScriptCbor: CborHexString;
   readonly currency: Currency;
   readonly redeemer: PlutusData;
+  readonly cip25?: {
+    readonly name: string;
+    readonly description: string;
+    readonly image: string;
+  };
   readonly exUnits: {
     readonly mem: bigint;
     readonly steps: bigint;

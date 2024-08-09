@@ -1,7 +1,14 @@
 import {
   Address,
+  AuxiliaryData,
   BaseAddress,
   ChangeSelectionAlgo,
+  CIP25ChunkableString,
+  CIP25LabelMetadata,
+  CIP25Metadata,
+  CIP25MetadataDetails,
+  CIP25String64,
+  CIP25Version,
   Credential,
   Ed25519KeyHash,
   EnterpriseAddress,
@@ -595,6 +602,25 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           mint.currency.amount,
         ).plutus_script(partialPlutusWitness, requiredSigners),
       );
+      if (mint.cip25) {
+        const cip25LabelMetadata = CIP25LabelMetadata.new(CIP25Version.V1);
+        const cip25MetadataDetails = CIP25MetadataDetails.new(
+          CIP25String64.new(mint.cip25.name),
+          CIP25ChunkableString.from_string(mint.cip25.image),
+        );
+        cip25MetadataDetails.set_description(
+          CIP25ChunkableString.from_string(mint.cip25.description),
+        );
+        cip25LabelMetadata.set(
+          mint.currency.asset.wasmPolicyId,
+          mint.currency.asset.wasmName,
+          cip25MetadataDetails,
+        );
+        const cip25Metadata = CIP25Metadata.new(cip25LabelMetadata);
+        transactionBuilder.set_auxiliary_data(
+          AuxiliaryData.new_shelley(cip25Metadata.to_metadata()),
+        );
+      }
     });
     withdrawals.forEach((withdrawal) => {
       const requiredSigners = RequiredSigners.new();
@@ -803,15 +829,33 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ),
       );
     });
-    return {
-      txBuilder: SignedTxBuilder.new_without_data(
-        transactionBuilder.build(changeSelectionAlgo, wasmChangeAddress).body(),
-        txWitnessSetBuilder,
-        txForEvaluations.draft_tx().is_valid(),
-      ),
-      partialSign: true,
-      remoteCollateral: remoteCollaterals.length > 0,
-    };
+
+    if (txForEvaluations.auxiliary_data()) {
+      return {
+        txBuilder: SignedTxBuilder.new_with_data(
+          transactionBuilder
+            .build(changeSelectionAlgo, wasmChangeAddress)
+            .body(),
+          txWitnessSetBuilder,
+          txForEvaluations.draft_tx().is_valid(),
+          txForEvaluations.auxiliary_data()!,
+        ),
+        partialSign: true,
+        remoteCollateral: remoteCollaterals.length > 0,
+      };
+    } else {
+      return {
+        txBuilder: SignedTxBuilder.new_without_data(
+          transactionBuilder
+            .build(changeSelectionAlgo, wasmChangeAddress)
+            .body(),
+          txWitnessSetBuilder,
+          txForEvaluations.draft_tx().is_valid(),
+        ),
+        partialSign: true,
+        remoteCollateral: remoteCollaterals.length > 0,
+      };
+    }
   }
 
   private normalizeUTxOsForChange(

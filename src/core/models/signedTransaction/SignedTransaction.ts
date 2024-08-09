@@ -78,11 +78,18 @@ export class SignedTransaction {
     const unsignedWasmTransaction = WasmTransaction.from_cbor_hex(
       transaction.cbor,
     );
-    const signedTxBuilder = SignedTxBuilder.new_without_data(
-      unsignedWasmTransaction.body(),
-      transaction.wasm.witness_set(),
-      unsignedWasmTransaction.is_valid(),
-    );
+    const signedTxBuilder = unsignedWasmTransaction.auxiliary_data()
+      ? SignedTxBuilder.new_with_data(
+          unsignedWasmTransaction.body(),
+          transaction.wasm.witness_set(),
+          unsignedWasmTransaction.is_valid(),
+          unsignedWasmTransaction.auxiliary_data()!,
+        )
+      : SignedTxBuilder.new_without_data(
+          unsignedWasmTransaction.body(),
+          transaction.wasm.witness_set(),
+          unsignedWasmTransaction.is_valid(),
+        );
 
     const oldWitnessesBuilder = signedTxBuilder.witness_set();
     const newWitnessSetBuilder = TransactionWitnessSetBuilder.new();
@@ -95,10 +102,17 @@ export class SignedTransaction {
       newWitnessSetBuilder.add_existing(witnessSetWithSign);
     });
 
-    return SignedTxBuilder.new_without_data(
-      signedTxBuilder.body(),
-      newWitnessSetBuilder,
-      signedTxBuilder.is_valid(),
-    ).build_checked();
+    return signedTxBuilder.auxiliary_data()
+      ? SignedTxBuilder.new_with_data(
+          signedTxBuilder.body(),
+          newWitnessSetBuilder,
+          signedTxBuilder.is_valid(),
+          signedTxBuilder.auxiliary_data()!,
+        ).build_checked()
+      : SignedTxBuilder.new_without_data(
+          signedTxBuilder.body(),
+          newWitnessSetBuilder,
+          signedTxBuilder.is_valid(),
+        ).build_checked();
   }
 }
