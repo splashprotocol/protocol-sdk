@@ -42,6 +42,7 @@ export interface MintDescriptor {
     readonly name: string;
     readonly description: string;
     readonly image: string;
+    readonly ticker?: string;
   };
   readonly exUnits: {
     readonly mem: bigint;

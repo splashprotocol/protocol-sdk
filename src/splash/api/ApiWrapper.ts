@@ -47,7 +47,12 @@ import {
 } from '../../core/types/CardanoCIP30WalletBridge.ts';
 import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
-import { Dictionary, TransactionHash, uint } from '../../core/types/types.ts';
+import {
+  AssetId,
+  Dictionary,
+  TransactionHash,
+  uint,
+} from '../../core/types/types.ts';
 import { predictDepositAda } from '../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { Splash } from '../splash.ts';
 import { InvalidWalletNetworkError } from './common/errors/InvalidWalletNetworkError.ts';
@@ -70,6 +75,7 @@ import { ProtocolStats } from './common/types/ProtocolStats.ts';
 import { TrendPool } from './common/types/TrendPool.ts';
 
 export interface MetadataConfig {
+  readonly ipfsGateway?: string;
   // Update time in milliseconds: Default 300_000
   readonly updateTime: number;
   // Default metadata value. Field will be useful with ssr
@@ -93,7 +99,19 @@ export class ApiWrapper {
 
   private includeMetadata: boolean;
 
+  private ipfsGateway?: string;
+
   private metadataUpdateTime: number;
+
+  private metadataCache = new Map<
+    AssetId,
+    Promise<AssetMetadata | undefined>
+  >();
+
+  private metadataRequestsCache = new Map<
+    AssetId,
+    Promise<AssetMetadata | undefined>
+  >();
 
   constructor(
     private splash: Splash<any>,
@@ -109,6 +127,7 @@ export class ApiWrapper {
     }
 
     this.includeMetadata = true;
+    this.ipfsGateway = normalizedMetadataConfig.ipfsGateway;
     this.metadataUpdateTime = normalizedMetadataConfig.updateTime;
 
     if (normalizedMetadataConfig.defaultValue) {
@@ -497,7 +516,7 @@ export class ApiWrapper {
 
   /**
    * Returns all available assets metadata
-   * @returns {Promise<AssetMetadata>}
+   * @returns {Promise<Dictionary<AssetMetadata>>}
    */
   getAssetsMetadata(): Promise<Dictionary<AssetMetadata>> {
     if (!this.includeMetadata) {
@@ -513,6 +532,49 @@ export class ApiWrapper {
     }
 
     return this.assetsMetadataCache!;
+  }
+
+  /**
+   * Returns assets metadata by asset id
+   * @param {AssetId} assetId
+   * @returns {Promise<AssetMetadata>}
+   */
+  getAssetMetadata(assetId: AssetId): Promise<AssetMetadata | undefined> {
+    if (!this.includeMetadata) {
+      return Promise.resolve(undefined);
+    }
+    if (AssetInfo.ada.splashId === assetId) {
+      return Promise.resolve(AssetInfo.ada.metadata);
+    }
+    if (this.metadataCache.has(assetId)) {
+      return this.metadataCache.get(assetId)!;
+    }
+    if (this.metadataRequestsCache.has(assetId)) {
+      return this.metadataRequestsCache.get(assetId)!;
+    }
+    const promise = this.api.getAssetMetadata(assetId).then((assetMetadata) => {
+      let normalizedAssetMetadata: AssetMetadata | undefined;
+      if (assetMetadata) {
+        normalizedAssetMetadata = {
+          ...assetMetadata,
+          logo: assetMetadata.logo
+            ? assetMetadata.logo
+            : assetMetadata.logoCid && this.ipfsGateway
+            ? `${this.ipfsGateway}/${assetMetadata.logoCid}`
+            : undefined,
+        };
+        this.metadataCache.set(assetId, promise as any);
+      } else {
+        normalizedAssetMetadata = undefined;
+        this.metadataCache.set(assetId, promise as any);
+      }
+      this.metadataRequestsCache.delete(assetId);
+
+      return normalizedAssetMetadata;
+    });
+    this.metadataRequestsCache.set(assetId, promise);
+
+    return promise;
   }
 
   /**
@@ -814,6 +876,7 @@ export class ApiWrapper {
       ? {
           updateTime: metadataConfig.updateTime || DEFAULT_UPDATE_TIME,
           defaultValue: metadataConfig.defaultValue,
+          ipfsGateway: metadataConfig.ipfsGateway,
         }
       : { updateTime: DEFAULT_UPDATE_TIME };
   }

@@ -178,12 +178,6 @@ export class SplashApi implements Api {
   }
 
   /**
-   * Returns asset metadata by asset id
-   * @param {AssetId} assetId
-   * @returns {Promise<GetAssetMetadataResponse>}
-   */
-
-  /**
    * Returns tvl chart points by poolId and interval
    * @param {string} poolId
    * @param {"d30" | "d60" | "d90"} interval
@@ -254,10 +248,20 @@ export class SplashApi implements Api {
       );
   }
 
+  /**
+   * Returns asset metadata by asset id
+   * @param {AssetId} assetId
+   * @returns {Promise<GetAssetMetadataResponse>}
+   */
   async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
-    return this.getAssetsMetadata().then((assetsMetadata) => {
-      return assetsMetadata[assetId];
-    });
+    if (this.network === 'preprod') {
+      return fetch(
+        `https://api-test-preprod.splash.trade/asset-info/${assetId}.json`,
+      )
+        .then((res) => (res.status === 404 ? undefined : res.json()))
+        .catch(() => undefined);
+    }
+    throw new Error('Not implemented');
   }
 
   async getNetworkContext(): Promise<NetworkContext> {

@@ -3,16 +3,13 @@ import {
   AuxiliaryData,
   BaseAddress,
   ChangeSelectionAlgo,
-  CIP25ChunkableString,
-  CIP25LabelMetadata,
-  CIP25Metadata,
-  CIP25MetadataDetails,
-  CIP25String64,
-  CIP25Version,
   Credential,
   Ed25519KeyHash,
   EnterpriseAddress,
   ExUnits,
+  Metadata,
+  MetadatumList,
+  MetadatumMap,
   PartialPlutusWitness,
   PlutusScript,
   PlutusScriptWitness,
@@ -29,6 +26,7 @@ import {
   SingleWithdrawalBuilder,
   TransactionBuilder,
   TransactionBuilderConfig,
+  TransactionMetadatum,
   TransactionOutput,
   TransactionWitnessSetBuilder,
 } from '@dcspark/cardano-multiplatform-lib-browser';
@@ -586,6 +584,8 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       ).plutus_script_inline_datum(partialPlutusWitness, requiredSigners);
       transactionBuilder.add_input(builder);
     });
+
+    const mintsMetadatumMap: MetadatumMap = MetadatumMap.new();
     mints.forEach((mint) => {
       const requiredSigners = RequiredSigners.new();
       const partialPlutusWitness = PartialPlutusWitness.new(
@@ -603,25 +603,53 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         ).plutus_script(partialPlutusWitness, requiredSigners),
       );
       if (mint.cip25) {
-        const cip25LabelMetadata = CIP25LabelMetadata.new(CIP25Version.V1);
-        const cip25MetadataDetails = CIP25MetadataDetails.new(
-          CIP25String64.new(mint.cip25.name),
-          CIP25ChunkableString.from_string(mint.cip25.image),
+        const metadatumMap = MetadatumMap.new();
+        metadatumMap.set(
+          TransactionMetadatum.new_text('name'),
+          TransactionMetadatum.new_text(mint.cip25.name),
         );
-        cip25MetadataDetails.set_description(
-          CIP25ChunkableString.from_string(mint.cip25.description),
+
+        const descriptionChunks =
+          mint.cip25.description.match(/.{1,64}/g) || [];
+        const descriptionList = MetadatumList.new();
+        descriptionChunks.forEach((chunk) =>
+          descriptionList.add(TransactionMetadatum.new_text(chunk)),
         );
-        cip25LabelMetadata.set(
-          mint.currency.asset.wasmPolicyId,
-          mint.currency.asset.wasmName,
-          cip25MetadataDetails,
+
+        metadatumMap.set(
+          TransactionMetadatum.new_text('description'),
+          descriptionChunks.length > 1
+            ? TransactionMetadatum.new_list(descriptionList)
+            : TransactionMetadatum.new_text(mint.cip25.description),
         );
-        const cip25Metadata = CIP25Metadata.new(cip25LabelMetadata);
-        transactionBuilder.set_auxiliary_data(
-          AuxiliaryData.new_shelley(cip25Metadata.to_metadata()),
+        metadatumMap.set(
+          TransactionMetadatum.new_text('image'),
+          TransactionMetadatum.new_text(mint.cip25.image),
+        );
+        if (mint.cip25.ticker) {
+          metadatumMap.set(
+            TransactionMetadatum.new_text('ticker'),
+            TransactionMetadatum.new_text(mint.cip25.ticker),
+          );
+        }
+        const cip25Metadatum = MetadatumMap.new();
+        cip25Metadatum.set(
+          TransactionMetadatum.new_text(mint.cip25.name),
+          TransactionMetadatum.new_map(metadatumMap),
+        );
+        mintsMetadatumMap.set(
+          TransactionMetadatum.new_text(mint.currency.asset.policyId),
+          TransactionMetadatum.new_map(cip25Metadatum),
         );
       }
     });
+    if (mintsMetadatumMap.len()) {
+      const finalMetadata = Metadata.new();
+      finalMetadata.set(721n, TransactionMetadatum.new_map(mintsMetadatumMap));
+      transactionBuilder.set_auxiliary_data(
+        AuxiliaryData.new_shelley(finalMetadata),
+      );
+    }
     withdrawals.forEach((withdrawal) => {
       const requiredSigners = RequiredSigners.new();
       const partialPlutusWitness = PartialPlutusWitness.new(

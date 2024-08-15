@@ -53,9 +53,16 @@ export interface AssetInfoMetadata {
   readonly subject: AssetSubject;
   readonly ticker?: string;
   readonly description?: string;
+  readonly socials?: {
+    website?: string;
+    twitter?: string;
+    telegram?: string;
+    discord?: string;
+  };
   readonly url?: string;
   readonly decimals?: number;
   readonly logo?: string;
+  readonly logoCid?: string;
   readonly verified?: boolean;
 }
 
