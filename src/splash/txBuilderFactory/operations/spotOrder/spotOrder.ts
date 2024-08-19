@@ -125,21 +125,21 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
   async (context) => {
     const orderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV2.settingsV2
+        context.operationsConfig.operations.spotOrderV3.settingsV2
           .orderStepCost,
       ),
     );
     const worstOrderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV2.settingsV2
+        context.operationsConfig.operations.spotOrderV3.settingsV2
           .worstOrderStepCost,
       ),
     );
     const orderMaxStepCount = BigInt(
       price
-        ? context.operationsConfig.operations.spotOrderV2.settingsV2
+        ? context.operationsConfig.operations.spotOrderV3.settingsV2
             .maxStepCount
-        : context.operationsConfig.operations.spotOrderV2.settingsV2
+        : context.operationsConfig.operations.spotOrderV3.settingsV2
             .maxStepCountMarket,
     );
 
@@ -151,7 +151,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         slippage:
           slippage !== undefined
             ? slippage
-            : context.operationsConfig.operations.spotOrderV2.settingsV2
+            : context.operationsConfig.operations.spotOrderV3.settingsV2
                 .marketOrderPriceSlippage,
       },
       context.splash,
@@ -202,7 +202,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         context.network === 'mainnet'
           ? NetworkId.mainnet()
           : NetworkId.testnet(),
-        context.operationsConfig.operations.spotOrderV2.script,
+        context.operationsConfig.operations.spotOrderV3.script,
         address.staking_cred()?.as_pub_key()?.to_hex(),
       ),
     });
@@ -219,7 +219,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     context.transactionCandidate.addInput(firstUTxO);
     return payToContract(
       {
-        script: context.operationsConfig.operations.spotOrderV2.script,
+        script: context.operationsConfig.operations.spotOrderV3.script,
         version: 'plutusV2',
       },
       outputValue.plus([depositAdaForOrder, additionalDepositAda]),
