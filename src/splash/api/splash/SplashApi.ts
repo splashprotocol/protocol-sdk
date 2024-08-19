@@ -254,9 +254,15 @@ export class SplashApi implements Api {
    * @returns {Promise<GetAssetMetadataResponse>}
    */
   async getAssetMetadata(assetId: AssetId): Promise<GetAssetMetadataResponse> {
-    if (this.network === 'preprod') {
+    if (this._network === 'preprod') {
       return fetch(
         `https://api-test-preprod.splash.trade/asset-info/${assetId}.json`,
+      )
+        .then((res) => (res.status === 404 ? undefined : res.json()))
+        .catch(() => undefined);
+    } else if (this._network === 'premainnet2') {
+      return fetch(
+        `https://api-test-mainnet.splash.trade/asset-info/${assetId}.json`,
       )
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
@@ -361,7 +367,7 @@ export class SplashApi implements Api {
       this.network === 'preprod'
         ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
         : this._network === 'premainnet2'
-        ? 'https://api3.splash.trade/mempool/v2/mempool/orders'
+        ? 'https://api-test-mainnet.splash.trade/mempool/v2/mempool/orders'
         : 'https://api3.splash.trade/mempool/v2/mempool/orders';
 
     return fetch(url, {
