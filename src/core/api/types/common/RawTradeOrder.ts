@@ -1,6 +1,7 @@
 import { TradeOrderStatus } from '../../../models/tradeOrder/TradeOrder.ts';
 import {
   AssetId,
+  Bech32String,
   OutputReferenceHash,
   percent,
   TransactionHash,
@@ -8,6 +9,7 @@ import {
 } from '../../../types/types.ts';
 
 export interface RawTradeOrder {
+  readonly address: Bech32String;
   readonly orderType: 'spot';
   readonly orderStatus: TradeOrderStatus;
   readonly pendingTxId: TransactionHash;

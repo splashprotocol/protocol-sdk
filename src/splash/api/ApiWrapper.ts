@@ -189,14 +189,11 @@ export class ApiWrapper {
     base: AssetInfo;
     quote: AssetInfo;
   }> {
-    return Promise.all([
-      this.api.getRecentTrades(params),
-      this.getAssetsMetadata(),
-    ]).then(([rawRecentTrades, metadata]) => {
-      const baseMetadata = metadata[params.base.splashId];
-      const quoteMetadata = metadata[params.quote.splashId];
-
-      return {
+    return this.api.getRecentTrades(params).then((rawRecentTrades) => {
+      return Promise.all([
+        this.getAssetMetadata(params.base.splashId),
+        this.getAssetMetadata(params.quote.splashId),
+      ]).then(([baseMetadata, quoteMetadata]) => ({
         count: rawRecentTrades.count,
         base: params.base.withMetadata(baseMetadata),
         quote: params.quote.withMetadata(quoteMetadata),
@@ -209,7 +206,7 @@ export class ApiWrapper {
             quoteMetadata: quoteMetadata,
           }),
         ),
-      };
+      }));
     });
   }
 
@@ -397,15 +394,17 @@ export class ApiWrapper {
    * @return {Promise<OrderBook>}
    */
   async getOrderBook(params: GetOrderBookParams): Promise<OrderBook> {
-    return Promise.all([
-      this.api.getOrderBook(params),
-      this.getAssetsMetadata(),
-    ]).then(([orderBook, metadata]) => {
-      return mapRawOrderBookToOrderBook({
-        rawOrderBook: orderBook,
-        baseMetadata: metadata[params.base.splashId],
-        quoteMetadata: metadata[params.quote.splashId],
-      });
+    return this.api.getOrderBook(params).then((orderBook) => {
+      return Promise.all([
+        this.getAssetMetadata(params.base.splashId),
+        this.getAssetMetadata(params.quote.splashId),
+      ]).then(([baseMetadata, quoteMetadata]) =>
+        mapRawOrderBookToOrderBook({
+          rawOrderBook: orderBook,
+          baseMetadata,
+          quoteMetadata,
+        }),
+      );
     });
   }
 
@@ -433,17 +432,22 @@ export class ApiWrapper {
    * @return {Promise<Pair[]>}
    */
   async getPairs(): Promise<Pair[]> {
-    return Promise.all([this.api.getPairs(), this.getAssetsMetadata()]).then(
-      ([pools, metadata]) => {
-        return pools.map((rawPair) =>
-          mapRawPairToPair({
-            rawPair,
-            baseMetadata: metadata[rawPair.base],
-            quoteMetadata: metadata[rawPair.quote],
-          }),
-        );
-      },
-    );
+    return this.api.getPairs().then((rawPairs) => {
+      return Promise.all(
+        rawPairs.map((rawPair) =>
+          Promise.all([
+            this.getAssetMetadata(rawPair.base),
+            this.getAssetMetadata(rawPair.quote),
+          ]).then(([baseMetadata, quoteMetadata]) =>
+            mapRawPairToPair({
+              rawPair,
+              baseMetadata,
+              quoteMetadata,
+            }),
+          ),
+        ),
+      );
+    });
   }
 
   /**
@@ -552,29 +556,37 @@ export class ApiWrapper {
     if (this.metadataRequestsCache.has(assetId)) {
       return this.metadataRequestsCache.get(assetId)!;
     }
-    const promise = this.api.getAssetMetadata(assetId).then((assetMetadata) => {
-      let normalizedAssetMetadata: AssetMetadata | undefined;
-      if (assetMetadata) {
-        normalizedAssetMetadata = {
-          ...assetMetadata,
-          logo: assetMetadata.logo
-            ? assetMetadata.logo
-            : assetMetadata.logoCid && this.ipfsGateway
-            ? `${this.ipfsGateway}/${assetMetadata.logoCid}`
-            : undefined,
-        };
-        this.metadataCache.set(assetId, promise as any);
-      } else {
-        normalizedAssetMetadata = undefined;
-        this.metadataCache.set(assetId, promise as any);
+
+    return this.getAssetsMetadata().then((metadata) => {
+      if (metadata[assetId]) {
+        return metadata[assetId];
       }
-      this.metadataRequestsCache.delete(assetId);
+      const oneAssetPromise = this.api
+        .getAssetMetadata(assetId)
+        .then((assetMetadata) => {
+          let normalizedAssetMetadata: AssetMetadata | undefined;
+          if (assetMetadata) {
+            normalizedAssetMetadata = {
+              ...assetMetadata,
+              logo: assetMetadata.logo
+                ? assetMetadata.logo
+                : assetMetadata.logoCid && this.ipfsGateway
+                ? `${this.ipfsGateway}/${assetMetadata.logoCid}`
+                : undefined,
+            };
+            this.metadataCache.set(assetId, oneAssetPromise as any);
+          } else {
+            normalizedAssetMetadata = undefined;
+            this.metadataCache.set(assetId, oneAssetPromise as any);
+          }
+          this.metadataRequestsCache.delete(assetId);
 
-      return normalizedAssetMetadata;
+          return normalizedAssetMetadata;
+        });
+      this.metadataRequestsCache.set(assetId, oneAssetPromise);
+
+      return oneAssetPromise;
     });
-    this.metadataRequestsCache.set(assetId, promise);
-
-    return promise;
   }
 
   /**
@@ -584,18 +596,22 @@ export class ApiWrapper {
   getSplashPools<P extends GetSplashPoolsParams = GetSplashPoolsParams>(
     params?: P,
   ): Promise<(CfmmPool | WeightedPool | StablePool)[]> {
-    return Promise.all([
-      this.api.getSplashPools(params),
-      this.getAssetsMetadata(),
-    ]).then(([pools, metadata]) => {
-      return pools.map((rawPool) =>
-        mapRawPoolToPool(
-          {
-            rawPool: rawPool,
-            xMetadata: metadata[rawPool.pool.x.asset],
-            yMetadata: metadata[rawPool.pool.y.asset],
-          },
-          this.splash,
+    return this.api.getSplashPools(params).then((pools) => {
+      return Promise.all(
+        pools.map((rawPool) =>
+          Promise.all([
+            this.getAssetMetadata(rawPool.pool.x.asset),
+            this.getAssetMetadata(rawPool.pool.y.asset),
+          ]).then(([xMetadata, yMetadata]) =>
+            mapRawPoolToPool(
+              {
+                rawPool: rawPool,
+                xMetadata,
+                yMetadata,
+              },
+              this.splash,
+            ),
+          ),
         ),
       );
     });
@@ -609,28 +625,31 @@ export class ApiWrapper {
     count: number;
     operations: TradeOrder[];
   }> {
-    return Promise.all([
-      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+    return this.getPaymentKeysHashes()
+      .then((paymentKeyHashes) =>
         this.api.getTradeOpenOrders({
           paymentKeyHashes,
         }),
-      ),
-      this.getAssetsMetadata(),
-    ]).then(([trades, metadata]) => {
-      return {
-        count: trades.count,
-        operations: trades.orders.map((trade) =>
-          mapRawTradeOrderToTradeOrder(
-            {
-              rawTradeOrder: trade,
-              inputMetadata: metadata[trade.input],
-              outputMetadata: metadata[trade.output],
-            },
-            this.splash,
+      )
+      .then((trades) => {
+        return Promise.all(
+          trades.orders.map((trade) =>
+            Promise.all([
+              this.getAssetMetadata(trade.input),
+              this.getAssetMetadata(trade.output),
+            ]).then(([inputMetadata, outputMetadata]) =>
+              mapRawTradeOrderToTradeOrder(
+                {
+                  rawTradeOrder: trade,
+                  inputMetadata,
+                  outputMetadata,
+                },
+                this.splash,
+              ),
+            ),
           ),
-        ),
-      };
-    });
+        ).then((operations) => ({ operations, count: trades.count }));
+      });
   }
 
   /**
@@ -641,30 +660,33 @@ export class ApiWrapper {
   async getTradeOrders(
     params: Omit<GetTradeOrdersParams, 'paymentKeyHashes'>,
   ): Promise<{ count: number; operations: TradeOrder[] }> {
-    return Promise.all([
-      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+    return this.getPaymentKeysHashes()
+      .then((paymentKeyHashes) =>
         this.api.getTradeOrders({
           limit: params.limit,
           offset: params.offset,
           paymentKeyHashes,
         }),
-      ),
-      this.getAssetsMetadata(),
-    ]).then(([trades, metadata]) => {
-      return {
-        count: trades.count,
-        operations: trades.orders.map((trade) =>
-          mapRawTradeOrderToTradeOrder(
-            {
-              rawTradeOrder: trade,
-              inputMetadata: metadata[trade.input],
-              outputMetadata: metadata[trade.output],
-            },
-            this.splash,
+      )
+      .then((trades) => {
+        return Promise.all(
+          trades.orders.map((trade) =>
+            Promise.all([
+              this.getAssetMetadata(trade.input),
+              this.getAssetMetadata(trade.output),
+            ]).then(([inputMetadata, outputMetadata]) =>
+              mapRawTradeOrderToTradeOrder(
+                {
+                  rawTradeOrder: trade,
+                  inputMetadata,
+                  outputMetadata,
+                },
+                this.splash,
+              ),
+            ),
           ),
-        ),
-      };
-    });
+        ).then((operations) => ({ operations, count: trades.count }));
+      });
   }
 
   /**
