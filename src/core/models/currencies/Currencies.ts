@@ -6,7 +6,7 @@ import {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { AssetMetadata } from '../../api/types/common/AssetMetadata.ts';
-import { CborHexString, Dictionary } from '../../types/types.ts';
+import { AssetId, CborHexString, Dictionary } from '../../types/types.ts';
 import { ada } from '../assetInfo/ada.ts';
 import { AssetInfo } from '../assetInfo/AssetInfo.ts';
 import { spf } from '../assetInfo/spf.ts';
@@ -34,6 +34,87 @@ export class Currencies {
    * @returns {Currencies}
    */
   static empty = this.fromCurrencyArray([]);
+
+  /**
+   * Produce Currencies structure instance
+   * @deprecated
+   * @param {CborHexString} cborHex
+   * @param {Function} metadataFactory
+   * @returns {Promise<Currencies>}
+   */
+  static fromCborHexStringAndMetadataFactory(
+    cborHex: CborHexString,
+    metadataFactory: (assetId: AssetId) => Promise<AssetMetadata | undefined>,
+  ): Promise<Currencies> {
+    const value = Value.from_cbor_hex(cborHex);
+
+    const ada = Currency.ada(BigInt(value.coin().toString()));
+    const ma = value.multi_asset();
+
+    if (!ma) {
+      return Promise.resolve(this.fromCurrencyArray([ada]));
+    }
+
+    const policies = ma.keys();
+    const numPolicies = policies.len();
+    const assetsData: [ScriptHash, MapAssetNameToCoin][] = [];
+
+    for (let i = 0; i < numPolicies; i++) {
+      const p = policies.get(i);
+      const assets = ma.get_assets(p);
+
+      if (assets) {
+        assetsData.push([p, assets]);
+      }
+    }
+
+    const currencies: Currency[] = assetsData.flatMap(([policyId, assets]) => {
+      const assetNames = assets.keys();
+      const numAssets = assets.len();
+      const result: Currency[] = [];
+
+      for (let i = 0; i < numAssets; i++) {
+        const assetName = assetNames.get(i);
+        const amount = BigInt(assets.get(assetName)!.toString());
+        result.push(
+          Currency.new(
+            amount,
+            AssetInfo.new({
+              policyId: policyId.to_hex(),
+              name: assetName.to_cbor_hex(),
+              type: 'cbor',
+            }),
+          ),
+        );
+      }
+
+      return result;
+    });
+
+    return Promise.all(
+      currencies.map((currency) =>
+        metadataFactory(currency.asset.splashId).then(
+          (metadataOrEmpty) =>
+            [currency.asset.splashId, metadataOrEmpty] as [
+              AssetId,
+              AssetMetadata | undefined,
+            ],
+        ),
+      ),
+    )
+      .then((metadataArray) =>
+        metadataArray.reduce(
+          (acc, [assetId, metadata]) => ({
+            ...acc,
+            [assetId]: metadata,
+          }),
+          {},
+        ),
+      )
+      .then((metadata) =>
+        this.fromCurrencyArray([ada].concat(currencies), metadata),
+      );
+  }
 
   /**
    * Produce Currencies structure instance

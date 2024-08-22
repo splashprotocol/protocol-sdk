@@ -7,13 +7,13 @@ import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { DepositLiquidityOrder } from '../../../../core/models/liquidityOrder/DepositLiquidityOrder.ts';
 import { RedeemLiquidityOrder } from '../../../../core/models/liquidityOrder/RedeemLiquidityOrder.ts';
-import { Dictionary } from '../../../../core/types/types.ts';
 import { Splash } from '../../../splash.ts';
 
 const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
   rawLiquidityRedeemOrder: RawLiquidityRedeemOrder,
   splash: Splash<{}>,
-  metadata?: Dictionary<AssetMetadata>,
+  metadataX?: AssetMetadata,
+  metadataY?: AssetMetadata,
 ): RedeemLiquidityOrder => {
   const [lqPolicyId, lqBase16Name] =
     rawLiquidityRedeemOrder.lq.asset.split('.');
@@ -31,7 +31,7 @@ const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
         name: xBase16Name,
         type: 'base16',
       },
-      metadata ? metadata[rawLiquidityRedeemOrder.xAsset] : undefined,
+      metadataX,
     ),
   );
 
@@ -44,7 +44,7 @@ const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
         name: yBase16Name,
         type: 'base16',
       },
-      metadata ? metadata[rawLiquidityRedeemOrder.yAsset] : undefined,
+      metadataY,
     ),
   );
 
@@ -76,7 +76,8 @@ const mapRawLiquidityRedeemOrderToRedeemLiquidityOrder = (
 const mapRawLiquidityDepositOrderToDepositLiquidityOrder = (
   rawLiquidityDepositOrder: RawLiquidityDepositOrder,
   splash: Splash<{}>,
-  metadata?: Dictionary<AssetMetadata>,
+  metadataX?: AssetMetadata,
+  metadataY?: AssetMetadata,
 ): DepositLiquidityOrder => {
   const [xPolicyId, xBase16Name] = rawLiquidityDepositOrder.x.asset.split('.');
   const [yPolicyId, yBase16Name] = rawLiquidityDepositOrder.y.asset.split('.');
@@ -90,7 +91,7 @@ const mapRawLiquidityDepositOrderToDepositLiquidityOrder = (
       name: xBase16Name,
       type: 'base16',
     },
-    metadata ? metadata[rawLiquidityDepositOrder.x.asset] : undefined,
+    metadataX,
   );
   const xAmount = rawLiquidityDepositOrder.actualX
     ? BigInt(rawLiquidityDepositOrder.actualX)
@@ -101,7 +102,7 @@ const mapRawLiquidityDepositOrderToDepositLiquidityOrder = (
       name: yBase16Name,
       type: 'base16',
     },
-    metadata ? metadata[rawLiquidityDepositOrder.y.asset] : undefined,
+    metadataY,
   );
   const yAmount = rawLiquidityDepositOrder.actualY
     ? BigInt(rawLiquidityDepositOrder.actualY)
@@ -142,13 +143,18 @@ const mapRawLiquidityDepositOrderToDepositLiquidityOrder = (
 };
 
 export interface MapRawLiquidityOrderToLiquidityOrderConfig {
-  readonly metadata?: Dictionary<AssetMetadata>;
+  readonly metadataX?: AssetMetadata;
+  readonly metadataY?: AssetMetadata;
   readonly rawLiquidityOrder:
     | RawLiquidityDepositOrder
     | RawLiquidityRedeemOrder;
 }
 export const mapRawLiquidityOrderToLiquidityOrder = (
-  { metadata, rawLiquidityOrder }: MapRawLiquidityOrderToLiquidityOrderConfig,
+  {
+    metadataX,
+    metadataY,
+    rawLiquidityOrder,
+  }: MapRawLiquidityOrderToLiquidityOrderConfig,
   splash: Splash<{}>,
 ): DepositLiquidityOrder | RedeemLiquidityOrder => {
   if (
@@ -159,7 +165,8 @@ export const mapRawLiquidityOrderToLiquidityOrder = (
     return mapRawLiquidityDepositOrderToDepositLiquidityOrder(
       rawLiquidityOrder,
       splash,
-      metadata,
+      metadataX,
+      metadataY,
     );
   }
   if (
@@ -170,7 +177,8 @@ export const mapRawLiquidityOrderToLiquidityOrder = (
     return mapRawLiquidityRedeemOrderToRedeemLiquidityOrder(
       rawLiquidityOrder,
       splash,
-      metadata,
+      metadataX,
+      metadataY,
     );
   }
 

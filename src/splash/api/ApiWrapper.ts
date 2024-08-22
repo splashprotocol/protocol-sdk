@@ -4,6 +4,7 @@ import {
   NetworkId,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
+import { RawLiquidityRedeemOrder } from '../../../build';
 import { Api } from '../../core/api/Api.ts';
 import { AssetMetadata } from '../../core/api/types/common/AssetMetadata.ts';
 import { RawTradeOrder } from '../../core/api/types/common/RawTradeOrder.ts';
@@ -472,14 +473,14 @@ export class ApiWrapper {
    * @returns {Promise<Currencies>}
    */
   async getBalance(): Promise<Currencies> {
-    return Promise.all([
-      this.getAssetsMetadata(),
-      this.getWalletContext().then((ctx) =>
-        this.handleCIP30WalletError(ctx.getBalance()),
-      ),
-    ]).then(([metadata, cborBalance]) => {
-      return Currencies.new(cborBalance, metadata);
-    });
+    return this.getWalletContext()
+      .then((ctx) => this.handleCIP30WalletError(ctx.getBalance()))
+      .then((cborBalance) => {
+        return Currencies.fromCborHexStringAndMetadataFactory(
+          cborBalance,
+          (assetId) => this.getAssetMetadata(assetId),
+        );
+      });
   }
 
   /**
@@ -696,40 +697,72 @@ export class ApiWrapper {
   async getOrdersMempool(): Promise<
     (TradeOrder | DepositLiquidityOrder | RedeemLiquidityOrder)[]
   > {
-    return Promise.all([
-      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+    return this.getPaymentKeysHashes()
+      .then((paymentKeyHashes) =>
         this.api.getOrdersMempool({
           paymentKeyHashes,
         }),
-      ),
-      this.getAssetsMetadata(),
-    ]).then(([orders, metadata]) => {
-      return orders.map((rawOrder) => {
-        if (
-          rawOrder.orderType === 'cfmmDeposit' ||
-          rawOrder.orderType === 'cfmmRedeem' ||
-          rawOrder.orderType === 'weightedDeposit' ||
-          rawOrder.orderType === 'weightedRedeem'
-        ) {
-          return mapRawLiquidityOrderToLiquidityOrder(
-            {
-              rawLiquidityOrder: rawOrder,
-              metadata,
-            },
-            this.splash,
-          );
-        }
-        const rawTradeOrder = rawOrder as RawTradeOrder;
-        return mapRawTradeOrderToTradeOrder(
-          {
-            rawTradeOrder: rawTradeOrder,
-            inputMetadata: metadata[rawTradeOrder.input],
-            outputMetadata: metadata[rawTradeOrder.output],
-          },
-          this.splash,
+      )
+      .then((orders) => {
+        return Promise.all(
+          orders.map((rawOrder) => {
+            if (
+              rawOrder.orderType === 'cfmmDeposit' ||
+              rawOrder.orderType === 'weightedDeposit' ||
+              rawOrder.orderType === 'stableDeposit'
+            ) {
+              return Promise.all([
+                this.getAssetMetadata(rawOrder.x.asset),
+                this.getAssetMetadata(rawOrder.y.asset),
+              ]).then(([metadataX, metadataY]) =>
+                mapRawLiquidityOrderToLiquidityOrder(
+                  {
+                    rawLiquidityOrder: rawOrder,
+                    metadataX,
+                    metadataY,
+                  },
+                  this.splash,
+                ),
+              );
+            }
+            if (
+              rawOrder.orderType === 'cfmmRedeem' ||
+              rawOrder.orderType === 'weightedRedeem' ||
+              rawOrder.orderType === 'stableRedeem'
+            ) {
+              return Promise.all([
+                this.getAssetMetadata(rawOrder.xAsset),
+                this.getAssetMetadata(rawOrder.yAsset),
+              ]).then(([metadataX, metadataY]) =>
+                mapRawLiquidityOrderToLiquidityOrder(
+                  {
+                    rawLiquidityOrder: rawOrder,
+                    metadataX,
+                    metadataY,
+                  },
+                  this.splash,
+                ),
+              );
+            }
+
+            const rawTradeOrder = rawOrder as RawTradeOrder;
+
+            return Promise.all([
+              this.getAssetMetadata(rawTradeOrder.input),
+              this.getAssetMetadata(rawTradeOrder.output),
+            ]).then(([inputMetadata, outputMetadata]) =>
+              mapRawTradeOrderToTradeOrder(
+                {
+                  rawTradeOrder: rawTradeOrder,
+                  inputMetadata,
+                  outputMetadata,
+                },
+                this.splash,
+              ),
+            );
+          }),
         );
       });
-    });
   }
 
   /**
@@ -743,29 +776,58 @@ export class ApiWrapper {
     count: number;
     operations: (RedeemLiquidityOrder | DepositLiquidityOrder)[];
   }> {
-    return Promise.all([
-      this.getPaymentKeysHashes().then((paymentKeyHashes) =>
+    return this.getPaymentKeysHashes()
+      .then((paymentKeyHashes) =>
         this.api.getLiquidityOrders({
           limit: params.limit,
           offset: params.offset,
           paymentKeyHashes,
         }),
-      ),
-      this.getAssetsMetadata(),
-    ]).then(([orders, metadata]) => {
-      return {
-        count: orders.count,
-        operations: orders.order.map((rawLiquidityOrder) =>
-          mapRawLiquidityOrderToLiquidityOrder(
-            {
-              rawLiquidityOrder,
-              metadata,
-            },
-            this.splash,
-          ),
-        ),
-      };
-    });
+      )
+      .then((orders) => {
+        return Promise.all(
+          orders.order.map((rawLiquidityOrder) => {
+            if (
+              rawLiquidityOrder.orderType === 'cfmmDeposit' ||
+              rawLiquidityOrder.orderType === 'weightedDeposit' ||
+              rawLiquidityOrder.orderType === 'stableDeposit'
+            ) {
+              return Promise.all([
+                this.getAssetMetadata(rawLiquidityOrder.x.asset),
+                this.getAssetMetadata(rawLiquidityOrder.y.asset),
+              ]).then(([metadataX, metadataY]) =>
+                mapRawLiquidityOrderToLiquidityOrder(
+                  {
+                    rawLiquidityOrder,
+                    metadataX,
+                    metadataY,
+                  },
+                  this.splash,
+                ),
+              );
+            }
+            const rawLiquidityRedeemOrder =
+              rawLiquidityOrder as RawLiquidityRedeemOrder;
+
+            return Promise.all([
+              this.getAssetMetadata(rawLiquidityRedeemOrder.xAsset),
+              this.getAssetMetadata(rawLiquidityRedeemOrder.yAsset),
+            ]).then(([metadataX, metadataY]) =>
+              mapRawLiquidityOrderToLiquidityOrder(
+                {
+                  rawLiquidityOrder,
+                  metadataX,
+                  metadataY,
+                },
+                this.splash,
+              ),
+            );
+          }),
+        ).then((operations) => ({
+          operations,
+          count: orders.count,
+        }));
+      });
   }
 
   /**
