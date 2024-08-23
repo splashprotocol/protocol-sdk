@@ -13,6 +13,7 @@ export interface RawUTxOCurrency {
   readonly name: HexString;
   readonly quantity: number;
   readonly jsQuantity: string;
+  readonly nameHex: HexString;
 }
 
 export interface RawUTxO {
