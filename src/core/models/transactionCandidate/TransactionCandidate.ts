@@ -115,7 +115,10 @@ export class TransactionCandidate {
    */
   get maxTxFee(): Currency {
     return this.mints.length || this.withdrawals.length
-      ? MAX_TRANSACTION_FEE.multiply(3n)
+      ? Currency.max([
+          MAX_TRANSACTION_FEE.multiply(3n),
+          MAX_TRANSACTION_FEE.multiply(BigInt(this.mints.length + 1)),
+        ])
       : MAX_TRANSACTION_FEE;
   }
 

@@ -49,7 +49,6 @@ import {
   OutputReference,
   uint,
 } from '../../core/types/types.ts';
-import { MAX_TRANSACTION_FEE } from '../../core/utils/transactionFee/transactionFee.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientCollateralError } from './erors/InsufficientCollateralError.ts';
@@ -331,7 +330,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     { prevTxFee, bestTxFee, buildCounts }: CreateTransactionExtra = {
       prevTxFee: undefined,
       buildCounts: 1,
-      bestTxFee: MAX_TRANSACTION_FEE.amount,
+      bestTxFee: context.transactionCandidate.maxTxFee.amount,
     },
   ): Promise<Transaction> {
     try {

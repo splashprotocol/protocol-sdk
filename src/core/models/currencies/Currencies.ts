@@ -334,20 +334,27 @@ export class Currencies {
 
     const resultMap = Array.from(toSubtract.currencyMap.values()).reduce<
       Map<string, Currency>
-    >((map, item) => {
-      const splashId = item.asset.splashId;
-      if (!map.has(splashId)) {
-        map.set(splashId, item);
+    >(
+      (map, item) => {
+        const splashId = item.asset.splashId;
+        if (!map.has(splashId)) {
+          map.set(splashId, item);
+          return map;
+        }
+        if (map.get(splashId)!.lt(item)) {
+          map.set(splashId, item.minus(map.get(splashId)!));
+        }
+        if (map.get(splashId)!.gte(item)) {
+          map.delete(splashId);
+        }
         return map;
-      }
-      if (map.get(splashId)!.lt(item)) {
-        map.set(splashId, item.minus(map.get(splashId)!));
-      }
-      if (map.get(splashId)!.gte(item)) {
-        map.delete(splashId);
-      }
-      return map;
-    }, new Map(this.currencyMap.entries()));
+      },
+      new Map(
+        Array.from(this.currencyMap.entries()).filter(([key, _]) =>
+          toSubtract.currencyMap.has(key),
+        ),
+      ),
+    );
 
     return Currencies.fromCurrencyArray(Array.from(resultMap.values()));
   }
