@@ -68,7 +68,7 @@ import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 type ExtendedNetwork = Network | 'premainnet' | 'premainnet2';
 
 const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
-  mainnet: 'https://api3.splash.trade/platform-api/v1/',
+  mainnet: 'https://api5.splash.trade/platform-api/v1/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
   premainnet: 'https://api3.splash.trade/platform-api/v1/',
@@ -267,7 +267,9 @@ export class SplashApi implements Api {
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
     }
-    throw new Error('Not implemented');
+    return fetch(`https://api5.splash.trade/asset-info/${assetId}.json`)
+      .then((res) => (res.status === 404 ? undefined : res.json()))
+      .catch(() => undefined);
   }
 
   async getNetworkContext(): Promise<NetworkContext> {
@@ -368,7 +370,7 @@ export class SplashApi implements Api {
         ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
         : this._network === 'premainnet2'
         ? 'https://api-test-mainnet.splash.trade/mempool/v2/mempool/orders'
-        : 'https://api3.splash.trade/mempool/v2/mempool/orders';
+        : 'https://api5.splash.trade/mempool/v2/mempool/orders';
 
     return fetch(url, {
       method: 'POST',
