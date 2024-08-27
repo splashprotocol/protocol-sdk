@@ -4,7 +4,7 @@ import {
   TransactionHash,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 import { blake2b } from 'hash-wasm';
-import { Uint64LE } from 'int64-buffer';
+import { Uint64BE } from 'int64-buffer';
 
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
@@ -77,15 +77,16 @@ const getBasePrice = async (
   return basePrice.base.isEquals(input.asset) ? basePrice : basePrice.invert();
 };
 
-export const getBeacon = async (uTxO: UTxO): Promise<string> =>
-  blake2b(
+export const getBeacon = async (uTxO: UTxO): Promise<string> => {
+  return blake2b(
     Uint8Array.from([
       ...TransactionHash.from_hex(uTxO.ref.txHash).to_raw_bytes(),
-      ...new Uint64LE(Number(uTxO.ref.index)).toArray(),
-      ...new Uint64LE(0).toArray(),
+      ...new Uint64BE(Number(uTxO.ref.index)).toArray(),
+      ...new Uint64BE(0).toArray(),
     ]),
     224,
   );
+};
 
 interface getMarginalOutputConfig {
   readonly basePrice: Price;

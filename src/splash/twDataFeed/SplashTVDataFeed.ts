@@ -39,6 +39,7 @@ export interface SplashTVDataFeedParams {
   readonly lastBarTickInterval?: uint;
   readonly avoidCollision?: boolean;
   readonly exchange?: string;
+  readonly priceMultiplayer?: number;
 }
 
 export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
@@ -52,6 +53,8 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   private avoidCollision: boolean;
 
+  private priceMultiplayer: number;
+
   private exchange: string;
 
   static new(params: SplashTVDataFeedParams): SplashTVDataFeed {
@@ -64,12 +67,14 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     lastBarTickInterval,
     exchange = 'Splash',
     avoidCollision = false,
+    priceMultiplayer,
   }: SplashTVDataFeedParams) {
     this.pairs = pairs;
     this.splash = splash;
     this.lastBarTickInterval = lastBarTickInterval || 5_000;
     this.avoidCollision = avoidCollision;
     this.exchange = exchange;
+    this.priceMultiplayer = priceMultiplayer || 0;
   }
 
   updatePairs(pairs: Pair[]) {
@@ -129,7 +134,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       session: '24x7',
       minmov: 1,
       volume_precision: pair.quote.decimals,
-      pricescale: 10 ** priceScalePow,
+      pricescale: 10 ** Math.max(2, priceScalePow - this.priceMultiplayer),
       has_intraday: true,
       has_weekly_and_monthly: true,
       exchange: this.exchange,
@@ -184,6 +189,11 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
         resolution: mapTvResolutionToApiResolution[resolution],
       });
       if (bars.length) {
+        console.log(
+          bars.map((bar) =>
+            this.normalizeBar(bar, symbolInfo.base, symbolInfo.quote),
+          ),
+        );
         onResult(
           bars.map((bar) =>
             this.normalizeBar(bar, symbolInfo.base, symbolInfo.quote),
@@ -231,10 +241,13 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     base: AssetInfo,
     quote: AssetInfo,
   ): number {
-    return Price.new({
-      raw: rawPrice,
-      base,
-      quote,
-    }).toNumber();
+    return (
+      Price.new({
+        raw: rawPrice,
+        base,
+        quote,
+      }).toNumber() *
+      10 ** this.priceMultiplayer
+    );
   }
 }
