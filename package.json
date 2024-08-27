@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "1.0.12",
+  "version": "1.0.15",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "source": "src/index.ts",
@@ -19,6 +19,7 @@
     "@dcspark/cardano-multiplatform-lib-browser": "^5.2.0",
     "cbor-x": "^1.5.4",
     "hash-wasm": "^4.11.0",
+    "int64-buffer": "^1.0.1",
     "js-encoding-utils": "^0.7.3",
     "mathjs": "^12.4.0",
     "typescript": "^5.2.2"

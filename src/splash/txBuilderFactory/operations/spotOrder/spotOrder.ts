@@ -1,6 +1,10 @@
-import { Address, NetworkId } from '@dcspark/cardano-multiplatform-lib-browser';
+import {
+  Address,
+  NetworkId,
+  TransactionHash,
+} from '@dcspark/cardano-multiplatform-lib-browser';
 import { blake2b } from 'hash-wasm';
-import { encoder } from 'js-encoding-utils';
+import { Uint64LE } from 'int64-buffer';
 
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
@@ -8,14 +12,13 @@ import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
 import { UTxO } from '../../../../core/models/utxo/UTxO.ts';
-import { Splash } from '../../../splash.ts';
-import { Operation } from '../common/Operation';
-import { payToContract } from '../payToContract/payToContract.ts';
-import stringToArrayBuffer = encoder.stringToArrayBuffer;
 import { HexString } from '../../../../core/types/types.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
+import { Splash } from '../../../splash.ts';
+import { Operation } from '../common/Operation';
+import { payToContract } from '../payToContract/payToContract.ts';
 
 export const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
@@ -77,8 +80,9 @@ const getBasePrice = async (
 export const getBeacon = async (uTxO: UTxO): Promise<string> =>
   blake2b(
     Uint8Array.from([
-      ...stringToArrayBuffer(uTxO.ref.txHash),
-      ...stringToArrayBuffer(uTxO.ref.index.toString()),
+      ...TransactionHash.from_hex(uTxO.ref.txHash).to_raw_bytes(),
+      ...new Uint64LE(Number(uTxO.ref.index)).toArray(),
+      ...new Uint64LE(0).toArray(),
     ]),
     224,
   );
