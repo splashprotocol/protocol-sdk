@@ -117,7 +117,12 @@ export class TransactionCandidate {
     return this.mints.length || this.withdrawals.length
       ? Currency.max([
           MAX_TRANSACTION_FEE.multiply(3n),
-          MAX_TRANSACTION_FEE.multiply(BigInt(this.mints.length + 1)),
+          Currency.max([
+            MAX_TRANSACTION_FEE.multiply(3n),
+            MAX_TRANSACTION_FEE.plus(
+              Currency.ada(380000n).multiply(BigInt(this.mints.length)),
+            ),
+          ]),
         ])
       : MAX_TRANSACTION_FEE;
   }
