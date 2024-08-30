@@ -11,6 +11,7 @@ export interface PairParams {
   readonly baseAdaPrice: Price;
   readonly quoteAdaPrice: Price;
   readonly priceMinStep: Price;
+  readonly priceMultiplier?: number;
 }
 
 /**
@@ -74,6 +75,13 @@ export class Pair {
   public priceMinStep: Price;
 
   /**
+   * price multiplier
+   * @private
+   */
+  // @ts-ignore
+  private priceMultiplier: number;
+
+  /**
    * Returns true if pair includes specified asses
    * @param {AssetInfo} asset1
    * @param {AssetInfo} asset2
@@ -96,6 +104,7 @@ export class Pair {
     quoteAdaPrice,
     baseAdaPrice,
     priceMinStep,
+    priceMultiplier,
   }: PairParams) {
     const rawPreviousSpotPrice: string = change
       ? math.evaluate(`${spotPrice.raw} * 100 / (100 + ${change})`).toFixed()
@@ -113,5 +122,6 @@ export class Pair {
     this.quoteAdaPrice = quoteAdaPrice;
     this.baseAdaPrice = baseAdaPrice;
     this.priceMinStep = priceMinStep;
+    this.priceMultiplier = priceMultiplier || 0;
   }
 }
