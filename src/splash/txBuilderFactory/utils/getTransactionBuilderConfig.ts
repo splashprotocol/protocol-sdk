@@ -28,7 +28,7 @@ export const getTransactionBuilderConfig = (
     .coins_per_utxo_byte(pParams.coinsPerUtxoByte)
     .max_value_size(pParams.maxValueSize)
     .max_tx_size(Math.floor(pParams.maxTxSize * 2))
-    .fee_algo(LinearFee.new(pParams.txFeePerByte, pParams.txFeeFixed))
+    .fee_algo(LinearFee.new(pParams.txFeePerByte, pParams.txFeeFixed, 15n))
     .key_deposit(pParams.keyDeposit)
     .pool_deposit(pParams.poolDeposit)
     .ex_unit_prices(ExUnitPrices.new(memPrice, stepPrice))

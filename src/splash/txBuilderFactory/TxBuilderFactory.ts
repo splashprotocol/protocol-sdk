@@ -5,6 +5,7 @@ import {
   ChangeSelectionAlgo,
   Credential,
   Ed25519KeyHash,
+  Ed25519KeyHashList,
   EnterpriseAddress,
   ExUnits,
   Metadata,
@@ -16,7 +17,6 @@ import {
   PlutusV2Script,
   RedeemerTag,
   RedeemerWitnessKey,
-  RequiredSigners,
   RewardAddress,
   Script,
   SignedTxBuilder,
@@ -565,7 +565,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       ),
     );
     scriptInputs.forEach((input) => {
-      const requiredSigners = RequiredSigners.new();
+      const requiredSigners = Ed25519KeyHashList.new();
       input.extra.requiredSigners.forEach((rs) =>
         requiredSigners.add(Ed25519KeyHash.from_hex(rs)),
       );
@@ -586,7 +586,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
 
     const mintsMetadatumMap: MetadatumMap = MetadatumMap.new();
     mints.forEach((mint) => {
-      const requiredSigners = RequiredSigners.new();
+      const requiredSigners = Ed25519KeyHashList.new();
       const partialPlutusWitness = PartialPlutusWitness.new(
         PlutusScriptWitness.new_script(
           PlutusScript.from_v2(
@@ -650,7 +650,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       );
     }
     withdrawals.forEach((withdrawal) => {
-      const requiredSigners = RequiredSigners.new();
+      const requiredSigners = Ed25519KeyHashList.new();
       const partialPlutusWitness = PartialPlutusWitness.new(
         PlutusScriptWitness.new_script(
           PlutusScript.from_v2(
@@ -814,7 +814,9 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     );
 
     if (uncheckedWitnessSetBuilder.redeemers()) {
-      const redeemersToAdd = uncheckedWitnessSetBuilder.redeemers()!;
+      const redeemersToAdd = uncheckedWitnessSetBuilder
+        .redeemers()!
+        .as_arr_legacy_redeemer()!;
 
       for (let i = 0; i < redeemersToAdd.len(); i++) {
         txWitnessSetBuilder.add_redeemer(redeemersToAdd.get(i));
