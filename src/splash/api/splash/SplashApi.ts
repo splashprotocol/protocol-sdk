@@ -267,7 +267,7 @@ export class SplashApi implements Api {
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
     }
-    return fetch(`https://api5.splash.trade/asset-info/${assetId}.json`)
+    return fetch(`https://api6.splash.trade/asset-info/${assetId}.json`)
       .then((res) => (res.status === 404 ? undefined : res.json()))
       .catch(() => undefined);
   }

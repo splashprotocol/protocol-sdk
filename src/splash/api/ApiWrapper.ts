@@ -414,16 +414,20 @@ export class ApiWrapper {
    * @return {Promise<TrendPool[]>}
    */
   async getTrendPools(): Promise<TrendPool[]> {
-    return Promise.all([
-      this.api.getTrendPools(),
-      this.getAssetsMetadata(),
-    ]).then(([trendPools, metadata]) => {
-      return trendPools.map((rawTrendPool) =>
-        mapRawTrendPoolToTrendPool({
-          rawTrendPool,
-          xMetadata: metadata[rawTrendPool.x],
-          yMetadata: metadata[rawTrendPool.y],
-        }),
+    return this.api.getTrendPools().then((trendPools) => {
+      return Promise.all(
+        trendPools.map((rawTrendPool) =>
+          Promise.all([
+            this.getAssetMetadata(rawTrendPool.x),
+            this.getAssetMetadata(rawTrendPool.y),
+          ]).then(([xMetadata, yMetadata]) =>
+            mapRawTrendPoolToTrendPool({
+              rawTrendPool,
+              xMetadata,
+              yMetadata,
+            }),
+          ),
+        ),
       );
     });
   }
