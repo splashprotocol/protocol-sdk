@@ -130,21 +130,19 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
   async (context) => {
     const orderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV3.settingsV2
-          .orderStepCost,
+        context.operationsConfig.operations.spotOrderV3.settings.orderStepCost,
       ),
     );
     const worstOrderStepCost = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV3.settingsV2
+        context.operationsConfig.operations.spotOrderV3.settings
           .worstOrderStepCost,
       ),
     );
     const orderMaxStepCount = BigInt(
       price
-        ? context.operationsConfig.operations.spotOrderV3.settingsV2
-            .maxStepCount
-        : context.operationsConfig.operations.spotOrderV3.settingsV2
+        ? context.operationsConfig.operations.spotOrderV3.settings.maxStepCount
+        : context.operationsConfig.operations.spotOrderV3.settings
             .maxStepCountMarket,
     );
 
@@ -156,7 +154,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         slippage:
           slippage !== undefined
             ? slippage
-            : context.operationsConfig.operations.spotOrderV3.settingsV2
+            : context.operationsConfig.operations.spotOrderV3.settings
                 .marketOrderPriceSlippage,
       },
       context.splash,
