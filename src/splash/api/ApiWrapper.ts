@@ -578,6 +578,7 @@ export class ApiWrapper {
                 : assetMetadata.logoCid && this.ipfsGateway
                 ? `${this.ipfsGateway}/${assetMetadata.logoCid}`
                 : undefined,
+              snekdotfun: assetMetadata.launchedBy === 'snekdotfun',
             };
             this.metadataCache.set(assetId, oneAssetPromise as any);
           } else {

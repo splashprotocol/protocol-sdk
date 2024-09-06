@@ -51,6 +51,8 @@ export interface AssetInfoMetadata {
   readonly policyId: string;
   readonly name: string;
   readonly subject: AssetSubject;
+  readonly snekdotfun?: boolean;
+  readonly launchedBy?: string;
   readonly ticker?: string;
   readonly description?: string;
   readonly socials?: {
