@@ -63,6 +63,8 @@ export interface WithdrawDescriptor {
 
 export type InputDescriptor = InternalInputDescriptor | ExternalInputDescriptor;
 
+export type MetadataItem = [bigint, bigint];
+
 /**
  * Transaction Candidate representation
  */
@@ -74,6 +76,8 @@ export class TransactionCandidate {
   static new(): TransactionCandidate {
     return new TransactionCandidate();
   }
+
+  readonly metadata: MetadataItem[] = [];
 
   /**
    * Transaction additional data.
@@ -153,6 +157,12 @@ export class TransactionCandidate {
 
   addMint(mintDescriptor: MintDescriptor): TransactionCandidate {
     this.mints.push(mintDescriptor);
+
+    return this;
+  }
+
+  addMetadata(metadataItem: MetadataItem): TransactionCandidate {
+    this.metadata.push(metadataItem);
 
     return this;
   }

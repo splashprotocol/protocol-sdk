@@ -8,6 +8,7 @@ import {
   Ed25519KeyHashList,
   EnterpriseAddress,
   ExUnits,
+  Int,
   Metadata,
   MetadatumList,
   MetadatumMap,
@@ -645,6 +646,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     if (mintsMetadatumMap.len()) {
       const finalMetadata = Metadata.new();
       finalMetadata.set(721n, TransactionMetadatum.new_map(mintsMetadatumMap));
+      transactionCandidate.metadata.forEach((metadataItem) => {
+        finalMetadata.set(
+          metadataItem[0],
+          TransactionMetadatum.new_int(Int.new(metadataItem[1])),
+        );
+      });
+
       transactionBuilder.set_auxiliary_data(
         AuxiliaryData.new_shelley(finalMetadata),
       );
