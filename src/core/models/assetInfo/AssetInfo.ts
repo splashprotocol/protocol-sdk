@@ -295,7 +295,7 @@ export class AssetInfo {
    * @returns {string}
    */
   get ticker(): string {
-    return this.metadata?.ticker || this.name;
+    return this.metadata?.ticker || '';
   }
 
   /**
