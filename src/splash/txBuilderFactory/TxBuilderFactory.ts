@@ -50,6 +50,7 @@ import {
   OutputReference,
   uint,
 } from '../../core/types/types.ts';
+import { hexToBytes } from '../../core/utils/hexToBytes/hexToBytes.ts';
 import { UTxOsSelector } from '../../core/utils/utxosSelector/UTxOsSelector.ts';
 import { Splash } from '../splash.ts';
 import { InsufficientCollateralError } from './erors/InsufficientCollateralError.ts';
@@ -643,14 +644,35 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         );
       }
     });
-    if (mintsMetadatumMap.len()) {
+    if (mintsMetadatumMap.len() || transactionCandidate.metadata.length) {
       const finalMetadata = Metadata.new();
-      finalMetadata.set(721n, TransactionMetadatum.new_map(mintsMetadatumMap));
-      transactionCandidate.metadata.forEach((metadataItem) => {
+
+      if (mintsMetadatumMap.len()) {
         finalMetadata.set(
-          metadataItem[0],
-          TransactionMetadatum.new_int(Int.new(metadataItem[1])),
+          721n,
+          TransactionMetadatum.new_map(mintsMetadatumMap),
         );
+      }
+
+      transactionCandidate.metadata.forEach((metadataItem) => {
+        if (typeof metadataItem[1] === 'string') {
+          const metadataChunks = metadataItem[1].match(/.{1,64}/g) || [];
+          const metadataList = MetadatumList.new();
+          metadataChunks.forEach((chunk) =>
+            metadataList.add(TransactionMetadatum.new_bytes(hexToBytes(chunk))),
+          );
+          finalMetadata.set(
+            metadataItem[0],
+            metadataChunks.length > 1
+              ? TransactionMetadatum.new_list(metadataList)
+              : TransactionMetadatum.new_text(metadataItem[1]),
+          );
+        } else {
+          finalMetadata.set(
+            metadataItem[0],
+            TransactionMetadatum.new_int(Int.new(metadataItem[1])),
+          );
+        }
       });
 
       transactionBuilder.set_auxiliary_data(

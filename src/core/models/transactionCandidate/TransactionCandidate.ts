@@ -63,7 +63,7 @@ export interface WithdrawDescriptor {
 
 export type InputDescriptor = InternalInputDescriptor | ExternalInputDescriptor;
 
-export type MetadataItem = [bigint, bigint];
+export type MetadataItem = [bigint, bigint | string];
 
 /**
  * Transaction Candidate representation
