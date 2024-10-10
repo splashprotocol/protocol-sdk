@@ -62,6 +62,7 @@ import { Network } from '../../../core/types/Network.ts';
 import { NetworkContext } from '../../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../../core/types/ProtocolParams.ts';
 import { AssetId, uint } from '../../../core/types/types.ts';
+import { math } from '../../../core/utils/math/math.ts';
 import { RawProtocolParams } from './types/RawProtocolParams.ts';
 import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 
@@ -203,7 +204,9 @@ export class SplashApi implements Api {
    * @return {Promise<GetAdaUsdRateResult>}
    */
   async getAdaUsdRate(): Promise<GetAdaUsdRateResult> {
-    return fetch(`${this.url}ada-usd/rate`).then((res) => res.json());
+    return fetch(`${this.url}ada-usd/rate`)
+      .then((res) => res.json())
+      .then((rawPrice) => math.evaluate(`${rawPrice} / 10^4`).toFixed());
   }
 
   /**
