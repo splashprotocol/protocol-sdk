@@ -23,6 +23,9 @@ export interface XYPoolConfig<Type extends PoolType> {
   readonly treasuryX?: bigint;
   readonly treasuryY?: bigint;
   readonly treasuryFee?: bigint;
+  readonly royaltyFee?: bigint;
+  readonly royaltyX?: bigint;
+  readonly royaltyY?: bigint;
   readonly lpBound?: bigint;
   readonly tvlADA?: number | bigint | Currency;
   readonly tvlUSD?: number | bigint | Currency;
@@ -149,6 +152,30 @@ export class XYPool<Type extends PoolType>
   readonly treasuryY: Currency;
 
   /**
+   * Fee numerator of royalty
+   * @type bigint
+   */
+  readonly royaltyFeeNumerator: bigint;
+
+  /**
+   * Amount of x token locked in royalty
+   * @type Currency
+   */
+  readonly royaltyX: Currency;
+
+  /**
+   * Amount of y token locked in royalty
+   * @type Currency
+   */
+  readonly royaltyY: Currency;
+
+  /**
+   * Pool royalty fee in pct. Can be undefined
+   * @type {percent | undefined}
+   */
+  readonly royaltyFee: percent;
+
+  /**
    * Bottom bound of pool liquidity for swaps in current pool
    * @type {Currency}
    */
@@ -216,6 +243,9 @@ export class XYPool<Type extends PoolType>
       treasuryFee = 0n,
       treasuryX = 0n,
       treasuryY = 0n,
+      royaltyFee = 0n,
+      royaltyX = 0n,
+      royaltyY = 0n,
       lpBound = 0n,
       feeDenominator,
       tvlADA,
@@ -238,8 +268,10 @@ export class XYPool<Type extends PoolType>
     this.totalY = totalY;
     this.treasuryX = totalX.withAmount(treasuryX);
     this.treasuryY = totalY.withAmount(treasuryY);
-    this.x = this.totalX.minus(this.treasuryX);
-    this.y = this.totalY.minus(this.treasuryY);
+    this.royaltyX = totalX.withAmount(royaltyX);
+    this.royaltyY = totalY.withAmount(royaltyY);
+    this.x = this.totalX.minus(this.treasuryX).minus(this.royaltyX);
+    this.y = this.totalY.minus(this.treasuryY).minus(this.royaltyY);
     this.xFeeNumerator = xFee;
     this.yFeeNumerator = yFee;
     this.xFee = this.toPoolFeePct(xFee, feeDenominator);
@@ -248,6 +280,10 @@ export class XYPool<Type extends PoolType>
       ? this.toTreasuryFeePct(treasuryFee, feeDenominator)
       : Number(treasuryFee);
     this.treasuryFeeNumerator = treasuryFee;
+    this.royaltyFee = royaltyFee
+      ? this.toTreasuryFeePct(royaltyFee, feeDenominator)
+      : Number(royaltyFee);
+    this.royaltyFeeNumerator = royaltyFee;
     this.type = type;
     this.feeDenominator = feeDenominator;
     this.lqBound = Currency.ada(lpBound);

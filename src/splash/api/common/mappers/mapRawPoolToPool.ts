@@ -22,6 +22,8 @@ const mapVersionToCfmmType = (
       return 'feeSwitch';
     case 'v3':
       return 'bidirectionalFees';
+    case 'v6':
+      return 'royalty';
     default:
       return 'default';
   }
@@ -107,6 +109,15 @@ export const mapRawPoolToPool = (
       {
         ...partialConfig,
         cfmmType: mapVersionToCfmmType(rawPool.pool.version),
+        royaltyY: rawPool.pool.royaltyY
+          ? BigInt(rawPool.pool.royaltyY)
+          : undefined,
+        royaltyX: rawPool.pool.royaltyX
+          ? BigInt(rawPool.pool.royaltyX)
+          : undefined,
+        royaltyFee: rawPool.pool.royaltyFee
+          ? BigInt(rawPool.pool.royaltyFee)
+          : undefined,
       },
       splash,
     );

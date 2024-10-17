@@ -57,6 +57,8 @@ export const xyRedeem: Operation<
       ? context.operationsConfig.operations.redeemStable.script
       : pool.cfmmType === 'feeSwitch'
       ? context.operationsConfig.operations.redeemFeeSwitch.script
+      : pool.cfmmType === 'royalty'
+      ? context.operationsConfig.operations.redeemRoyalty.script
       : context.operationsConfig.operations.redeemDefault.script;
   const redeemAdaForXYBox = predictDepositAda(context.pParams, {
     address: context.userAddress,

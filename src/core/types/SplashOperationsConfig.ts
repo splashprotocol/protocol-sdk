@@ -56,11 +56,13 @@ export interface SplashOperationsConfig {
     readonly depositWeighted: SplashOperation;
     readonly depositWeightedOld: SplashOperation;
     readonly depositStable: SplashOperation;
+    readonly depositRoyalty: SplashOperation;
     readonly redeemDefault: SplashOperation;
     readonly redeemFeeSwitch: SplashOperation;
     readonly redeemWeighted: SplashOperation;
     readonly redeemWeightedV2: SplashOperation;
     readonly redeemStable: SplashOperation;
+    readonly redeemRoyalty: SplashOperation;
   };
 }
 
@@ -85,10 +87,12 @@ export interface SplashOperationsConfigWithCredsDeserializers {
     readonly depositWeighted: SplashOperation & WithCredsDeserializer;
     readonly depositWeightedOld: SplashOperation & WithCredsDeserializer;
     readonly depositStable: SplashOperation & WithCredsDeserializer;
+    readonly depositRoyalty: SplashOperation & WithCredsDeserializer;
     readonly redeemDefault: SplashOperation & WithCredsDeserializer;
     readonly redeemFeeSwitch: SplashOperation & WithCredsDeserializer;
     readonly redeemWeighted: SplashOperation & WithCredsDeserializer;
     readonly redeemWeightedV2: SplashOperation & WithCredsDeserializer;
     readonly redeemStable: SplashOperation & WithCredsDeserializer;
+    readonly redeemRoyalty: SplashOperation & WithCredsDeserializer;
   };
 }

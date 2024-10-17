@@ -59,6 +59,8 @@ export const xyDeposit: Operation<
         ? context.operationsConfig.operations.depositStable.script
         : pool.cfmmType === 'feeSwitch'
         ? context.operationsConfig.operations.depositFeeSwitch.script
+        : pool.cfmmType === 'royalty'
+        ? context.operationsConfig.operations.depositRoyalty.script
         : context.operationsConfig.operations.depositDefault.script;
     const depositAdaForLqBox = Currency.max([
       Output.new(context.pParams, {

@@ -274,6 +274,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           ...rawOperationsConfig.operations.redeemStable,
           credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
         },
+        redeemRoyalty: {
+          ...rawOperationsConfig.operations.redeemRoyalty,
+          credsDeserializer: anyRedeemOrDepositDeserializer(RedeemData),
+        },
         depositDefault: {
           ...rawOperationsConfig.operations.depositDefault,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
@@ -292,6 +296,10 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         },
         depositStable: {
           ...rawOperationsConfig.operations.depositStable,
+          credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
+        },
+        depositRoyalty: {
+          ...rawOperationsConfig.operations.depositRoyalty,
           credsDeserializer: anyRedeemOrDepositDeserializer(DepositData),
         },
       },
