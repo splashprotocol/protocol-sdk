@@ -4,6 +4,7 @@ import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Pair } from '../../core/models/pair/Pair.ts';
 import { Price } from '../../core/models/price/Price.ts';
 import { Dictionary, price, uint } from '../../core/types/types.ts';
+import { math } from '../../core/utils/math/math.ts';
 import { Splash } from '../splash.ts';
 import {
   ErrorCallback,
@@ -21,6 +22,7 @@ export interface ExtendedLibrarySymbolInfo extends LibrarySymbolInfo {
   readonly base: AssetInfo;
   readonly quote: AssetInfo;
   readonly multiplier: number;
+  readonly cross?: Price;
 }
 
 type TvResolution = '1' | '5' | '60' | '1D' | '1W' | '1M';
@@ -104,7 +106,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       this.avoidCollision
         ? `${pair.base.splashId}/${pair.quote.splashId}${
             pair['priceMultiplier'] ? `___${pair['priceMultiplier']}` : ''
-          }` === symbolName
+          }${pair['cross'] ? `___cross` : ''}` === symbolName
         : `${pair.base.ticker}/${pair.quote.ticker}` === symbolName,
     );
 
@@ -113,11 +115,13 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       return;
     }
 
-    const pairTicker = `${pair.base.ticker}/${pair.quote.ticker}`;
+    const pairTicker = `${pair.base.ticker}/${
+      pair['cross'] ? 'USD' : pair.quote.ticker
+    }`;
     const pairName = this.avoidCollision
       ? `${pair.base.splashId}/${pair.quote.splashId}${
           pair['priceMultiplier'] ? `___${pair['priceMultiplier']}` : ''
-        }`
+        }${pair['cross'] ? `___cross` : ''}`
       : pairTicker;
 
     let priceScalePow: number = pair.quote.decimals;
@@ -145,6 +149,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       base: pair.base,
       quote: pair.quote,
       multiplier: pair['priceMultiplier'],
+      cross: pair['cross'],
     });
   }
 
@@ -168,11 +173,21 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       this.mapListenerGuidToIntervalId[listenerGuid] = setInterval(
         async () =>
           onTick(
-            await this.getLastBar(getLastBarParams, symbolInfo.multiplier),
+            await this.getLastBar(
+              getLastBarParams,
+              symbolInfo.multiplier,
+              symbolInfo.cross,
+            ),
           ),
         this.lastBarTickInterval,
       );
-      onTick(await this.getLastBar(getLastBarParams, symbolInfo.multiplier));
+      onTick(
+        await this.getLastBar(
+          getLastBarParams,
+          symbolInfo.multiplier,
+          symbolInfo.cross,
+        ),
+      );
     } catch (e) {
       console.error('[subscribeBars]: Fetch last bar error', e);
     }
@@ -201,6 +216,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
               symbolInfo.base,
               symbolInfo.quote,
               symbolInfo.multiplier,
+              symbolInfo.cross,
             ),
           ),
           {
@@ -224,11 +240,15 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     }
   }
 
-  private async getLastBar(params: GetChartLastBarParams, multiplier: number) {
+  private async getLastBar(
+    params: GetChartLastBarParams,
+    multiplier: number,
+    cross?: Price,
+  ) {
     return this.splash.api
       .getChartLastBar(params)
       .then((bar) =>
-        this.normalizeBar(bar, params.base, params.quote, multiplier),
+        this.normalizeBar(bar, params.base, params.quote, multiplier, cross),
       );
   }
 
@@ -237,12 +257,13 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     base: AssetInfo,
     quote: AssetInfo,
     multiplier: number,
+    cross?: Price,
   ) {
     return {
-      open: this.normalizePrice(bar.open, base, quote, multiplier),
-      close: this.normalizePrice(bar.close, base, quote, multiplier),
-      low: this.normalizePrice(bar.low, base, quote, multiplier),
-      high: this.normalizePrice(bar.high, base, quote, multiplier),
+      open: this.normalizePrice(bar.open, base, quote, multiplier, cross),
+      close: this.normalizePrice(bar.close, base, quote, multiplier, cross),
+      low: this.normalizePrice(bar.low, base, quote, multiplier, cross),
+      high: this.normalizePrice(bar.high, base, quote, multiplier, cross),
       volume: Number(bar.volume),
       time: Number(bar.time),
     };
@@ -253,14 +274,20 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     base: AssetInfo,
     quote: AssetInfo,
     multiplier: number,
+    cross?: Price,
   ): number {
-    return (
+    const withMultiplier =
       Price.new({
         raw: rawPrice,
         base,
         quote,
       }).toNumber() *
-      10 ** multiplier
-    );
+      10 ** multiplier;
+
+    return cross
+      ? Number(
+          math.evaluate(`${withMultiplier} * ${cross.toString()}`).toFixed(),
+        )
+      : withMultiplier;
   }
 }
