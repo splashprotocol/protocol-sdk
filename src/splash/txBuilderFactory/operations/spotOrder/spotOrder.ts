@@ -13,6 +13,8 @@ import { Data } from '../../../../core/models/data/data.ts';
 import { Price } from '../../../../core/models/price/Price.ts';
 import { UTxO } from '../../../../core/models/utxo/UTxO.ts';
 import { HexString } from '../../../../core/types/types.ts';
+import { bytesToHex } from '../../../../core/utils/bytesToHex/bytesToHex.ts';
+import { hexToBytes } from '../../../../core/utils/hexToBytes/hexToBytes.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { predictDepositAda } from '../../../../core/utils/predictDepositAdaForExecutor/predictDepositAda.ts';
 import { toContractAddress } from '../../../../core/utils/toContractAddress/toContractAddress.ts';
@@ -77,12 +79,16 @@ const getBasePrice = async (
   return basePrice.base.isEquals(input.asset) ? basePrice : basePrice.invert();
 };
 
-export const getBeacon = async (uTxO: UTxO): Promise<string> => {
+export const getBeacon = async (
+  uTxO: UTxO,
+  datumHash: HexString,
+): Promise<string> => {
   return blake2b(
     Uint8Array.from([
       ...TransactionHash.from_hex(uTxO.ref.txHash).to_raw_bytes(),
       ...new Uint64BE(Number(uTxO.ref.index)).toArray(),
       ...new Uint64BE(0).toArray(),
+      ...hexToBytes(datumHash),
     ]),
     224,
   );
@@ -167,12 +173,38 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
     });
     const [firstUTxO] = context.uTxOsSelector.select(Currencies.new([input]));
     const address = Address.from_bech32(context.userAddress);
-
+    const activeBatcherKey =
+      batcherPkh || '5cb2c968e5d1c7197a6ce7615967310a375545d9bc65063a964335b2';
+    const beacon = await getBeacon(
+      firstUTxO,
+      await blake2b(
+        createSpotOrderData(
+          context.network === 'mainnet'
+            ? NetworkId.mainnet()
+            : NetworkId.testnet(),
+        )([
+          '00',
+          bytesToHex(Uint8Array.from(new Array(28).fill(0))),
+          input.asset,
+          input.amount,
+          worstOrderStepCost.amount,
+          minMarginalOutput.amount,
+          outputAsset,
+          basePrice.raw,
+          0n,
+          context.userAddress,
+          address.payment_cred()!.as_pub_key()!.to_hex(),
+          [activeBatcherKey],
+        ]).to_canonical_cbor_bytes(),
+        224,
+      ),
+    );
+    console.log(beacon, firstUTxO);
     const data = createSpotOrderData(
       context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
     )([
       '00',
-      await getBeacon(firstUTxO),
+      beacon,
       input.asset,
       input.amount,
       worstOrderStepCost.amount,
@@ -182,10 +214,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       0n,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
-      [
-        batcherPkh ||
-          '5cb2c968e5d1c7197a6ce7615967310a375545d9bc65063a964335b2',
-      ],
+      [activeBatcherKey],
     ]);
     const depositAdaForReceive = predictDepositAda(context.pParams, {
       value: Currencies.new([basePrice.getNecessaryQuoteFor(input)]),
