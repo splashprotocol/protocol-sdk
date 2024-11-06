@@ -139,6 +139,12 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         context.operationsConfig.operations.spotOrderV3.settings.orderStepCost,
       ),
     );
+    const executorFee = Currency.ada(
+      BigInt(
+        context.operationsConfig.operations.spotOrderV3.settings.executorFee ||
+          0n,
+      ),
+    );
     const worstOrderStepCost = Currency.ada(
       BigInt(
         context.operationsConfig.operations.spotOrderV3.settings
@@ -191,7 +197,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
           minMarginalOutput.amount,
           outputAsset,
           basePrice.raw,
-          0n,
+          executorFee.amount,
           context.userAddress,
           address.payment_cred()!.as_pub_key()!.to_hex(),
           [activeBatcherKey],
@@ -199,7 +205,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         224,
       ),
     );
-    console.log(beacon, firstUTxO);
+
     const data = createSpotOrderData(
       context.network === 'mainnet' ? NetworkId.mainnet() : NetworkId.testnet(),
     )([
@@ -211,7 +217,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       minMarginalOutput.amount,
       outputAsset,
       basePrice.raw,
-      0n,
+      executorFee.amount,
       context.userAddress,
       address.payment_cred()!.as_pub_key()!.to_hex(),
       [activeBatcherKey],
@@ -226,6 +232,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
       worstOrderStepCost,
       orderStepCost.multiply(orderMaxStepCount - 1n),
       depositAdaForReceive,
+      executorFee,
     ]);
     const depositAdaForOrder = predictDepositAda(context.pParams, {
       value: outputValue,

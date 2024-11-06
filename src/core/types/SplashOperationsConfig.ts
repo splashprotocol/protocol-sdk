@@ -34,6 +34,7 @@ export interface SplashSpotOrderSettings {
   readonly maxStepCountMarket: uint;
   readonly approximatedTxFee: uint;
   readonly marketOrderPriceSlippage: percent;
+  readonly executorFee: uint;
 }
 
 export interface SplashSpotOrder extends SplashOperation {
