@@ -195,7 +195,7 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
           context.userAddress,
           address.payment_cred()!.as_pub_key()!.to_hex(),
           [activeBatcherKey],
-        ]).to_canonical_cbor_bytes(),
+        ]).to_cbor_bytes(),
         224,
       ),
     );
