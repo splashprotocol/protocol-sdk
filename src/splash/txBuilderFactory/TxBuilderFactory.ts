@@ -59,6 +59,7 @@ import { NoCollateralError } from './erors/NoCollateralError.ts';
 import { cancelOperation } from './operations/cancelOperation/cancelOperation.ts';
 import { Operation, OperationContext } from './operations/common/Operation.ts';
 import { createCfmmPool } from './operations/createCfmmPool/createCfmmPool.ts';
+import { createRoyaltyPool } from './operations/createRoyaltyPool/createRoyaltyPool.ts';
 import { createWeightedPool } from './operations/createWeightedPool/createWeightedPool.ts';
 import { payToAddress } from './operations/payToAddress/payToAddress.ts';
 import { payToContract } from './operations/payToContract/payToContract.ts';
@@ -85,6 +86,7 @@ export const defaultOperations: {
   cancelOperation: typeof cancelOperation;
   createWeightedPool: typeof createWeightedPool;
   createCfmmPool: typeof createCfmmPool;
+  createRoyaltyPool: typeof createRoyaltyPool;
 } = {
   payToAddress,
   payToContract,
@@ -94,6 +96,7 @@ export const defaultOperations: {
   cancelOperation,
   createWeightedPool,
   createCfmmPool,
+  createRoyaltyPool,
 };
 
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {

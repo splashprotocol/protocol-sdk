@@ -279,6 +279,137 @@ export function TupleDataType<
   ]
 >;
 
+export function TupleDataType<
+  T1 extends DataType<any>,
+  T2 extends DataType<any>,
+  T3 extends DataType<any>,
+  T4 extends DataType<any>,
+  T5 extends DataType<any>,
+  T6 extends DataType<any>,
+  T7 extends DataType<any>,
+  T8 extends DataType<any>,
+  T9 extends DataType<any>,
+  T10 extends DataType<any>,
+  T11 extends DataType<any>,
+  T12 extends DataType<any>,
+  T13 extends DataType<any>,
+  T14 extends DataType<any>,
+>(
+  types: [T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14],
+): DataType<
+  [
+    T1 extends DataType<infer R1> ? R1 : never,
+    T2 extends DataType<infer R2> ? R2 : never,
+    T3 extends DataType<infer R3> ? R3 : never,
+    T4 extends DataType<infer R4> ? R4 : never,
+    T5 extends DataType<infer R5> ? R5 : never,
+    T6 extends DataType<infer R6> ? R6 : never,
+    T7 extends DataType<infer R7> ? R7 : never,
+    T8 extends DataType<infer R8> ? R8 : never,
+    T9 extends DataType<infer R9> ? R9 : never,
+    T10 extends DataType<infer R10> ? R10 : never,
+    T11 extends DataType<infer R11> ? R11 : never,
+    T12 extends DataType<infer R12> ? R12 : never,
+    T13 extends DataType<infer R13> ? R13 : never,
+    T14 extends DataType<infer R14> ? R14 : never,
+  ]
+>;
+
+export function TupleDataType<
+  T1 extends DataType<any>,
+  T2 extends DataType<any>,
+  T3 extends DataType<any>,
+  T4 extends DataType<any>,
+  T5 extends DataType<any>,
+  T6 extends DataType<any>,
+  T7 extends DataType<any>,
+  T8 extends DataType<any>,
+  T9 extends DataType<any>,
+  T10 extends DataType<any>,
+  T11 extends DataType<any>,
+  T12 extends DataType<any>,
+  T13 extends DataType<any>,
+  T14 extends DataType<any>,
+  T15 extends DataType<any>,
+>(
+  types: [T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15],
+): DataType<
+  [
+    T1 extends DataType<infer R1> ? R1 : never,
+    T2 extends DataType<infer R2> ? R2 : never,
+    T3 extends DataType<infer R3> ? R3 : never,
+    T4 extends DataType<infer R4> ? R4 : never,
+    T5 extends DataType<infer R5> ? R5 : never,
+    T6 extends DataType<infer R6> ? R6 : never,
+    T7 extends DataType<infer R7> ? R7 : never,
+    T8 extends DataType<infer R8> ? R8 : never,
+    T9 extends DataType<infer R9> ? R9 : never,
+    T10 extends DataType<infer R10> ? R10 : never,
+    T11 extends DataType<infer R11> ? R11 : never,
+    T12 extends DataType<infer R12> ? R12 : never,
+    T13 extends DataType<infer R13> ? R13 : never,
+    T14 extends DataType<infer R14> ? R14 : never,
+    T15 extends DataType<infer R15> ? R15 : never,
+  ]
+>;
+
+export function TupleDataType<
+  T1 extends DataType<any>,
+  T2 extends DataType<any>,
+  T3 extends DataType<any>,
+  T4 extends DataType<any>,
+  T5 extends DataType<any>,
+  T6 extends DataType<any>,
+  T7 extends DataType<any>,
+  T8 extends DataType<any>,
+  T9 extends DataType<any>,
+  T10 extends DataType<any>,
+  T11 extends DataType<any>,
+  T12 extends DataType<any>,
+  T13 extends DataType<any>,
+  T14 extends DataType<any>,
+  T15 extends DataType<any>,
+  T16 extends DataType<any>,
+>(
+  types: [
+    T1,
+    T2,
+    T3,
+    T4,
+    T5,
+    T6,
+    T7,
+    T8,
+    T9,
+    T10,
+    T11,
+    T12,
+    T13,
+    T14,
+    T15,
+    T16,
+  ],
+): DataType<
+  [
+    T1 extends DataType<infer R1> ? R1 : never,
+    T2 extends DataType<infer R2> ? R2 : never,
+    T3 extends DataType<infer R3> ? R3 : never,
+    T4 extends DataType<infer R4> ? R4 : never,
+    T5 extends DataType<infer R5> ? R5 : never,
+    T6 extends DataType<infer R6> ? R6 : never,
+    T7 extends DataType<infer R7> ? R7 : never,
+    T8 extends DataType<infer R8> ? R8 : never,
+    T9 extends DataType<infer R9> ? R9 : never,
+    T10 extends DataType<infer R10> ? R10 : never,
+    T11 extends DataType<infer R11> ? R11 : never,
+    T12 extends DataType<infer R12> ? R12 : never,
+    T13 extends DataType<infer R13> ? R13 : never,
+    T14 extends DataType<infer R14> ? R14 : never,
+    T15 extends DataType<infer R15> ? R15 : never,
+    T16 extends DataType<infer R16> ? R16 : never,
+  ]
+>;
+
 /**
  * Tuple representation in plutus data
  * @param {DataType<any>[]} typeList

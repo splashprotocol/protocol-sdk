@@ -181,6 +181,10 @@ export {
   createCfmmPool,
   createCfmmPoolData,
 } from './splash/txBuilderFactory/operations/createCfmmPool/createCfmmPool.ts';
+export {
+  createRoyaltyPool,
+  createRoyaltyPoolData,
+} from './splash/txBuilderFactory/operations/createRoyaltyPool/createRoyaltyPool.ts';
 export * from './splash/txBuilderFactory/operations/createWeightedPool/createWeightedPool.ts';
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
