@@ -294,7 +294,10 @@ export class ApiWrapper {
     return Promise.all([
       this.getWalletContext().then((ctx) =>
         this.handleCIP30WalletError(
-          ctx.signTx(transaction.cbor, transaction.partialSign),
+          ctx.signTx(
+            transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+            transaction.partialSign,
+          ),
         ),
       ),
       this.splash['remoteCollaterals'] && transaction.remoteCollateral
