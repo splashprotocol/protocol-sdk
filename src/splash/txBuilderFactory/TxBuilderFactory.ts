@@ -617,6 +617,16 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           TransactionMetadatum.new_text('name'),
           TransactionMetadatum.new_text(mint.cip25.name),
         );
+        metadatumMap.set(
+          TransactionMetadatum.new_text('image'),
+          TransactionMetadatum.new_text(mint.cip25.image),
+        );
+        if (mint.cip25.ticker) {
+          metadatumMap.set(
+            TransactionMetadatum.new_text('ticker'),
+            TransactionMetadatum.new_text(mint.cip25.ticker),
+          );
+        }
 
         const descriptionChunks =
           mint.cip25.description.match(/.{1,64}/g) || [];
@@ -631,16 +641,7 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
             ? TransactionMetadatum.new_list(descriptionList)
             : TransactionMetadatum.new_text(mint.cip25.description),
         );
-        metadatumMap.set(
-          TransactionMetadatum.new_text('image'),
-          TransactionMetadatum.new_text(mint.cip25.image),
-        );
-        if (mint.cip25.ticker) {
-          metadatumMap.set(
-            TransactionMetadatum.new_text('ticker'),
-            TransactionMetadatum.new_text(mint.cip25.ticker),
-          );
-        }
+
         const cip25Metadatum = MetadatumMap.new();
         cip25Metadatum.set(
           TransactionMetadatum.new_text(mint.cip25.name),
