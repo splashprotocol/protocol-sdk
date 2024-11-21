@@ -1,4 +1,5 @@
-import { Bip32PublicKey } from '@dcspark/cardano-multiplatform-lib-browser';
+import { PublicKey } from '@dcspark/cardano-multiplatform-lib-browser';
+import * as Cbor from 'cbor-web';
 import { blake2b } from 'hash-wasm';
 
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
@@ -128,7 +129,6 @@ export interface CreateWeightedPoolConfig {
   readonly poolFee?: percent;
   readonly treasuryFee?: percent;
   readonly editableFee?: boolean;
-  readonly pubKeyBech32: string;
 }
 
 export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
@@ -139,7 +139,6 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
     poolFee = 0.3,
     editableFee = true,
     royaltyFee,
-    pubKeyBech32,
   }) =>
   async (context) => {
     const newX = x.isAda() ? x : y;
@@ -195,6 +194,9 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
       math.evaluate(`${royaltyFee} / 100 * 100000`).toFixed(),
     );
     const daoPolicy = await getDaoPolicy(nftAssetInfo, editableFee);
+    const { key } = await context.splash.api.signMessage(
+      stringToHex('Public key verification'),
+    );
 
     const data = createRoyaltyPoolData([
       nftAssetInfo,
@@ -218,7 +220,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
       ],
       '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
       await blake2b(
-        Bip32PublicKey.from_bech32(pubKeyBech32).to_raw_key().to_raw_bytes(),
+        PublicKey.from_bytes(Cbor.decode(key).get(-2)).to_raw_bytes(),
         256,
       ),
       0n,
@@ -245,7 +247,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
     });
     return payToContract(
       {
-        script: 'b09d1ccde30a0c65316c8e5dada41ee4d86ca0d0bb5370542693dafa',
+        script: 'de9b3849c40b5a941f3a19054133a133a6d8d9565fe46472239a289d',
         version: 'plutusV2',
       },
       Currencies.new([

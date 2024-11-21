@@ -67,6 +67,7 @@ import {
   createSpotOrderData,
   spotOrder,
 } from './operations/spotOrder/spotOrder.ts';
+import { withdrawRoyalty } from './operations/withdrawRoyalty/withdrawRoyalty.ts';
 import { DepositData, xyDeposit } from './operations/xyDeposit/xyDeposit.ts';
 import { RedeemData, xyRedeem } from './operations/xyRedeem/xyRedeem.ts';
 import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig.ts';
@@ -87,6 +88,7 @@ export const defaultOperations: {
   createWeightedPool: typeof createWeightedPool;
   createCfmmPool: typeof createCfmmPool;
   createRoyaltyPool: typeof createRoyaltyPool;
+  withdrawRoyalty: typeof withdrawRoyalty;
 } = {
   payToAddress,
   payToContract,
@@ -97,6 +99,7 @@ export const defaultOperations: {
   createWeightedPool,
   createCfmmPool,
   createRoyaltyPool,
+  withdrawRoyalty,
 };
 
 export type TxBuilder<O extends Dictionary<Operation<any>>> = {

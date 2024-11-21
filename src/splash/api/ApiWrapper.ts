@@ -50,7 +50,9 @@ import { NetworkContext } from '../../core/types/NetworkContext.ts';
 import { ProtocolParams } from '../../core/types/ProtocolParams.ts';
 import {
   AssetId,
+  CborHexString,
   Dictionary,
+  HexString,
   TransactionHash,
   uint,
 } from '../../core/types/types.ts';
@@ -323,6 +325,19 @@ export class ApiWrapper {
       this.handleCIP30WalletError(
         ctx.submitTx(signedTransaction.wasm.to_canonical_cbor_hex()),
       ),
+    );
+  }
+
+  async signMessage(
+    data: CborHexString,
+    address?: CborHexString,
+  ): Promise<{ key: HexString; signature: HexString }> {
+    return this.getWalletContext().then((ctx) =>
+      ctx
+        .getChangeAddress()
+        .then((changeAddressCbor) =>
+          ctx.signData(address || changeAddressCbor, data),
+        ),
     );
   }
 

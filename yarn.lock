@@ -2034,6 +2034,11 @@ cbor-extract@^2.1.1:
     "@cbor-extract/cbor-extract-linux-x64" "2.1.1"
     "@cbor-extract/cbor-extract-win32-x64" "2.1.1"
 
+cbor-web@^10.0.3:
+  version "10.0.3"
+  resolved "https://registry.yarnpkg.com/cbor-web/-/cbor-web-10.0.3.tgz#cdbc5530b8e2dbe8ba0e17c00b4413d4a6995d04"
+  integrity sha512-IWHUPUDxRlDzT6Saykzpy/0PckZjcPZcS/WQR1pWm+YX5IniAMB4Cih+AdxUss0CNs/XEBXWJsKfJWitx+1zGg==
+
 cbor-x@^1.5.4:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/cbor-x/-/cbor-x-1.5.4.tgz#8f0754fa8589cbd7339b613b2b5717d133508e98"

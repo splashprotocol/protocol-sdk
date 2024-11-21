@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "source": "src/index.ts",
@@ -17,6 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@dcspark/cardano-multiplatform-lib-browser": "^6.0.0",
+    "cbor-web": "^10.0.3",
     "cbor-x": "^1.5.4",
     "hash-wasm": "^4.11.0",
     "int64-buffer": "^1.0.1",
