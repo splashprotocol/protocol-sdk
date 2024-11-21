@@ -264,9 +264,7 @@ export class SplashApi implements Api {
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
     } else if (this._network === 'premainnet2') {
-      return fetch(
-        `https://api-test-mainnet.splash.trade/asset-info/${assetId}.json`,
-      )
+      return fetch(`https://api6.splash.trade/asset-info/${assetId}.json`)
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
     }
