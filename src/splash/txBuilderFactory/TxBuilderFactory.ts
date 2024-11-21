@@ -28,7 +28,6 @@ import {
   TransactionBuilder,
   TransactionBuilderConfig,
   TransactionMetadatum,
-  TransactionOutput,
   TransactionWitnessSetBuilder,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
@@ -728,31 +727,6 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     const changeSelectionAlgo = Number(ChangeSelectionAlgo.Default.toString());
 
     if (!collaterals.length && !remoteCollaterals.length) {
-      const txForChangeCalc = transactionBuilder.build_for_evaluation(
-        changeSelectionAlgo,
-        wasmChangeAddress,
-      );
-      const txForChangeOutputs = txForChangeCalc.draft_body().outputs();
-      const changeOutputs: TransactionOutput[] = [];
-
-      for (let i = 0; i < txForChangeOutputs.len(); i++) {
-        if (!transactionCandidate.outputs[i]) {
-          changeOutputs.push(txForChangeOutputs.get(i));
-        }
-      }
-      transactionBuilder.add_output(
-        SingleOutputBuilderResult.new(
-          Output.new(rest.pParams, {
-            value: changeOutputs.reduce(
-              (value, wasmO) => value.plus(Currencies.new(wasmO.amount())),
-              Currencies.empty,
-            ),
-            address: userAddress,
-            data: undefined,
-          }).wasm,
-        ),
-      );
-
       return {
         txBuilder: transactionBuilder.build(
           changeSelectionAlgo,
@@ -948,8 +922,11 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
       value: estimatedChange,
     });
     const extraOutputFee = Currency.ada(
-      transactionBuilder.fee_for_output(
-        SingleOutputBuilderResult.new(estimatedChangeOutput.wasm),
+      BigInt(
+        estimatedChangeOutput.wasm.to_cbor_bytes().length *
+          // TODO: FIX
+          2 *
+          Number(context.pParams.txFeePerByte),
       ),
     );
 
