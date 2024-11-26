@@ -661,13 +661,6 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     if (mintsMetadatumMap.len() || transactionCandidate.metadata.length) {
       const finalMetadata = Metadata.new();
 
-      if (mintsMetadatumMap.len()) {
-        finalMetadata.set(
-          721n,
-          TransactionMetadatum.new_map(mintsMetadatumMap),
-        );
-      }
-
       transactionCandidate.metadata.forEach((metadataItem) => {
         if (typeof metadataItem[1] === 'string') {
           const metadataChunks = metadataItem[1].match(/.{1,64}/g) || [];
@@ -688,6 +681,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
           );
         }
       });
+
+      if (mintsMetadatumMap.len()) {
+        finalMetadata.set(
+          721n,
+          TransactionMetadatum.new_map(mintsMetadatumMap),
+        );
+      }
 
       transactionBuilder.set_auxiliary_data(
         AuxiliaryData.new_shelley(finalMetadata),
