@@ -17,7 +17,7 @@
   "license": "ISC",
   "dependencies": {
     "@dcspark/cardano-multiplatform-lib-browser": "^6.0.0",
-    "cbor-web": "^10.0.3",
+    "cbor2": "^1.7.1",
     "cbor-x": "^1.5.4",
     "hash-wasm": "^4.11.0",
     "int64-buffer": "^1.0.1",
@@ -47,6 +47,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!(cbor2)/)"
+    ],
     "setupFiles": [
       "./jest/mocks.js"
     ]

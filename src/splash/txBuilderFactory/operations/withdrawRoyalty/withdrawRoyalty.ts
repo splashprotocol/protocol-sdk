@@ -2,16 +2,17 @@ import {
   Ed25519Signature,
   PublicKey,
 } from '@dcspark/cardano-multiplatform-lib-browser';
-import * as Cbor from 'cbor-web';
+//@ts-ignore
+import * as Cbor from 'cbor2';
 
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
 import { Currency } from '../../../../core/models/currency/Currency.ts';
 import { Data } from '../../../../core/models/data/data.ts';
 import { CfmmPool } from '../../../../core/models/pool/cfmm/CfmmPool.ts';
 import { HexString } from '../../../../core/types/types.ts';
-import { bytesToHex } from '../../../../core/utils/bytesToHex/bytesToHex.ts';
-import { stringToHex } from '../../../../core/utils/stringToHex/stringToHex.ts';
+import { hexToBytes } from '../../../../core/utils/hexToBytes/hexToBytes.ts';
 import { Operation } from '../common/Operation.ts';
+import { getPrependData } from '../createRoyaltyPool/getPrependData/getPrependData.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
 
 interface DataToSignBody {
@@ -22,7 +23,6 @@ interface DataToSignBody {
   readonly xToWithdraw: string;
   readonly yToWithdraw: string;
   readonly pkh: string;
-  readonly pk: string;
   readonly exFee: string;
   readonly nonce: string;
 }
@@ -50,7 +50,6 @@ const withdrawRoyaltyData = Data.Tuple([
     Data.BigInt,
     Data.BigInt,
     Data.Bytes,
-    Data.Bytes,
     Data.BigInt,
   ]),
   Data.Bytes,
@@ -60,13 +59,11 @@ const withdrawRoyaltyData = Data.Tuple([
 export const withdrawRoyalty: Operation<[WithdrawRoyaltyConfig]> =
   ({ pool, xToWithdraw = pool.royaltyX, yToWithdraw = pool.royaltyY }) =>
   async (context) => {
+    console.log(xToWithdraw.amount, yToWithdraw.amount);
     if (pool.cfmmType !== 'royalty') {
       throw new Error('incorrect pool type');
     }
-    const { key } = await context.splash.api.signMessage(
-      stringToHex('Public key check'),
-    );
-    const publicKey = PublicKey.from_bytes(Cbor.decode(key).get(-2));
+    const publicKey = PublicKey.from_bytes(hexToBytes(pool.royaltyPk!));
 
     const dataToSign = await getDataToSign({
       nft: {
@@ -76,31 +73,42 @@ export const withdrawRoyalty: Operation<[WithdrawRoyaltyConfig]> =
       xToWithdraw: xToWithdraw.amount.toString(),
       yToWithdraw: yToWithdraw.amount.toString(),
       pkh: publicKey.hash().to_hex(),
-      pk: bytesToHex(publicKey.to_raw_bytes()),
       exFee: 4_500_000n.toString(),
-      nonce: '0',
+      nonce: pool.royaltyNonce?.toString()!,
     });
 
-    const { signature, key: coseKey } =
-      await context.splash.api.signMessage(dataToSign);
-    console.log(signature, coseKey);
+    const { signature } = await context.splash.api.signMessage(
+      dataToSign,
+      pool.royaltyUserAddress,
+    );
+    const prependData = getPrependData(signature);
+    const ed25519Signature = Ed25519Signature.from_raw_bytes(
+      Cbor.decode(signature)[3],
+    );
+
+    if (
+      !publicKey.verify(hexToBytes(prependData + dataToSign), ed25519Signature)
+    ) {
+      throw new Error('invalid royalty data');
+    }
+    console.log('valid!', prependData);
+
     const data = withdrawRoyaltyData([
       [
         pool.nft,
         xToWithdraw.amount,
         yToWithdraw.amount,
         publicKey.hash().to_hex(),
-        bytesToHex(publicKey.to_raw_bytes()),
         4_500_000n,
       ],
-      Ed25519Signature.from_raw_bytes(Cbor.decode(signature)[3]).to_hex(),
-      '846a5369676e6174757265315846a201276761646472657373583900719bee424a97b58b3dca88fe5da6feac6494aa7226f975f3506c5b257846f6bb07f5b2825885e4502679e699b4e60a0c4609a46bc35454cd405889',
+      ed25519Signature.to_hex(),
+      prependData,
     ]);
 
     return payToContract(
       {
         version: 'plutusV2',
-        script: '40a533ea4e3023c62912f029c7ad388bf3c2254e9c7fb3450024bc6e',
+        script: '92c094b90cf3637a96a13e9bc9a04ce8bb7e48c7ed0b5d1cc5ca7332',
       },
       Currencies.new([Currency.ada(10_000_000n)]),
       data,

@@ -1,6 +1,6 @@
 import { PublicKey } from '@dcspark/cardano-multiplatform-lib-browser';
-import * as Cbor from 'cbor-web';
-import { blake2b } from 'hash-wasm';
+// @ts-ignore
+import * as Cbor from 'cbor2';
 
 import { AssetInfo } from '../../../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../../../core/models/currencies/Currencies.ts';
@@ -20,6 +20,7 @@ import {
   percent,
   TransactionHash,
 } from '../../../../core/types/types.ts';
+import { bytesToHex } from '../../../../core/utils/bytesToHex/bytesToHex.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { stringToHex } from '../../../../core/utils/stringToHex/stringToHex.ts';
 import { Operation } from '../common/Operation.ts';
@@ -116,7 +117,7 @@ export const createRoyaltyPoolData = Data.Tuple([
   Data.List(Data.DaoPolicy),
   // treasury address
   Data.Bytes,
-  // royalty blake2b256 pk
+  // royalty pk
   Data.Bytes,
   // royalty nonce
   Data.BigInt,
@@ -194,7 +195,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
       math.evaluate(`${royaltyFee} / 100 * 100000`).toFixed(),
     );
     const daoPolicy = await getDaoPolicy(nftAssetInfo, editableFee);
-    const { key } = await context.splash.api.signMessage(
+    const { key, signature } = await context.splash.api.signMessage(
       stringToHex('Public key verification'),
     );
 
@@ -219,10 +220,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
         ],
       ],
       '75c4570eb625ae881b32a34c52b159f6f3f3f2c7aaabf5bac4688133',
-      await blake2b(
-        PublicKey.from_bytes(Cbor.decode(key).get(-2)).to_raw_bytes(),
-        256,
-      ),
+      bytesToHex(PublicKey.from_bytes(Cbor.decode(key).get(-2)).to_raw_bytes()),
       0n,
     ]);
     const depositAda = newX.isAda() ? Currency.ada(0n) : MIN_POOL_ADA_VALUE_T2T;
@@ -236,6 +234,12 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
         steps: 153808137n,
       },
     });
+
+    context.transactionCandidate.addMetadata([
+      42n,
+      bytesToHex(Cbor.decode(Cbor.decode(signature)[0]).get('address')),
+    ]);
+
     context.transactionCandidate.addMint({
       currency: Currency.new(MINT_LQ, lqAssetInfo),
       plutusV2ScriptCbor: lqMintInfo.script,
@@ -247,7 +251,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
     });
     return payToContract(
       {
-        script: 'de9b3849c40b5a941f3a19054133a133a6d8d9565fe46472239a289d',
+        script: 'cb684a69e78907a9796b21fc150a758af5f2805e5ed5d5a8ce9f76f1',
         version: 'plutusV2',
       },
       Currencies.new([

@@ -1,7 +1,12 @@
 import { PoolId } from '../../../../../build';
 import { Splash } from '../../../../splash/splash.ts';
 import { Pool, PoolType } from '../../../types/Pool.ts';
-import { OutputReference, percent } from '../../../types/types.ts';
+import {
+  HexString,
+  OutputReference,
+  percent,
+  uint,
+} from '../../../types/types.ts';
 import { math } from '../../../utils/math/math.ts';
 import { ada } from '../../assetInfo/ada.ts';
 import { AssetInfo } from '../../assetInfo/AssetInfo.ts';
@@ -26,6 +31,9 @@ export interface XYPoolConfig<Type extends PoolType> {
   readonly royaltyFee?: bigint;
   readonly royaltyX?: bigint;
   readonly royaltyY?: bigint;
+  readonly royaltyNonce?: uint;
+  readonly royaltyPk?: HexString;
+  readonly royaltyUserAddress?: HexString;
   readonly lpBound?: bigint;
   readonly tvlADA?: number | bigint | Currency;
   readonly tvlUSD?: number | bigint | Currency;
@@ -176,6 +184,24 @@ export class XYPool<Type extends PoolType>
   readonly royaltyFee: percent;
 
   /**
+   * Pool royalty nonce. Need to withdrawal
+   * @type {uint | undefined}
+   */
+  readonly royaltyNonce?: uint;
+
+  /**
+   * Pool royalty pk. Need to withdrawal
+   * @type {HexString | undefined}
+   */
+  readonly royaltyPk?: HexString;
+
+  /**
+   * Pool royalty user address. Need to withdrawal
+   * @type {HexString | undefined}
+   */
+  readonly royaltyUserAddress?: HexString;
+
+  /**
    * Bottom bound of pool liquidity for swaps in current pool
    * @type {Currency}
    */
@@ -257,6 +283,9 @@ export class XYPool<Type extends PoolType>
       apr,
       apr30d,
       outputId,
+      royaltyNonce,
+      royaltyPk,
+      royaltyUserAddress,
     }: XYPoolConfig<Type>,
     private splash: Splash<{}>,
   ) {
@@ -283,6 +312,10 @@ export class XYPool<Type extends PoolType>
     this.royaltyFee = royaltyFee
       ? this.toTreasuryFeePct(royaltyFee, feeDenominator)
       : Number(royaltyFee);
+
+    this.royaltyNonce = royaltyNonce;
+    this.royaltyPk = royaltyPk;
+    this.royaltyUserAddress = royaltyUserAddress;
     this.royaltyFeeNumerator = royaltyFee;
     this.type = type;
     this.feeDenominator = feeDenominator;

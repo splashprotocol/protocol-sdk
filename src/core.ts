@@ -212,3 +212,4 @@ export * from './splash/remoteCollaterals/SplashRemoteCollaterals.ts';
 
 // SPLASH
 export * from './splash/splash.ts';
+export * from './splash/txBuilderFactory/operations/createRoyaltyPool/getPrependData/getPrependData.ts';

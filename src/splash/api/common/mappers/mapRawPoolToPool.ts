@@ -109,6 +109,9 @@ export const mapRawPoolToPool = (
       {
         ...partialConfig,
         cfmmType: mapVersionToCfmmType(rawPool.pool.version),
+        royaltyNonce: rawPool.pool.royaltyNonce,
+        royaltyPk: rawPool.pool.royaltyPk,
+        royaltyUserAddress: rawPool.pool.royaltyUserAddress,
         royaltyY: rawPool.pool.royaltyY
           ? BigInt(rawPool.pool.royaltyY)
           : undefined,

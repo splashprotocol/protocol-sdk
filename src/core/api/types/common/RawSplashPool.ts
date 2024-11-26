@@ -1,4 +1,4 @@
-import { HexString, PoolId } from '../../../types/types.ts';
+import { HexString, PoolId, uint } from '../../../types/types.ts';
 import { CurrencyDescriptor } from './CurrencyDescriptor.ts';
 
 export type RawSplashPoolVersion = 'v1' | 'v2' | 'v3' | 'v4' | 'v5' | 'v6';
@@ -27,6 +27,9 @@ export interface RawSplashPoolInfo {
 export interface RawSplashCfmmPoolInfo extends RawSplashPoolInfo {
   readonly poolType: 'cfmm';
   readonly version: RawSplashPoolVersion;
+  readonly royaltyNonce?: uint;
+  readonly royaltyPk?: HexString;
+  readonly royaltyUserAddress?: HexString;
 }
 
 export interface RawSplashStablePoolInfo extends RawSplashPoolInfo {
