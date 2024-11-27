@@ -297,7 +297,7 @@ export class ApiWrapper {
       this.getWalletContext().then((ctx) =>
         this.handleCIP30WalletError(
           ctx.signTx(
-            transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+            transaction.wasm.build_unchecked().to_cbor_hex(),
             transaction.partialSign,
           ),
         ),
@@ -323,7 +323,7 @@ export class ApiWrapper {
   async submit(signedTransaction: SignedTransaction): Promise<TransactionHash> {
     return this.getWalletContext().then((ctx) =>
       this.handleCIP30WalletError(
-        ctx.submitTx(signedTransaction.wasm.to_canonical_cbor_hex()),
+        ctx.submitTx(signedTransaction.wasm.to_cbor_hex()),
       ),
     );
   }
@@ -790,7 +790,7 @@ export class ApiWrapper {
 
   /**
    * Returns orders list using limit and asset
-   * @param {Omit<GetLiquidityOrdersParams, "paymentKeyHashes">} params
+   * @param {Omit<GetLiquidityOrdersParams, 'paymentKeyHashes'>} params
    * @return {Promise<{count: number, operations: (RedeemLiquidityOrder | DepositLiquidityOrder)[]}>}
    */
   async getLiquidityOrders(

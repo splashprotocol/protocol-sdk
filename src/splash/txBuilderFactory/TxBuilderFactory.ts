@@ -600,64 +600,78 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     });
 
     const mintsMetadatumMap: MetadatumMap = MetadatumMap.new();
-    mints.forEach((mint) => {
-      const requiredSigners = Ed25519KeyHashList.new();
-      const partialPlutusWitness = PartialPlutusWitness.new(
-        PlutusScriptWitness.new_script(
-          PlutusScript.from_v2(
-            PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
+    mints
+      .slice()
+      .sort((a, b) => {
+        const result = a.currency.asset.policyId.localeCompare(
+          b.currency.asset.policyId,
+        );
+
+        if (result !== 0) {
+          return result;
+        }
+        return a.currency.asset.nameBase16.localeCompare(
+          b.currency.asset.nameBase16,
+        );
+      })
+      .forEach((mint) => {
+        const requiredSigners = Ed25519KeyHashList.new();
+        const partialPlutusWitness = PartialPlutusWitness.new(
+          PlutusScriptWitness.new_script(
+            PlutusScript.from_v2(
+              PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
+            ),
           ),
-        ),
-        mint.redeemer,
-      );
-      transactionBuilder.add_mint(
-        SingleMintBuilder.new_single_asset(
-          mint.currency.asset.wasmName,
-          mint.currency.amount,
-        ).plutus_script(partialPlutusWitness, requiredSigners),
-      );
-      if (mint.cip25) {
-        const metadatumMap = MetadatumMap.new();
-        metadatumMap.set(
-          TransactionMetadatum.new_text('name'),
-          TransactionMetadatum.new_text(mint.cip25.name),
+          mint.redeemer,
         );
-        metadatumMap.set(
-          TransactionMetadatum.new_text('image'),
-          TransactionMetadatum.new_text(mint.cip25.image),
+        transactionBuilder.add_mint(
+          SingleMintBuilder.new_single_asset(
+            mint.currency.asset.wasmName,
+            mint.currency.amount,
+          ).plutus_script(partialPlutusWitness, requiredSigners),
         );
-        if (mint.cip25.ticker) {
+        if (mint.cip25) {
+          const metadatumMap = MetadatumMap.new();
           metadatumMap.set(
-            TransactionMetadatum.new_text('ticker'),
-            TransactionMetadatum.new_text(mint.cip25.ticker),
+            TransactionMetadatum.new_text('name'),
+            TransactionMetadatum.new_text(mint.cip25.name),
+          );
+          metadatumMap.set(
+            TransactionMetadatum.new_text('image'),
+            TransactionMetadatum.new_text(mint.cip25.image),
+          );
+          if (mint.cip25.ticker) {
+            metadatumMap.set(
+              TransactionMetadatum.new_text('ticker'),
+              TransactionMetadatum.new_text(mint.cip25.ticker),
+            );
+          }
+
+          const descriptionChunks =
+            mint.cip25.description.match(/.{1,64}/g) || [];
+          const descriptionList = MetadatumList.new();
+          descriptionChunks.forEach((chunk) =>
+            descriptionList.add(TransactionMetadatum.new_text(chunk)),
+          );
+
+          metadatumMap.set(
+            TransactionMetadatum.new_text('description'),
+            descriptionChunks.length > 1
+              ? TransactionMetadatum.new_list(descriptionList)
+              : TransactionMetadatum.new_text(mint.cip25.description),
+          );
+
+          const cip25Metadatum = MetadatumMap.new();
+          cip25Metadatum.set(
+            TransactionMetadatum.new_text(mint.cip25.name),
+            TransactionMetadatum.new_map(metadatumMap),
+          );
+          mintsMetadatumMap.set(
+            TransactionMetadatum.new_text(mint.currency.asset.policyId),
+            TransactionMetadatum.new_map(cip25Metadatum),
           );
         }
-
-        const descriptionChunks =
-          mint.cip25.description.match(/.{1,64}/g) || [];
-        const descriptionList = MetadatumList.new();
-        descriptionChunks.forEach((chunk) =>
-          descriptionList.add(TransactionMetadatum.new_text(chunk)),
-        );
-
-        metadatumMap.set(
-          TransactionMetadatum.new_text('description'),
-          descriptionChunks.length > 1
-            ? TransactionMetadatum.new_list(descriptionList)
-            : TransactionMetadatum.new_text(mint.cip25.description),
-        );
-
-        const cip25Metadatum = MetadatumMap.new();
-        cip25Metadatum.set(
-          TransactionMetadatum.new_text(mint.cip25.name),
-          TransactionMetadatum.new_map(metadatumMap),
-        );
-        mintsMetadatumMap.set(
-          TransactionMetadatum.new_text(mint.currency.asset.policyId),
-          TransactionMetadatum.new_map(cip25Metadatum),
-        );
-      }
-    });
+      });
     if (mintsMetadatumMap.len() || transactionCandidate.metadata.length) {
       const finalMetadata = Metadata.new();
 

@@ -33,15 +33,11 @@ export const toWasmOutput = (
   }
   const wasmValue = currencies.toWasmValue();
 
-  if (data) {
-    return TransactionOutput.new(
-      wasmAddress,
-      wasmValue,
-      DatumOption.new_datum(data),
-    );
-  } else {
-    return TransactionOutput.new(wasmAddress, wasmValue);
-  }
+  const output = data
+    ? TransactionOutput.new(wasmAddress, wasmValue, DatumOption.new_datum(data))
+    : TransactionOutput.new(wasmAddress, wasmValue);
+
+  return TransactionOutput.from_cbor_hex(output.to_canonical_cbor_hex());
 };
 
 export interface OutputParams {
