@@ -275,13 +275,13 @@ export class SplashApi implements Api {
 
   async getNetworkContext(): Promise<NetworkContext> {
     return fetch(
-      `https://explorer.spectrum.fi/cardano/mainnet/v1/blocks/bestBlock`,
+      `https://explorer.splash.trade/cardano/mainnet/v1/blocks/bestBlock`,
     ).then((res) => res.json());
   }
 
   async getProtocolParams(): Promise<ProtocolParams> {
     return fetch(
-      `https://explorer.spectrum.fi/cardano/${this.network}/v1/networkParams`,
+      `https://explorer.splash.trade/cardano/${this.network}/v1/networkParams`,
     )
       .then((res) => res.json())
       .then((res) => res.pparams)
@@ -420,7 +420,7 @@ export class SplashApi implements Api {
 
   async getUTxOByRef(params: GetUTxOByRefParams): Promise<GetUTxOByRefResult> {
     return fetch(
-      `https://explorer.spectrum.fi/cardano/${this.network}/v1/outputs/${params.txHash}:${params.index}`,
+      `https://explorer.splash.trade/cardano/${this.network}/v1/outputs/${params.txHash}:${params.index}`,
     )
       .then((res) => (res.status === 404 ? undefined : res.json()))
       .catch(() => undefined);

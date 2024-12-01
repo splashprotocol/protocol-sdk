@@ -71,25 +71,6 @@ const getPolicyAndScript = async ({
   }).then((res) => res.json());
 };
 
-const getDaoPolicy = async (
-  assetInfo: AssetInfo,
-  editableFee: boolean,
-): Promise<HexString> => {
-  return fetch('https://meta.spectrum.fi/cardano/dao/feeSwitch/data/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      nftCS: assetInfo.policyId,
-      nftTN: assetInfo.nameBase16,
-      editableFee,
-    }),
-  })
-    .then((res) => res.json())
-    .then((data) => data.curSymbol);
-};
-
 export const createRoyaltyPoolData = Data.Tuple([
   // nft
   Data.AssetInfo,
@@ -133,14 +114,7 @@ export interface CreateWeightedPoolConfig {
 }
 
 export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
-  ({
-    x,
-    y,
-    treasuryFee = 0.03,
-    poolFee = 0.3,
-    editableFee = true,
-    royaltyFee,
-  }) =>
+  ({ x, y, treasuryFee = 0.03, poolFee = 0.3, royaltyFee }) =>
   async (context) => {
     const newX = x.isAda() ? x : y;
     const newY = x.isAda() ? y : x;
@@ -194,7 +168,6 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
     const royaltyFeeNum = BigInt(
       math.evaluate(`${royaltyFee} / 100 * 100000`).toFixed(),
     );
-    const daoPolicy = await getDaoPolicy(nftAssetInfo, editableFee);
     const { key, signature } = await context.splash.api.signMessage(
       stringToHex('Public key verification'),
     );
@@ -214,7 +187,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
       [
         [
           {
-            hash: daoPolicy,
+            hash: '9d9cb5dc5f037ebc29ee07ec88c419c980f870a4c5121e363c47f791',
             type: 'scriptCredential',
           },
         ],
