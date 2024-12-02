@@ -2,6 +2,7 @@ import {
   Address,
   BaseAddress,
   NetworkId,
+  Transaction as WasmTransaction,
 } from '@dcspark/cardano-multiplatform-lib-browser';
 
 import { RawLiquidityRedeemOrder } from '../../../build';
@@ -293,11 +294,24 @@ export class ApiWrapper {
    * @return {Promise<SignedTransaction>}
    */
   async sign(transaction: Transaction): Promise<SignedTransaction> {
+    // console.log(
+    //   'pure cannonical',
+    //   transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+    // );
+    // console.log(
+    //   'patched cannonical',
+    //   WasmTransaction.from_cbor_hex(
+    //     transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+    //   ).to_cbor_hex(),
+    // );
+
     return Promise.all([
       this.getWalletContext().then((ctx) =>
         this.handleCIP30WalletError(
           ctx.signTx(
-            transaction.wasm.build_unchecked().to_cbor_hex(),
+            WasmTransaction.from_cbor_hex(
+              transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+            ).to_cbor_hex(),
             transaction.partialSign,
           ),
         ),
@@ -323,7 +337,11 @@ export class ApiWrapper {
   async submit(signedTransaction: SignedTransaction): Promise<TransactionHash> {
     return this.getWalletContext().then((ctx) =>
       this.handleCIP30WalletError(
-        ctx.submitTx(signedTransaction.wasm.to_cbor_hex()),
+        ctx.submitTx(
+          WasmTransaction.from_cbor_hex(
+            signedTransaction.wasm.to_canonical_cbor_hex(),
+          ).to_cbor_hex(),
+        ),
       ),
     );
   }
