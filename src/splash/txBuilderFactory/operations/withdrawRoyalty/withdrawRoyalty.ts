@@ -28,7 +28,7 @@ interface DataToSignBody {
 }
 
 const getDataToSign = (body: DataToSignBody) =>
-  fetch('http://localhost:8000/withdrawal/data/prepare', {
+  fetch('https://royalty-utils.splash.trade/withdrawal/data/prepare', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8',
