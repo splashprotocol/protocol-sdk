@@ -294,6 +294,7 @@ export class ApiWrapper {
    * @return {Promise<SignedTransaction>}
    */
   async sign(transaction: Transaction): Promise<SignedTransaction> {
+    // console.log('pure', transaction.wasm.build_unchecked().to_cbor_hex());
     // console.log(
     //   'pure cannonical',
     //   transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
