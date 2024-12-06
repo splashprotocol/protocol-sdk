@@ -42,7 +42,14 @@ export interface MintDescriptor {
     readonly name: string;
     readonly description: string;
     readonly image: string;
+    readonly poolAuthor: string;
     readonly ticker?: string;
+    readonly socials?: {
+      readonly website?: string;
+      readonly twitter?: string;
+      readonly telegram?: string;
+      readonly discord?: string;
+    };
   };
   readonly exUnits: {
     readonly mem: bigint;

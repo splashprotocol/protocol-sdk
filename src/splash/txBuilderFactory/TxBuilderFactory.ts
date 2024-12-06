@@ -646,6 +646,43 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
               TransactionMetadatum.new_text(mint.cip25.ticker),
             );
           }
+          if (mint.cip25.socials) {
+            const socialsMap = MetadatumMap.new();
+
+            if (mint.cip25.socials.discord) {
+              socialsMap.set(
+                TransactionMetadatum.new_text('discord'),
+                TransactionMetadatum.new_text(mint.cip25.socials.discord),
+              );
+            }
+            if (mint.cip25.socials.twitter) {
+              socialsMap.set(
+                TransactionMetadatum.new_text('twitter'),
+                TransactionMetadatum.new_text(mint.cip25.socials.twitter),
+              );
+            }
+            if (mint.cip25.socials.website) {
+              socialsMap.set(
+                TransactionMetadatum.new_text('website'),
+                TransactionMetadatum.new_text(mint.cip25.socials.website),
+              );
+            }
+            if (mint.cip25.socials.telegram) {
+              socialsMap.set(
+                TransactionMetadatum.new_text('telegram'),
+                TransactionMetadatum.new_text(mint.cip25.socials.telegram),
+              );
+            }
+
+            metadatumMap.set(
+              TransactionMetadatum.new_text('socials'),
+              TransactionMetadatum.new_map(socialsMap),
+            );
+          }
+          metadatumMap.set(
+            TransactionMetadatum.new_text('poolAuthor'),
+            TransactionMetadatum.new_text(mint.cip25.poolAuthor),
+          );
 
           const descriptionChunks =
             mint.cip25.description.match(/.{1,64}/g) || [];
