@@ -187,7 +187,7 @@ export const createRoyaltyPool: Operation<[CreateWeightedPoolConfig]> =
       [
         [
           {
-            hash: '9d9cb5dc5f037ebc29ee07ec88c419c980f870a4c5121e363c47f791',
+            hash: '66e711a4bf9ddf46ff239143870b6893055a4fd4dea9f99fed6665cd',
             type: 'scriptCredential',
           },
         ],
