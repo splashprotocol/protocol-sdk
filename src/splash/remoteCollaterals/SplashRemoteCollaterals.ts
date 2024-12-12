@@ -1,3 +1,5 @@
+import { Transaction as WasmTransaction } from '@dcspark/cardano-multiplatform-lib-browser';
+
 import { Transaction } from '../../core.ts';
 import { RemoteCollateralsConfig } from '../splash.ts';
 import { RemoteCollateral } from '../txBuilderFactory/types/RemoteCollateral.ts';
@@ -35,7 +37,9 @@ export class SplashRemoteCollaterals implements RemoteCollateralsConfig {
         'Content-Type': 'application/json;charset=utf-8',
       },
       body: JSON.stringify({
-        cbor: transaction.cbor,
+        cbor: WasmTransaction.from_cbor_hex(
+          transaction.wasm.build_unchecked().to_canonical_cbor_hex(),
+        ).to_cbor_hex(),
       }),
     })
       .then((res) => res.json())
