@@ -1,6 +1,7 @@
 import {
   Address,
   BaseAddress,
+  hash_transaction,
   NetworkId,
   Transaction as WasmTransaction,
 } from '@dcspark/cardano-multiplatform-lib-browser';
@@ -336,7 +337,23 @@ export class ApiWrapper {
    * @return {Promise<TransactionHash>}
    */
   async submit(signedTransaction: SignedTransaction): Promise<TransactionHash> {
-    return this.getWalletContext().then((ctx) =>
+    const wasmTx = WasmTransaction.from_cbor_hex(
+      signedTransaction.wasm.to_canonical_cbor_hex(),
+    );
+
+    const splashRelayP = fetch(
+      'https://snek-submit-api.splash.trade/tx/submit',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/cbor',
+          Accept: 'text/plain',
+        },
+        body: wasmTx.to_cbor_bytes(),
+      },
+    ).then(() => hash_transaction(wasmTx.body()).to_hex());
+
+    const walletSubmitP = this.getWalletContext().then((ctx) =>
       this.handleCIP30WalletError(
         ctx.submitTx(
           WasmTransaction.from_cbor_hex(
@@ -344,6 +361,12 @@ export class ApiWrapper {
           ).to_cbor_hex(),
         ),
       ),
+    );
+
+    return walletSubmitP.catch((err) =>
+      splashRelayP.catch(() => {
+        throw err;
+      }),
     );
   }
 
