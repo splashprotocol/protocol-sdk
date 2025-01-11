@@ -341,32 +341,17 @@ export class ApiWrapper {
       signedTransaction.wasm.to_canonical_cbor_hex(),
     );
 
-    const splashRelayP = fetch(
-      'https://snek-submit-api.splash.trade/tx/submit',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/cbor',
-          Accept: 'text/plain',
-        },
-        body: wasmTx.to_cbor_bytes(),
+    fetch('https://snek-submit-api.splash.trade/tx/submit', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/cbor',
+        Accept: 'text/plain',
       },
-    ).then(() => hash_transaction(wasmTx.body()).to_hex());
+      body: wasmTx.to_cbor_bytes(),
+    }).then(() => hash_transaction(wasmTx.body()).to_hex());
 
-    const walletSubmitP = this.getWalletContext().then((ctx) =>
-      this.handleCIP30WalletError(
-        ctx.submitTx(
-          WasmTransaction.from_cbor_hex(
-            signedTransaction.wasm.to_canonical_cbor_hex(),
-          ).to_cbor_hex(),
-        ),
-      ),
-    );
-
-    return walletSubmitP.catch((err) =>
-      splashRelayP.catch(() => {
-        throw err;
-      }),
+    return this.getWalletContext().then((ctx) =>
+      this.handleCIP30WalletError(ctx.submitTx(wasmTx.to_cbor_hex())),
     );
   }
 
