@@ -151,7 +151,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       full_name: pairName,
       format: 'price',
       listed_exchange: this.exchange,
-      timezone: 'Asia/Singapore',
+      timezone: 'Etc/UTC',
       type: 'crypto',
       data_status: 'streaming',
       base: pair.base,
