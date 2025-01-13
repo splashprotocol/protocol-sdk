@@ -104,7 +104,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   resolveSymbol(
     symbolName: string,
-    onResolve: (esi: any) => void,
+    onResolve: (esi: ExtendedLibrarySymbolInfo) => void,
     onError: ErrorCallback,
   ) {
     const pair = this.pairs.find((pair) =>
@@ -153,7 +153,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       quote: pair.quote,
       multiplier: pair['priceMultiplier'],
       cross: pair['cross'],
-    });
+    } as unknown as ExtendedLibrarySymbolInfo);
   }
 
   searchSymbols() {
