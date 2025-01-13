@@ -42,6 +42,7 @@ export interface SplashTVDataFeedParams {
   readonly lastBarTickInterval?: uint;
   readonly avoidCollision?: boolean;
   readonly exchange?: string;
+  readonly resolutions?: TvResolution[];
 }
 
 export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
@@ -57,6 +58,8 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   private exchange: string;
 
+  private resolutions: TvResolution[];
+
   static new(params: SplashTVDataFeedParams): SplashTVDataFeed {
     return new SplashTVDataFeed(params);
   }
@@ -67,12 +70,14 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
     lastBarTickInterval,
     exchange = 'Splash',
     avoidCollision = false,
+    resolutions = ['1', '5', '60', '1D', '1W', '1M'],
   }: SplashTVDataFeedParams) {
     this.pairs = pairs;
     this.splash = splash;
     this.lastBarTickInterval = lastBarTickInterval || 5_000;
     this.avoidCollision = avoidCollision;
     this.exchange = exchange;
+    this.resolutions = resolutions;
   }
 
   updatePairs(pairs: Pair[]) {
@@ -93,7 +98,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       ],
       symbols_types: [],
       // @ts-ignore
-      supported_resolutions: ['1', '5', '60', '1D', '1W', '1M'],
+      supported_resolutions: this.resolutions,
     });
   }
 
@@ -143,14 +148,12 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       has_intraday: true,
       has_weekly_and_monthly: true,
       exchange: this.exchange,
-      // @ts-ignore
-      supported_resolutions: ['1', '5', '60', '1D', '1W', '1M'],
       data_status: 'streaming',
       base: pair.base,
       quote: pair.quote,
       multiplier: pair['priceMultiplier'],
       cross: pair['cross'],
-    });
+    } as unknown as ExtendedLibrarySymbolInfo);
   }
 
   searchSymbols() {
