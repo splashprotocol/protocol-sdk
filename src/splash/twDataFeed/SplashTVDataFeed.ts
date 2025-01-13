@@ -104,7 +104,7 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
 
   resolveSymbol(
     symbolName: string,
-    onResolve: (esi: ExtendedLibrarySymbolInfo) => void,
+    onResolve: (esi: any) => void,
     onError: ErrorCallback,
   ) {
     const pair = this.pairs.find((pair) =>
@@ -148,11 +148,6 @@ export class SplashTVDataFeed implements IDatafeedChartApi, IExternalDatafeed {
       has_intraday: true,
       has_weekly_and_monthly: true,
       exchange: this.exchange,
-      full_name: pairName,
-      format: 'price',
-      listed_exchange: this.exchange,
-      timezone: 'Etc/UTC',
-      type: 'crypto',
       data_status: 'streaming',
       base: pair.base,
       quote: pair.quote,
