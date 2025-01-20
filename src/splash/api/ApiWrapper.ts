@@ -341,7 +341,7 @@ export class ApiWrapper {
       signedTransaction.wasm.to_canonical_cbor_hex(),
     );
 
-    fetch('https://splash-submit-api.splash.trade/tx/submit', {
+    fetch('https://snek-submit-api.splash.trade/tx/submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/cbor',
