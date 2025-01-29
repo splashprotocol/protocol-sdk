@@ -92,6 +92,12 @@ export class SplashApi implements Api {
 
   public readonly network: Network;
 
+  private get chartUrl() {
+    return this._network === 'mainnet'
+      ? 'https://analytics-us.splash.trade/platform-api/v1/'
+      : mapNetworkToUrl[this._network];
+  }
+
   private get url() {
     return mapNetworkToUrl[this._network];
   }
@@ -398,7 +404,7 @@ export class SplashApi implements Api {
     resolution,
   }: GetChartHistoryParams): Promise<GetChartHistoryResult> {
     return fetch(
-      `${this.url}charts/history?base=${base.splashId}&quote=${quote.splashId}&from=${from}&to=${to}&resolution=${resolution}`,
+      `${this.chartUrl}charts/history?base=${base.splashId}&quote=${quote.splashId}&from=${from}&to=${to}&resolution=${resolution}`,
     ).then((res) => res.json());
   }
 
@@ -414,7 +420,7 @@ export class SplashApi implements Api {
     resolution,
   }: GetChartLastBarParams): Promise<GetChartLastBarResult> {
     return fetch(
-      `${this.url}charts/last?base=${base.splashId}&quote=${quote.splashId}&resolution=${resolution}`,
+      `${this.chartUrl}charts/last?base=${base.splashId}&quote=${quote.splashId}&resolution=${resolution}`,
     ).then((res) => res.json());
   }
 
