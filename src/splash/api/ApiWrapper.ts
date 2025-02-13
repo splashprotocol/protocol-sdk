@@ -341,7 +341,7 @@ export class ApiWrapper {
       signedTransaction.wasm.to_canonical_cbor_hex(),
     );
 
-    fetch('https://snek-submit-api.splash.trade/tx/submit', {
+    fetch('https://splash-submit-api.splash.trade/tx/submit', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/cbor',
@@ -620,8 +620,8 @@ export class ApiWrapper {
               ...assetMetadata,
               logo: assetMetadata.logo
                 ? assetMetadata.logo
-                : assetMetadata.logoCid && this.ipfsGateway
-                ? `${this.ipfsGateway}/${assetMetadata.logoCid}`
+                : assetMetadata.logoCID && this.ipfsGateway
+                ? `${this.ipfsGateway}/${assetMetadata.logoCID}`
                 : undefined,
               snekdotfun: assetMetadata.launchedBy === 'snekdotfun',
             };

@@ -69,7 +69,7 @@ import { RawSplashRecentTrade } from './types/RawSplashRecentTrade.ts';
 type ExtendedNetwork = Network | 'premainnet' | 'premainnet2';
 
 const mapNetworkToUrl: { [key in ExtendedNetwork]: string } = {
-  mainnet: 'https://api5.splash.trade/platform-api/v1/',
+  mainnet: 'https://analytics.splash.trade/platform-api/v1/',
   preprod: 'https://api-test-preprod.splash.trade/v1/',
   preview: 'https://test-api9.spectrum.fi/v1/',
   premainnet: 'https://api3.splash.trade/platform-api/v1/',
@@ -91,12 +91,6 @@ export class SplashApi implements Api {
   }
 
   public readonly network: Network;
-
-  private get chartUrl() {
-    return this._network === 'mainnet'
-      ? 'https://analytics-us.splash.trade/platform-api/v1/'
-      : mapNetworkToUrl[this._network];
-  }
 
   private get url() {
     return mapNetworkToUrl[this._network];
@@ -274,8 +268,14 @@ export class SplashApi implements Api {
         .then((res) => (res.status === 404 ? undefined : res.json()))
         .catch(() => undefined);
     }
-    return fetch(`https://api6.splash.trade/asset-info/${assetId}.json`)
+    return fetch(
+      `https://analytics-snekfun.splash.trade/ws-http/v1/snekfun/asset-info/?asset=${assetId}`,
+    )
       .then((res) => (res.status === 404 ? undefined : res.json()))
+      .then((data) => ({
+        ...data,
+        launchedBy: 'snekdotfun',
+      }))
       .catch(() => undefined);
   }
 
@@ -377,7 +377,7 @@ export class SplashApi implements Api {
         ? 'https://api-test-preprod.splash.trade/mempool/v2/mempool/orders'
         : this._network === 'premainnet2'
         ? 'https://api-test-mainnet.splash.trade/mempool/v2/mempool/orders'
-        : 'https://api5.splash.trade/mempool/v2/mempool/orders';
+        : 'https://analytics.splash.trade/mempool/v2/mempool/orders';
 
     return fetch(url, {
       method: 'POST',
@@ -404,7 +404,7 @@ export class SplashApi implements Api {
     resolution,
   }: GetChartHistoryParams): Promise<GetChartHistoryResult> {
     return fetch(
-      `${this.chartUrl}charts/history?base=${base.splashId}&quote=${quote.splashId}&from=${from}&to=${to}&resolution=${resolution}`,
+      `${this.url}charts/history?base=${base.splashId}&quote=${quote.splashId}&from=${from}&to=${to}&resolution=${resolution}`,
     ).then((res) => res.json());
   }
 
@@ -420,7 +420,7 @@ export class SplashApi implements Api {
     resolution,
   }: GetChartLastBarParams): Promise<GetChartLastBarResult> {
     return fetch(
-      `${this.chartUrl}charts/last?base=${base.splashId}&quote=${quote.splashId}&resolution=${resolution}`,
+      `${this.url}charts/last?base=${base.splashId}&quote=${quote.splashId}&resolution=${resolution}`,
     ).then((res) => res.json());
   }
 

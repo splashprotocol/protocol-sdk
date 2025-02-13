@@ -64,7 +64,7 @@ export interface AssetInfoMetadata {
   readonly url?: string;
   readonly decimals?: number;
   readonly logo?: string;
-  readonly logoCid?: string;
+  readonly logoCID?: string;
   readonly verified?: boolean;
 }
 
