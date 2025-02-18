@@ -272,10 +272,14 @@ export class SplashApi implements Api {
       `https://analytics-snekfun.splash.trade/ws-http/v1/snekfun/asset-info/?asset=${assetId}`,
     )
       .then((res) => (res.status === 404 ? undefined : res.json()))
-      .then((data) => ({
-        ...data,
-        launchedBy: 'snekdotfun',
-      }))
+      .then((data) =>
+        data
+          ? {
+              ...data,
+              launchedBy: 'snekdotfun',
+            }
+          : undefined,
+      )
       .catch(() => undefined);
   }
 
