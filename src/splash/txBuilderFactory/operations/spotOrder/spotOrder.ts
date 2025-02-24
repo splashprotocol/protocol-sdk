@@ -21,6 +21,7 @@ import { toContractAddress } from '../../../../core/utils/toContractAddress/toCo
 import { Splash } from '../../../splash.ts';
 import { Operation } from '../common/Operation';
 import { payToContract } from '../payToContract/payToContract.ts';
+import { getExecutorFee } from './utils/getExecutorFee.ts';
 
 export const createSpotOrderData = (networkId: NetworkId) =>
   Data.Tuple([
@@ -139,10 +140,29 @@ export const spotOrder: Operation<[SpotOrderConfig]> =
         context.operationsConfig.operations.spotOrderV3.settings.orderStepCost,
       ),
     );
+    const executorFeeFromTable = await getExecutorFee(
+      context.splash.api['api']['_network'] === 'mainnet'
+        ? 'mainnet'
+        : 'staging',
+      input,
+      outputAsset,
+    );
     const executorFee = Currency.ada(
       BigInt(
-        context.operationsConfig.operations.spotOrderV3.settings.executorFee ||
-          0n,
+        executorFeeFromTable !== undefined
+          ? executorFeeFromTable
+          : context.operationsConfig.operations.spotOrderV3.settings
+              .executorFee || 0n,
+      ),
+    );
+    console.log(
+      executorFee,
+      await getExecutorFee(
+        context.splash.api['api']['_network'] === 'mainnet'
+          ? 'mainnet'
+          : 'staging',
+        input,
+        outputAsset,
       ),
     );
     const worstOrderStepCost = Currency.ada(

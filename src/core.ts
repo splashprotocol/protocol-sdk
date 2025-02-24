@@ -189,6 +189,7 @@ export * from './splash/txBuilderFactory/operations/createWeightedPool/createWei
 export * from './splash/txBuilderFactory/operations/payToAddress/payToAddress.ts';
 export * from './splash/txBuilderFactory/operations/payToContract/payToContract.ts';
 export * from './splash/txBuilderFactory/operations/spotOrder/spotOrder.ts';
+export * from './splash/txBuilderFactory/operations/spotOrder/utils/getExecutorFee.ts';
 export * from './splash/txBuilderFactory/operations/xyDeposit/xyDeposit.ts';
 export * from './splash/txBuilderFactory/operations/xyRedeem/xyRedeem.ts';
 export * from './splash/txBuilderFactory/TxBuilderFactory.ts';
