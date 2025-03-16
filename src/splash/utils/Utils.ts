@@ -1,3 +1,4 @@
+import { AssetInfo } from '../../core/models/assetInfo/AssetInfo.ts';
 import { Currencies } from '../../core/models/currencies/Currencies.ts';
 import { AssetInfoMismatchError } from '../../core/models/currency/errors/AssetInfoMismatchError.ts';
 import { DepositLiquidityOrder } from '../../core/models/liquidityOrder/DepositLiquidityOrder.ts';
@@ -156,7 +157,18 @@ export class Utils {
    */
   selectRates({ pairs, adaUsdPrice }: SelectRatesParams): SelectRatesResult {
     return CurrencyConverter.new({
-      prices: pairs.flatMap((pair) => [pair.baseAdaPrice, pair.quoteAdaPrice]),
+      prices: pairs
+        .filter((pair) => {
+          if (pair.quote.isAda() || pair.base.isAda()) {
+            return true;
+          }
+          return !pairs.find(
+            (pairToFind) =>
+              pairToFind.includesSpecifiedAssets([AssetInfo.ada, pair.quote]) ||
+              pairToFind.includesSpecifiedAssets([AssetInfo.ada, pair.base]),
+          );
+        })
+        .flatMap((pair) => [pair.baseAdaPrice, pair.quoteAdaPrice]),
       adaUsdPrice,
     });
   }
