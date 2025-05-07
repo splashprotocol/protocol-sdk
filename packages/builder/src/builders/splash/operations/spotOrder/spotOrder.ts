@@ -20,6 +20,7 @@ import {
 import { getBasePrice } from './getBasePrice/getBasePrice.ts';
 import { getMinMarginalOutput } from './getMinMarginalOutput/getMinMarginalOutput.ts';
 import { DEFAULT_BATCHER_KEY, MINIMUM_COLLATERAL_ADA } from './constants.ts';
+import { getExecutorFee } from './getExecutorFee/getExecutorFee.ts';
 
 export interface SpotOrderConfig {
   readonly input: Currency;
@@ -39,11 +40,19 @@ export const spotOrder: Operation<[SpotOrderConfig], SplashApiType, Output> =
     const orderStepCost = Currency.ada(
       BigInt(operationsConfig.operations.spotOrderV3.settings.orderStepCost),
     );
+    const executorFeeFromTable = await getExecutorFee(
+      context.network === 'mainnet' ? 'mainnet' : 'staging',
+      input,
+      outputAsset,
+    );
     const executorFee = Currency.ada(
       BigInt(
-        operationsConfig.operations.spotOrderV3.settings.executorFee || 0n,
+        executorFeeFromTable !== undefined
+          ? executorFeeFromTable
+          : operationsConfig.operations.spotOrderV3.settings.executorFee || 0n,
       ),
     );
+
     const worstOrderStepCost = Currency.ada(
       BigInt(
         operationsConfig.operations.spotOrderV3.settings.worstOrderStepCost,

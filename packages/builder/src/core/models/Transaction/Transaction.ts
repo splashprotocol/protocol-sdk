@@ -15,6 +15,13 @@ import type {
 } from '@dcspark/cardano-multiplatform-lib-browser';
 import { OperationContext } from '../../types/Operation.ts';
 
+export const getTxId = (
+  C: InferPromise<typeof CML>,
+  transaction: WasmTransaction,
+): TransactionHash => {
+  return C.hash_transaction(transaction.body()).to_hex();
+};
+
 export interface TransactionConfig {
   readonly C: InferPromise<typeof CML>;
   readonly signedTxBuilder: SignedTxBuilder;
@@ -74,11 +81,20 @@ export class Transaction {
   }
 
   /**
+   * Transaction hash
+   */
+  get id(): TransactionHash {
+    return getTxId(this.C, this.wasm);
+  }
+
+  /**
    * Returns wasm representation of transaction
    * @returns {WasmTransaction}
    */
   get wasm(): WasmTransaction {
-    return this.signedTxBuilder.build_unchecked();
+    return this.C.Transaction.from_cbor_hex(
+      this.signedTxBuilder.build_unchecked().to_canonical_cbor_hex(),
+    );
   }
 
   /**

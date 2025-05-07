@@ -1,4 +1,4 @@
-import { Transaction } from '../Transaction/Transaction.ts';
+import { getTxId, Transaction } from '../Transaction/Transaction.ts';
 import { CborHexString, TransactionHash } from '@splashprotocol/core';
 import { InferPromise } from '../../types/InferPromise.ts';
 import { CML } from '../../utils/Cml/Cml.ts';
@@ -9,6 +9,36 @@ import type {
 import { BuilderLegacy } from '../../BuilderLegacy.ts';
 import { BasicApi } from '@splashprotocol/api';
 import { Builder } from '../../Builder.ts';
+
+export const applyWitnessToTransaction = (
+  C: InferPromise<typeof CML>,
+  cbor: CborHexString,
+  witnesses: CborHexString[],
+): WasmTransaction => {
+  const unsignedWasmTransaction = C.Transaction.from_cbor_hex(cbor);
+  const newWitnessSetBuilder = C.TransactionWitnessSetBuilder.new();
+  newWitnessSetBuilder.add_existing(unsignedWasmTransaction.witness_set());
+  witnesses.forEach((witness) => {
+    newWitnessSetBuilder.add_existing(
+      C.TransactionWitnessSet.from_cbor_hex(witness),
+    );
+  });
+
+  const tx = unsignedWasmTransaction.auxiliary_data()
+    ? C.SignedTxBuilder.new_with_data(
+        unsignedWasmTransaction.body(),
+        newWitnessSetBuilder,
+        unsignedWasmTransaction.is_valid(),
+        unsignedWasmTransaction.auxiliary_data()!,
+      ).build_checked()
+    : C.SignedTxBuilder.new_without_data(
+        unsignedWasmTransaction.body(),
+        newWitnessSetBuilder,
+        unsignedWasmTransaction.is_valid(),
+      ).build_checked();
+
+  return C.Transaction.from_cbor_hex(tx.to_canonical_cbor_hex());
+};
 
 export interface SignedTransactionConfig {
   readonly C: InferPromise<typeof CML>;
@@ -62,6 +92,11 @@ export class SignedTransaction {
    */
   readonly cbor: CborHexString;
 
+  /**
+   * Transaction hash
+   */
+  readonly id: TransactionHash;
+
   private C: InferPromise<typeof CML>;
 
   private constructor(
@@ -75,6 +110,7 @@ export class SignedTransaction {
       transaction,
       witnessSetWithSign,
     );
+    this.id = getTxId(this.C, this.wasm);
     this.cbor = this.wasm.to_cbor_hex();
     this.partialSign = transaction.partialSign;
   }
@@ -91,44 +127,10 @@ export class SignedTransaction {
     transaction: Transaction,
     witnessSetsWithSign: TransactionWitnessSet[],
   ): WasmTransaction {
-    const unsignedWasmTransaction = this.C.Transaction.from_cbor_hex(
+    return applyWitnessToTransaction(
+      this.C,
       transaction.cbor,
+      witnessSetsWithSign.map((ws) => ws.to_cbor_hex()),
     );
-    const signedTxBuilder = unsignedWasmTransaction.auxiliary_data()
-      ? this.C.SignedTxBuilder.new_with_data(
-          unsignedWasmTransaction.body(),
-          transaction.signedTxBuilder.witness_set(),
-          unsignedWasmTransaction.is_valid(),
-          unsignedWasmTransaction.auxiliary_data()!,
-        )
-      : this.C.SignedTxBuilder.new_without_data(
-          unsignedWasmTransaction.body(),
-          transaction.signedTxBuilder.witness_set(),
-          unsignedWasmTransaction.is_valid(),
-        );
-
-    const oldWitnessesBuilder = signedTxBuilder.witness_set();
-    const newWitnessSetBuilder = this.C.TransactionWitnessSetBuilder.new();
-
-    // newWitnessSetBuilder.add_required_wits(
-    //   oldWitnessesBuilder.remaining_wits(),
-    // );
-    newWitnessSetBuilder.add_existing(oldWitnessesBuilder.build());
-    witnessSetsWithSign.forEach((witnessSetWithSign) => {
-      newWitnessSetBuilder.add_existing(witnessSetWithSign);
-    });
-
-    return signedTxBuilder.auxiliary_data()
-      ? this.C.SignedTxBuilder.new_with_data(
-          signedTxBuilder.body(),
-          newWitnessSetBuilder,
-          signedTxBuilder.is_valid(),
-          signedTxBuilder.auxiliary_data()!,
-        ).build_checked()
-      : this.C.SignedTxBuilder.new_without_data(
-          signedTxBuilder.body(),
-          newWitnessSetBuilder,
-          signedTxBuilder.is_valid(),
-        ).build_checked();
   }
 }
