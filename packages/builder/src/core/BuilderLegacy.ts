@@ -560,10 +560,16 @@ export class BuilderLegacy<
         const requiredSigners = C.Ed25519KeyHashList.new();
         const partialPlutusWitness = C.PartialPlutusWitness.new(
           C.PlutusScriptWitness.new_script(
-            C.PlutusScript.from_v2(
-              //   @ts-ignore
-              C.PlutusV2Script.from_cbor_hex(mint.script),
-            ),
+            //   @ts-ignore
+            mint.type === 'plutusV3'
+              ? C.PlutusScript.from_v3(
+                  //   @ts-ignore
+                  C.PlutusV3Script.from_cbor_hex(mint.script),
+                )
+              : C.PlutusScript.from_v2(
+                  //   @ts-ignore
+                  C.PlutusV2Script.from_cbor_hex(mint.script),
+                ),
           ),
           C.PlutusData.from_cbor_hex(mint.redeemer!),
         );
@@ -866,10 +872,16 @@ export class BuilderLegacy<
     }
     mints.forEach((mint) => {
       txWitnessSetBuilder.add_script(
-        C.Script.new_plutus_v2(
-          //   @ts-ignore
-          C.PlutusV2Script.from_cbor_hex(mint.script),
-        ),
+        // @ts-ignore
+        mint.type === 'plutusV3'
+          ? C.Script.new_plutus_v3(
+              //   @ts-ignore
+              C.PlutusV3Script.from_cbor_hex(mint.script),
+            )
+          : C.Script.new_plutus_v2(
+              //   @ts-ignore
+              C.PlutusV2Script.from_cbor_hex(mint.script),
+            ),
       );
     });
     // withdrawals.forEach((withdrawal) => {

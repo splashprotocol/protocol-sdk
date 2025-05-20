@@ -52,6 +52,7 @@ export interface BaseMintDescriptor {
 
 export interface ScriptMintDescriptor extends BaseMintDescriptor {
   readonly script: CborHexString;
+  readonly type?: 'plutusV2' | 'plutusV3';
 }
 
 export interface ScriptHashMintDescriptor extends BaseMintDescriptor {
