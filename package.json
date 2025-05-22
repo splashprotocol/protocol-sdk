@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "1.0.61",
+  "version": "1.0.62",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "source": "src/index.ts",
@@ -16,7 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@dcspark/cardano-multiplatform-lib-browser": "^6.0.0",
+    "@dcspark/cardano-multiplatform-lib-browser": "^6.1.0",
     "cbor2": "^1.7.1",
     "cbor-x": "^1.5.4",
     "hash-wasm": "^4.11.0",
@@ -26,7 +26,7 @@
     "typescript": "^5.2.2"
   },
   "devDependencies": {
-    "@dcspark/cardano-multiplatform-lib-nodejs": "^6.0.0",
+    "@dcspark/cardano-multiplatform-lib-nodejs": "^6.1.0",
     "@parcel/packager-ts": "2.12.0",
     "@parcel/reporter-bundle-analyzer": "^2.12.0",
     "@parcel/transformer-typescript-types": "2.12.0",

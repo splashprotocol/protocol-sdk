@@ -339,15 +339,15 @@
   resolved "https://registry.yarnpkg.com/@cbor-extract/cbor-extract-win32-x64/-/cbor-extract-win32-x64-2.2.0.tgz#4b3f07af047f984c082de34b116e765cb9af975f"
   integrity sha512-l2M+Z8DO2vbvADOBNLbbh9y5ST1RY5sqkWOg/58GkUPBYou/cuNZ68SGQ644f1CvZ8kcOxyZtw06+dxWHIoN/w==
 
-"@dcspark/cardano-multiplatform-lib-browser@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-browser/-/cardano-multiplatform-lib-browser-6.0.0.tgz#1751dec109dbec4ea671446db70e7f9a3dbaa2a7"
-  integrity sha512-q1FKNYSEbcBCEtY/uMeLW7E3vV0K20hD6nmW0EKYRM6UYvL8jUsE2zokbDunMLjEdCMfRoj1GtO4/XrWhDYO6A==
+"@dcspark/cardano-multiplatform-lib-browser@^6.1.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-browser/-/cardano-multiplatform-lib-browser-6.2.0.tgz#98245cce32cce2285972fe29ed6a67f883b3b41d"
+  integrity sha512-qNBV0M7qcWD2l/wy0fhwo9u0aekPCFhQ1Lvu093mKuMrqGGrCfKCyGFnU7g1d/Wx55WmRXRJ8yvDH+J+5y6nsA==
 
-"@dcspark/cardano-multiplatform-lib-nodejs@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-6.0.0.tgz#6fa24651c8ebfd15a287d6902945738c3128f4e7"
-  integrity sha512-b9cG7yw9+FRNfYlRCadFkVhNcYpqrYvNT1+v4nVPQ4afyW2/77uwe4ogjWvJjCOKHYqQ3AB+tJQrvyJrfHnCUQ==
+"@dcspark/cardano-multiplatform-lib-nodejs@^6.1.0":
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/@dcspark/cardano-multiplatform-lib-nodejs/-/cardano-multiplatform-lib-nodejs-6.2.0.tgz#ca267e8ade5d2dd2a10e93d77e4f6fa230639272"
+  integrity sha512-D4swEw9rkMySB3uCZlZgTKBZwfc/lkvPNLJI9ZYfUzXCstA8Vk2e77I4WbSw4Vkyt1qgEUDTs9+DT6hMGBlMhw==
 
 "@eslint-community/eslint-utils@^4.2.0":
   version "4.4.0"

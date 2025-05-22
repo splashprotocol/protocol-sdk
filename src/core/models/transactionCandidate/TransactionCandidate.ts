@@ -35,7 +35,10 @@ export interface ExternalInputDescriptor {
 }
 
 export interface MintDescriptor {
-  readonly plutusV2ScriptCbor: CborHexString;
+  readonly script: {
+    readonly value: CborHexString;
+    readonly type: 'plutusV2' | 'plutusV3';
+  };
   readonly currency: Currency;
   readonly redeemer: PlutusData;
   readonly cip25?: {

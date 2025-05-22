@@ -16,6 +16,7 @@ import {
   PlutusScript,
   PlutusScriptWitness,
   PlutusV2Script,
+  PlutusV3Script,
   RedeemerTag,
   RedeemerWitnessKey,
   RewardAddress,
@@ -618,9 +619,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
         const requiredSigners = Ed25519KeyHashList.new();
         const partialPlutusWitness = PartialPlutusWitness.new(
           PlutusScriptWitness.new_script(
-            PlutusScript.from_v2(
-              PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
-            ),
+            mint.script.type === 'plutusV2'
+              ? PlutusScript.from_v2(
+                  PlutusV2Script.from_cbor_hex(mint.script.value),
+                )
+              : PlutusScript.from_v3(
+                  PlutusV3Script.from_cbor_hex(mint.script.value),
+                ),
           ),
           mint.redeemer,
         );
@@ -916,9 +921,13 @@ export class TxBuilderFactory<O extends Dictionary<Operation<any>>> {
     }
     mints.forEach((mint) => {
       txWitnessSetBuilder.add_script(
-        Script.new_plutus_v2(
-          PlutusV2Script.from_cbor_hex(mint.plutusV2ScriptCbor),
-        ),
+        mint.script.type === 'plutusV2'
+          ? Script.new_plutus_v2(
+              PlutusV2Script.from_cbor_hex(mint.script.value),
+            )
+          : Script.new_plutus_v3(
+              PlutusV3Script.from_cbor_hex(mint.script.value),
+            ),
       );
     });
     withdrawals.forEach((withdrawal) => {

@@ -10,62 +10,14 @@ import {
   MIN_POOL_ADA_VALUE_N2T,
   MIN_POOL_ADA_VALUE_T2T,
 } from '../../../../core/models/pool/common/minPoolAdaValue.ts';
-import {
-  CborHexString,
-  HexString,
-  percent,
-  TransactionHash,
-} from '../../../../core/types/types.ts';
+import { HexString, percent } from '../../../../core/types/types.ts';
 import { math } from '../../../../core/utils/math/math.ts';
 import { stringToHex } from '../../../../core/utils/stringToHex/stringToHex.ts';
+import { getPolicyAndScript } from '../common/getPolicyAndScript.ts';
 import { Operation } from '../common/Operation.ts';
 import { payToContract } from '../payToContract/payToContract.ts';
 
-interface GetPolicyAndScriptParams {
-  readonly txHash: TransactionHash;
-  readonly index: bigint;
-  readonly base16Name: HexString;
-  readonly emission: bigint;
-}
-export interface GetPolicyAndScriptResult {
-  readonly policyId: CborHexString;
-  readonly script: CborHexString;
-}
-
 const WEIGHT_DENOM = 5n;
-
-const getPolicyAndScript = async ({
-  txHash,
-  index,
-  emission,
-  base16Name,
-}: GetPolicyAndScriptParams): Promise<GetPolicyAndScriptResult> => {
-  await fetch('https://meta.spectrum.fi/cardano/minting/data/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      txRef: txHash,
-      outId: Number(index),
-      tnName: base16Name,
-      qty: emission.toString(),
-    }),
-  });
-
-  return fetch('https://meta.spectrum.fi/cardano/minting/data/finalizeNew/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json;charset=utf-8',
-    },
-    body: JSON.stringify({
-      txRef: txHash,
-      outId: Number(index),
-      tnName: base16Name,
-      qty: emission.toString(),
-    }),
-  }).then((res) => res.json());
-};
 
 const getDaoPolicy = async (
   assetInfo: AssetInfo,
@@ -159,14 +111,10 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     const nftMintInfo = await getPolicyAndScript({
       txHash: firstTokenUtxo.txHash,
       index: firstTokenUtxo.index,
-      base16Name: base16NftName,
-      emission: 1n,
     });
     const lqMintInfo = await getPolicyAndScript({
       txHash: firstTokenUtxo.txHash,
       index: firstTokenUtxo.index,
-      base16Name: base16LqName,
-      emission: MINT_LQ,
     });
     const normalizedXWeight = math.evaluate(
       `${xWeight} * ${WEIGHT_DENOM} / 100`,
@@ -222,8 +170,11 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
 
     context.transactionCandidate.addMint({
       currency: Currency.new(1n, nftAssetInfo),
-      plutusV2ScriptCbor: nftMintInfo.script,
-      redeemer: Data.Int(0),
+      script: {
+        value: nftMintInfo.script,
+        type: 'plutusV3',
+      },
+      redeemer: nftMintInfo.redeemer,
       exUnits: {
         mem: 300111n,
         steps: 153808137n,
@@ -231,8 +182,11 @@ export const createWeightedPool: Operation<[CreateWeightedPoolConfig]> =
     });
     context.transactionCandidate.addMint({
       currency: Currency.new(MINT_LQ, lqAssetInfo),
-      plutusV2ScriptCbor: lqMintInfo.script,
-      redeemer: Data.Int(1),
+      script: {
+        type: 'plutusV3',
+        value: lqMintInfo.script,
+      },
+      redeemer: lqMintInfo.redeemer,
       exUnits: {
         mem: 10000000n,
         steps: 9000000000n,
