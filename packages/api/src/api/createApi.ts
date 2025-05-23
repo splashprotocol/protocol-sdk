@@ -8,7 +8,10 @@ import { NoWalletError } from './errors/NoWalletError.ts';
 import { InvalidWalletNetworkError } from './errors/InvalidWalletNetworkError.ts';
 import { WalletEnablingError } from './errors/WalletEnablingError.ts';
 import { WalletAccountError } from './errors/WalletAccountError.ts';
-import { UserDeclinedSignError } from './errors/UserDeclinedSignError.ts';
+import {
+  isUserDeclinedSignError,
+  UserDeclinedSignError,
+} from './errors/UserDeclinedSignError.ts';
 import { WalletApiError } from './errors/WalletApiError.ts';
 import { AddressUtils, CredentialType } from '@splashprotocol/core';
 
@@ -117,7 +120,7 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
       ) {
         throw new WalletAccountError(err.message);
       }
-      if (err?.message?.includes('user declined sign tx')) {
+      if (isUserDeclinedSignError(err)) {
         throw new UserDeclinedSignError(err?.message);
       }
 
