@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "2.0.0-beta.81",
+  "version": "2.0.0-beta.82",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -18,8 +18,8 @@
   },
   "private": false,
   "dependencies": {
-    "@splashprotocol/cml-builder": "2.0.0-beta.83",
-    "@splashprotocol/api": "2.0.0-beta.32",
+    "@splashprotocol/cml-builder": "2.0.0-beta.84",
+    "@splashprotocol/api": "2.0.0-beta.33",
     "@splashprotocol/core": "2.0.0-beta.14"
   },
   "devDependencies": {
