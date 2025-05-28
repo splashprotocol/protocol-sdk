@@ -114,6 +114,16 @@ export class TransactionCandidate {
   readonly outputs: Output[] = [];
 
   /**
+   * valid from slot
+   */
+  validFrom: bigint | undefined = undefined;
+
+  /**
+   * valid to slot
+   */
+  validTo: bigint | undefined = undefined;
+
+  /**
    * Adds new output to candidate
    * @param {Output} output
    */
@@ -121,6 +131,14 @@ export class TransactionCandidate {
     this.outputs.push(output);
 
     return this;
+  }
+
+  setRangeStart(validFrom: bigint) {
+    this.validFrom = validFrom;
+  }
+
+  setRangeEnd(validTo: bigint) {
+    this.validTo = validTo;
   }
 
   /**

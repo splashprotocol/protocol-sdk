@@ -198,8 +198,8 @@ export class BuilderLegacy<
           ? Promise.resolve(config.changeAddress)
           : this.api.getActiveAddress(),
         config?.disableNContext
-          ? this.explorer.getNetworkContext()
-          : (null as unknown as NetworkContext),
+          ? (null as unknown as NetworkContext)
+          : this.explorer.getNetworkContext(),
         config?.specificUTxOs
           ? Promise.resolve(
               config.specificUTxOs.map((sUTxO: UTxO | CborHexString) =>
@@ -358,6 +358,15 @@ export class BuilderLegacy<
     const transactionBuilder = C.TransactionBuilder.new(
       await this.transactionBuilderConfigP,
     );
+
+    if (transactionCandidate.validFrom) {
+      transactionBuilder.set_validity_start_interval(
+        transactionCandidate.validFrom,
+      );
+    }
+    if (transactionCandidate.validTo) {
+      transactionBuilder.set_ttl(transactionCandidate.validTo);
+    }
 
     const scriptInputs = transactionCandidate.inputs.filter(
       (input) => !!input.extra,

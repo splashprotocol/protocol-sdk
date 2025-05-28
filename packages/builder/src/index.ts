@@ -18,6 +18,7 @@ export * from './core/utils/credentialsToBech32Address/credentialsToBech32Addres
 export * from './core/utils/getTransactionBuilderConfig/getTransactionBuilderConfig.ts';
 export * from './core/utils/predictDepositAda/predictDepositAda.ts';
 export * from './core/utils/UTxOsSelector/UTxOsSelector.ts';
+export * from './core/utils/unixToSlot/unixToSlot.ts';
 
 export * from './core/types/InferPromise.ts';
 export * from './core/types/Operation.ts';

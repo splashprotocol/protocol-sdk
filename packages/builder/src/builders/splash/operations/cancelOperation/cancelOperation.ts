@@ -21,8 +21,9 @@ import { spotOrderDatum } from '../spotOrder/spotOrderDatum/spotOrderDatum.ts';
 import { Credentials } from '../../../../core/types/Credentials.ts';
 import { xyRedeemDatum } from '../xyRedeem/xyRedeemDatum/xyRedeemDatum.ts';
 import { xyDepositDatum } from '../xyDeposit/xyDepositDatum/xyDepositDatum.ts';
+import { unixToSlot } from '../../../../core/utils/unixToSlot/unixToSlot.ts';
 
-const anySpotOrderDeserializer = async (
+export const anySpotOrderDeserializer = async (
   network: Network,
   cbor: CborHexString,
 ): Promise<{ address: Bech32String; requiredSigner: HexString }> => {
@@ -172,12 +173,21 @@ const splashOperationDeserializers: {
   depositRoyalty: anyDepositDeserializer,
 };
 
+export type OperationDatumDeserializer = (
+  network: Network,
+  datumCbor: string,
+) => Promise<{ requiredSigner: HexString; address: Bech32String }>;
+
 export const cancelOperation: Operation<
-  [OutputReference | OutputReferenceHash],
+  [
+    OutputReference | OutputReferenceHash,
+    OperationDatumDeserializer?,
+    boolean?,
+  ],
   BasicApi,
   Output
 > =
-  (outputReferenceOrHash) =>
+  (outputReferenceOrHash, deserializer, needTtl) =>
   async ({ network, transactionCandidate, explorer, pParams, C }) => {
     const operationsConfig = await getSplashOperationConfig();
     let outputReference: OutputReference;
@@ -215,10 +225,15 @@ export const cancelOperation: Operation<
 
     const [operationConfigKey, operationConfig] = operationConfigKeyValue;
 
-    const creds = await splashOperationDeserializers[operationConfigKey](
-      network,
-      uTxOToCancel.wasmOutput.datum()?.as_datum()?.to_cbor_hex()!,
-    );
+    const creds = deserializer
+      ? await deserializer(
+          network,
+          uTxOToCancel.wasmOutput.datum()?.as_datum()?.to_cbor_hex()!,
+        )
+      : await splashOperationDeserializers[operationConfigKey](
+          network,
+          uTxOToCancel.wasmOutput.datum()?.as_datum()?.to_cbor_hex()!,
+        );
 
     transactionCandidate.addInput(uTxOToCancel, {
       redeemer: operationConfig.refundData.redeemer,
@@ -241,6 +256,12 @@ export const cancelOperation: Operation<
       address: creds.address,
       value: uTxOToCancel.value,
     });
+
+    if (needTtl) {
+      transactionCandidate.setRangeStart(
+        unixToSlot(network, BigInt(Math.floor(Date.now() / 1000))),
+      );
+    }
 
     transactionCandidate.addOutput(cancelOutput);
     return cancelOutput;
