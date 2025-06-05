@@ -21,7 +21,6 @@ import { spotOrderDatum } from '../spotOrder/spotOrderDatum/spotOrderDatum.ts';
 import { Credentials } from '../../../../core/types/Credentials.ts';
 import { xyRedeemDatum } from '../xyRedeem/xyRedeemDatum/xyRedeemDatum.ts';
 import { xyDepositDatum } from '../xyDeposit/xyDepositDatum/xyDepositDatum.ts';
-import { unixToSlot } from '../../../../core/utils/unixToSlot/unixToSlot.ts';
 
 export const anySpotOrderDeserializer = async (
   network: Network,
@@ -188,7 +187,7 @@ export const cancelOperation: Operation<
   Output
 > =
   (outputReferenceOrHash, deserializer, needTtl) =>
-  async ({ network, transactionCandidate, explorer, pParams, C }) => {
+  async ({ network, transactionCandidate, explorer, pParams, C, nContext }) => {
     const operationsConfig = await getSplashOperationConfig();
     let outputReference: OutputReference;
 
@@ -258,9 +257,7 @@ export const cancelOperation: Operation<
     });
 
     if (needTtl) {
-      transactionCandidate.setRangeStart(
-        unixToSlot(network, BigInt(Math.floor(Date.now() / 1000))),
-      );
+      transactionCandidate.setRangeStart(BigInt(nContext.slotNo - 2));
     }
 
     transactionCandidate.addOutput(cancelOutput);
