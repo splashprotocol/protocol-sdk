@@ -1,0 +1,11 @@
+export type OperationType =
+  | 'SET_THEME'
+  | 'START_SESSION'
+  | 'GET_STATUS'
+  | 'ADD_SEED'
+  | 'CREATE_SEED'
+  | 'REMOVE_SEED'
+  | 'ENTER_PIN_EXTERNAL'
+  | 'ENTER_PIN_INTERNAL'
+  | 'SIGN_TRANSACTION'
+  | 'READY';
