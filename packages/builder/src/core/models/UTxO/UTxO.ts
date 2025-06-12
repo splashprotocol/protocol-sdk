@@ -1,7 +1,9 @@
 import {
+  AssetInfo,
   Bech32String,
   CborHexString,
   Currencies,
+  Currency,
   HexString,
   OutputReference,
   OutputReferenceHash,
@@ -14,11 +16,30 @@ import type {
   TransactionInput,
   TransactionOutput,
 } from '@dcspark/cardano-multiplatform-lib-browser';
+import { toWasmValue } from '../Output/Output.ts';
 
-export interface UTxOConfig {
+export interface UTxOCborConfig {
   readonly cbor: CborHexString;
   readonly spent?: boolean;
 }
+
+export interface UTxODataConfig {
+  readonly transactionHash: HexString;
+  readonly index: bigint | string;
+  readonly address: Bech32String;
+  readonly value: {
+    readonly policyId: HexString;
+    readonly base16Name: HexString;
+    readonly amount: bigint | string;
+  }[];
+  readonly spent?: boolean;
+}
+
+export type UTxOConfig = UTxOCborConfig | UTxODataConfig;
+
+const isUTxOCborConfig = (config: UTxOConfig): config is UTxOCborConfig => {
+  return !!(config as unknown as UTxOCborConfig).cbor;
+};
 
 /**
  * UTxO sdk representation
@@ -98,28 +119,74 @@ export class UTxO {
    */
   readonly ref: OutputReference;
 
+  /**
+   * UTxo cbor string
+   */
+  readonly cbor: CborHexString;
+
   private constructor(
-    private config: UTxOConfig,
+    config: UTxOConfig,
     private C: InferPromise<typeof CML>,
   ) {
-    const wasm = C.TransactionUnspentOutput.from_cbor_hex(config.cbor);
-    const wasmAddress = wasm.output().address();
-    const paymentCredentials = wasmAddress.payment_cred()?.as_pub_key()
-      ? wasmAddress.payment_cred()?.as_pub_key()?.to_hex()
-      : wasmAddress.payment_cred()?.as_script()?.to_hex();
+    if (isUTxOCborConfig(config)) {
+      const wasm = C.TransactionUnspentOutput.from_cbor_hex(config.cbor);
+      const wasmAddress = wasm.output().address();
+      const paymentCredentials = wasmAddress.payment_cred()?.as_pub_key()
+        ? wasmAddress.payment_cred()?.as_pub_key()?.to_hex()
+        : wasmAddress.payment_cred()?.as_script()?.to_hex();
 
-    this.txHash = this.wasmInput.transaction_id().to_hex();
-    this.index = this.wasmInput.index();
-    this.refHash = `${this.txHash}#${this.index}`;
-    this.ref = {
-      txHash: this.txHash,
-      index: this.index,
-    };
-    this.value = Currencies.fromCbor(wasm.output().amount().to_cbor_hex());
-    this.address = this.wasm.output().address().to_bech32();
-    this.paymentCredentials = paymentCredentials!;
-    this.spent = config.spent || false;
-    this.stakeCredentials = wasmAddress.staking_cred()?.as_pub_key()?.to_hex();
+      this.txHash = this.wasmInput.transaction_id().to_hex();
+      this.index = this.wasmInput.index();
+      this.refHash = `${this.txHash}#${this.index}`;
+      this.ref = {
+        txHash: this.txHash,
+        index: this.index,
+      };
+      this.value = Currencies.fromCbor(wasm.output().amount().to_cbor_hex());
+      this.address = this.wasm.output().address().to_bech32();
+      this.paymentCredentials = paymentCredentials!;
+      this.spent = config.spent || false;
+      this.stakeCredentials = wasmAddress
+        .staking_cred()
+        ?.as_pub_key()
+        ?.to_hex();
+      this.cbor = config.cbor;
+    } else {
+      const wasmAddress = C.Address.from_bech32(config.address);
+      const paymentCredentials = wasmAddress.payment_cred()?.as_pub_key()
+        ? wasmAddress.payment_cred()?.as_pub_key()?.to_hex()
+        : wasmAddress.payment_cred()?.as_script()?.to_hex();
+
+      this.txHash = config.transactionHash;
+      this.index = BigInt(config.index);
+      this.refHash = `${this.txHash}#${this.index}`;
+      this.ref = {
+        txHash: this.txHash,
+        index: this.index,
+      };
+      this.value = Currencies.new(
+        config.value.map((item) =>
+          Currency.new(
+            BigInt(item.amount),
+            AssetInfo.fromBase16(item.policyId, item.base16Name),
+          ),
+        ),
+      );
+      this.address = config.address;
+      this.paymentCredentials = paymentCredentials!;
+      this.spent = config.spent || false;
+      this.stakeCredentials = wasmAddress
+        .staking_cred()
+        ?.as_pub_key()
+        ?.to_hex();
+      this.cbor = C.TransactionUnspentOutput.new(
+        C.TransactionInput.new(
+          C.TransactionHash.from_hex(config.transactionHash),
+          BigInt(config.index),
+        ),
+        C.TransactionOutput.new(wasmAddress, toWasmValue(C, this.value)),
+      ).to_cbor_hex();
+    }
   }
 
   /**
@@ -127,15 +194,7 @@ export class UTxO {
    * @type {TransactionUnspentOutput}
    */
   get wasm(): TransactionUnspentOutput {
-    return this.C.TransactionUnspentOutput.from_cbor_hex(this.config.cbor);
-  }
-
-  /**
-   * Cbor representation of UTxo
-   * @type {CborHexString}
-   */
-  get cbor(): CborHexString {
-    return this.config.cbor;
+    return this.C.TransactionUnspentOutput.from_cbor_hex(this.cbor);
   }
 
   /**
