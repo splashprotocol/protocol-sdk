@@ -1,7 +1,7 @@
-import { BaseResponse } from '../../../common/types/SuccessResponse.ts';
+import { BaseSuccessResponse } from '../../../common/types/SuccessResponse.ts';
 import { WalletStatus } from './WalletStatus.ts';
 
-export type GetWalletStatusSuccessResponse = BaseResponse<
+export type GetWalletStatusSuccessResponse = BaseSuccessResponse<
   'GET_STATUS',
   WalletStatus
 >;

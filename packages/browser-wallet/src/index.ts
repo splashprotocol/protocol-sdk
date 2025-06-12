@@ -21,3 +21,5 @@ export * from './operations/getWalletStatus/types/GetWalletStatusRequest.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusErrorResponse.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
 export * from './operations/getWalletStatus/getWalletStatusRequestValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusErrorResponseValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusSuccessResponseValidator.ts';

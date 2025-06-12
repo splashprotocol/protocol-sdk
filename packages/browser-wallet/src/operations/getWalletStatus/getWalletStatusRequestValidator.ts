@@ -5,29 +5,13 @@ import { requestIdValidator } from '../../common/validators/requestIdValidator/r
 import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
 import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
+import { baseMessageSchemaValidator } from '../../common/validators/baseMessageSchemaValidator/baseMessageSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST SCHEMA';
 const getWalletStatusSchemaValidator = (
   request: GetWalletStatusRequest,
 ): true => {
-  if (
-    !request.deviceId ||
-    (request.deviceId && typeof request.deviceId !== 'string')
-  ) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (!request.nonce || (request.nonce && typeof request.nonce !== 'string')) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (
-    !request.timestamp ||
-    (request.timestamp && typeof request.timestamp !== 'number')
-  ) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (!request.requestId && typeof request.requestId !== 'string') {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
+  baseMessageSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
   return true;
 };
 

@@ -1,6 +1,6 @@
 import { OperationType } from './OperationType.ts';
 
-export interface BaseResponse<T extends OperationType, P> {
+export interface BaseSuccessResponse<T extends OperationType, P> {
   readonly requestId: string;
   readonly type: T;
   readonly timestamp: number;
@@ -10,8 +10,8 @@ export interface BaseResponse<T extends OperationType, P> {
   readonly nonce: string;
 }
 
-export interface SafetyResponse<T extends OperationType, P>
-  extends BaseResponse<T, P> {
+export interface SafetySuccessResponse<T extends OperationType, P>
+  extends BaseSuccessResponse<T, P> {
   readonly sessionId: string;
   readonly signature: Uint8Array;
 }

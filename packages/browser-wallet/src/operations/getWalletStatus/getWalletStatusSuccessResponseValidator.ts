@@ -4,44 +4,38 @@ import { originValidator } from '../../common/validators/originValidator/originV
 import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
 import { GetWalletStatusSuccessResponse } from './types/GetWalletStatusSuccessResponse.ts';
+import { baseSuccessMessageSchemaValidator } from '../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
+import { WalletStatus } from './types/WalletStatus.ts';
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST SCHEMA';
+const walletStatuses: WalletStatus[] = [
+  'SEED_REQUIRED',
+  'PIN_REQUIRED',
+  'NO_SESSION',
+  'READY_TO_SIGN',
+];
+const INVALID_SCHEMA_ERROR_MESSAGE =
+  'INVALID GET STATUS SUCCESS RESPONSE SCHEMA';
 const getWalletStatusSuccessSchemaValidator = (
-  request: GetWalletStatusSuccessResponse,
+  successResponse: GetWalletStatusSuccessResponse,
 ): true => {
-  if (
-    !request.deviceId ||
-    (request.deviceId && typeof request.deviceId !== 'string')
-  ) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (!request.nonce || (request.nonce && typeof request.nonce !== 'string')) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (
-    !request.timestamp ||
-    (request.timestamp && typeof request.timestamp !== 'number')
-  ) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (!request.requestId && typeof request.requestId !== 'string') {
+  baseSuccessMessageSchemaValidator(
+    successResponse,
+    INVALID_SCHEMA_ERROR_MESSAGE,
+  );
+  if (!walletStatuses.includes(successResponse.payload)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
   return true;
 };
 
-const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET STATUS RESPONSE SCHEMA';
-const INVALID_KIND_ERROR_MESSAGE = 'INVALID GET STATUS RESPONSE KIND';
-export const readySuccessResponseValidator = (
+const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET SUCCESS STATUS RESPONSE SCHEMA';
+export const getWalletStatusSuccessResponseValidator = (
   event: MessageEvent<GetWalletStatusSuccessResponse>,
   deviceId: string,
   validOrigins: string[],
 ) => {
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
-  }
-  if (event.data.kind !== 'success') {
-    throw new Error(INVALID_KIND_ERROR_MESSAGE);
   }
   getWalletStatusSuccessSchemaValidator(event.data);
   nonceValidator(event.data.nonce);

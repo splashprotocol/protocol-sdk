@@ -1,3 +1,3 @@
-import { BaseResponse } from '../../../common/types/SuccessResponse.ts';
+import { BaseSuccessResponse } from '../../../common/types/SuccessResponse.ts';
 
-export type ReadyResponse = BaseResponse<'READY', undefined>;
+export type ReadyResponse = BaseSuccessResponse<'READY', undefined>;
