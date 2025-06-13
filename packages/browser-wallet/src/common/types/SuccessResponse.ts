@@ -13,9 +13,10 @@ export interface BaseSuccessResponse<T extends OperationType, P> {
 export interface NoSessionResponse<T extends OperationType, P>
   extends BaseSuccessResponse<T, P> {
   readonly signature: Uint8Array;
+  readonly sessionId: string;
 }
 
 export interface SafetySuccessResponse<T extends OperationType, P>
-  extends NoSessionResponse<T, P> {
-  readonly sessionId: string;
+  extends BaseSuccessResponse<T, P> {
+  readonly signature: Uint8Array;
 }

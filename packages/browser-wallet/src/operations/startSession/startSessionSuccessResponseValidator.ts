@@ -4,14 +4,17 @@ import { timestampValidator } from '../../common/validators/timestampValidator/t
 import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
 import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { safetyResponseSchemaValidator } from '../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
+import { noSessionResponseSchemaValidator } from '../../common/validators/noSessionResponseSchemaValidator/noSessionResponseSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE =
   'INVALID START SESSION SUCCESS RESPONSE SCHEMA';
 const startSessionSuccessSchemaValidator = (
   successResponse: StartSessionSuccessResponse,
 ): true => {
-  safetyResponseSchemaValidator(successResponse, INVALID_SCHEMA_ERROR_MESSAGE);
+  noSessionResponseSchemaValidator(
+    successResponse,
+    INVALID_SCHEMA_ERROR_MESSAGE,
+  );
   if (successResponse.payload !== undefined) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
