@@ -7,6 +7,8 @@ export * from './common/utils/generateRequestId/generateRequestId.ts';
 export * from './common/utils/generateNonce/generateNonce.ts';
 
 export * from './common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
+export * from './common/models/Session/Session.ts';
+export * from './common/models/AnomalyAnalyzer/AnomalyAnalyzer.ts';
 
 export * from './common/validators/timestampValidator/timestampValidator.ts';
 export * from './common/validators/nonceValidator/nonceValidator.ts';
