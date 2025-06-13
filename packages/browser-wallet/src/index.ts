@@ -6,12 +6,16 @@ export * from './common/utils/getDeviceId/getDeviceId.ts';
 export * from './common/utils/generateRequestId/generateRequestId.ts';
 export * from './common/utils/generateNonce/generateNonce.ts';
 
+export * from './common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
+
 export * from './common/validators/timestampValidator/timestampValidator.ts';
 export * from './common/validators/nonceValidator/nonceValidator.ts';
 export * from './common/validators/requestIdValidator/requestIdValidator.ts';
 export * from './common/validators/sourceValidator/sourceValidator.ts';
 export * from './common/validators/deviceIdValidator/deviceIdValidator.ts';
 export * from './common/validators/originValidator/originValidator.ts';
+export * from './common/validators/sessionIdValidator/sessionIdValidator.ts';
+export * from './common/validators/signatureValidator/signatureValidator.ts';
 
 export * from './operations/ready/types/ReadyResponse.ts';
 export * from './operations/ready/readySuccessResponseValidator.ts';
@@ -23,3 +27,6 @@ export * from './operations/getWalletStatus/types/GetWalletStatusSuccessResponse
 export * from './operations/getWalletStatus/getWalletStatusRequestValidator.ts';
 export * from './operations/getWalletStatus/getWalletStatusErrorResponseValidator.ts';
 export * from './operations/getWalletStatus/getWalletStatusSuccessResponseValidator.ts';
+
+export * from './operations/startSession/types/StartSessionRequest.ts';
+export * from './operations/startSession/startSessionRequestValidator.ts';
