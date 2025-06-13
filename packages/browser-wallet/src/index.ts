@@ -29,4 +29,5 @@ export * from './operations/getWalletStatus/getWalletStatusErrorResponseValidato
 export * from './operations/getWalletStatus/getWalletStatusSuccessResponseValidator.ts';
 
 export * from './operations/startSession/types/StartSessionRequest.ts';
+export * from './operations/startSession/types/StartSessionSuccessResponse.ts';
 export * from './operations/startSession/startSessionRequestValidator.ts';

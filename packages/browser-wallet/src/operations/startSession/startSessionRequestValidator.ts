@@ -5,14 +5,17 @@ import { requestIdValidator } from '../../common/validators/requestIdValidator/r
 import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
 import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { baseMessageSchemaValidator } from '../../common/validators/baseMessageSchemaValidator/baseMessageSchemaValidator.ts';
 import { signatureValidator } from '../../common/validators/signatureValidator/signatureValidator.ts';
+import { noSessionRequestSchemaValidator } from '../../common/validators/noSessionRequestSchemaValidator/noSessionRequestSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID START SESSION REQUEST SCHEMA';
 const startSessionRequestSchemaValidator = (
   request: StartSessionRequest,
 ): true => {
-  baseMessageSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
+  noSessionRequestSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (!(request.payload instanceof Uint8Array)) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   return true;
 };
 
