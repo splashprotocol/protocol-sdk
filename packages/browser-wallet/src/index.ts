@@ -31,3 +31,4 @@ export * from './operations/getWalletStatus/getWalletStatusSuccessResponseValida
 export * from './operations/startSession/types/StartSessionRequest.ts';
 export * from './operations/startSession/types/StartSessionSuccessResponse.ts';
 export * from './operations/startSession/startSessionRequestValidator.ts';
+export * from './operations/startSession/startSessionSuccessResponseValidator.ts';
