@@ -1,11 +1,11 @@
-import { GetWalletStatusRequest } from './types/GetWalletStatusRequest.ts';
-import { nonceValidator } from '../../common/validators/nonceValidator/nonceValidator.ts';
-import { timestampValidator } from '../../common/validators/timestampValidator/timestampValidator.ts';
-import { requestIdValidator } from '../../common/validators/requestIdValidator/requestIdValidator.ts';
-import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
-import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
-import { baseMessageSchemaValidator } from '../../common/validators/baseMessageSchemaValidator/baseMessageSchemaValidator.ts';
+import { GetWalletStatusRequest } from '../types/GetWalletStatusRequest.ts';
+import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
+import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
+import { requestIdValidator } from '../../../common/validators/requestIdValidator/requestIdValidator.ts';
+import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
+import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
+import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
+import { baseMessageSchemaValidator } from '../../../common/validators/baseMessageSchemaValidator/baseMessageSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST SCHEMA';
 const getWalletStatusSchemaValidator = (

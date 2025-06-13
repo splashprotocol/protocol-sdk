@@ -1,11 +1,11 @@
-import { nonceValidator } from '../../common/validators/nonceValidator/nonceValidator.ts';
-import { timestampValidator } from '../../common/validators/timestampValidator/timestampValidator.ts';
-import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
-import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
-import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { GetWalletStatusSuccessResponse } from './types/GetWalletStatusSuccessResponse.ts';
-import { baseSuccessMessageSchemaValidator } from '../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
-import { WalletStatus } from './types/WalletStatus.ts';
+import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
+import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
+import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
+import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
+import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
+import { GetWalletStatusSuccessResponse } from '../types/GetWalletStatusSuccessResponse.ts';
+import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
+import { WalletStatus } from '../types/WalletStatus.ts';
 
 const walletStatuses: WalletStatus[] = [
   'SEED_REQUIRED',

@@ -5,6 +5,7 @@ export * from './common/utils/generateMessageForSign/generateMessageForSign.ts';
 export * from './common/utils/getDeviceId/getDeviceId.ts';
 export * from './common/utils/generateRequestId/generateRequestId.ts';
 export * from './common/utils/generateNonce/generateNonce.ts';
+export * from './common/utils/createErrorResponse/createErrorResponse.ts';
 
 export * from './common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
 export * from './common/models/Session/Session.ts';
@@ -26,9 +27,14 @@ export * from './operations/getWalletStatus/types/WalletStatus.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusRequest.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusErrorResponse.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
-export * from './operations/getWalletStatus/getWalletStatusRequestValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusErrorResponseValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusSuccessResponseValidator.ts';
+
+export * from './operations/getWalletStatus/getWalletStatusRequest/getWalletStatusRequestValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
+
+export * from './operations/getWalletStatus/getWalletStatusErrorResponse/getWalletStatusErrorResponseValidator.ts';
+
+export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/createGetWalletStatusSuccessResponse.ts';
 
 export * from './operations/startSession/types/StartSessionRequest.ts';
 export * from './operations/startSession/types/StartSessionSuccessResponse.ts';
