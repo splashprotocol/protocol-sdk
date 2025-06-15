@@ -1,10 +1,10 @@
-import { ReadyResponse } from './types/ReadyResponse.ts';
-import { nonceValidator } from '../../common/validators/nonceValidator/nonceValidator.ts';
-import { timestampValidator } from '../../common/validators/timestampValidator/timestampValidator.ts';
-import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
-import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
-import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { baseSuccessMessageSchemaValidator } from '../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
+import { ReadyResponse } from '../types/ReadyResponse.ts';
+import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
+import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
+import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
+import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
+import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
+import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS RESPONSE SCHEMA';
 const readySuccessSchemaValidator = (successResponse: ReadyResponse): true => {

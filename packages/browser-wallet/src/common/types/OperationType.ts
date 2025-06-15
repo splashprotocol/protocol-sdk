@@ -8,4 +8,5 @@ export type OperationType =
   | 'ENTER_PIN_EXTERNAL'
   | 'ENTER_PIN_INTERNAL'
   | 'SIGN_TRANSACTION'
-  | 'READY';
+  | 'READY'
+  | 'DESTROY_SESSION';

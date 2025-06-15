@@ -12,6 +12,9 @@ const getWalletStatusSchemaValidator = (
   request: GetWalletStatusRequest,
 ): true => {
   baseMessageSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (request.payload !== undefined) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   return true;
 };
 

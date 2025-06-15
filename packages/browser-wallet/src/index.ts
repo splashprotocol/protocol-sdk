@@ -21,7 +21,8 @@ export * from './common/validators/sessionIdValidator/sessionIdValidator.ts';
 export * from './common/validators/signatureValidator/signatureValidator.ts';
 
 export * from './operations/ready/types/ReadyResponse.ts';
-export * from './operations/ready/readySuccessResponseValidator.ts';
+export * from './operations/ready/readySuccessResponse/readySuccessResponseValidator.ts';
+export * from './operations/ready/readySuccessResponse/createReadySuccessResponse.ts';
 
 export * from './operations/getWalletStatus/types/WalletStatus.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusRequest.ts';
@@ -38,5 +39,7 @@ export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/creat
 
 export * from './operations/startSession/types/StartSessionRequest.ts';
 export * from './operations/startSession/types/StartSessionSuccessResponse.ts';
-export * from './operations/startSession/startSessionRequestValidator.ts';
+export * from './operations/startSession/startSessionRequest/startSessionRequestValidator.ts';
+export * from './operations/startSession/startSessionRequest/createStartSessionRequest.ts';
+
 export * from './operations/startSession/startSessionSuccessResponseValidator.ts';

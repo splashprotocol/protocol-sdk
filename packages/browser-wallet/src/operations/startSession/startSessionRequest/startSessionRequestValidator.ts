@@ -1,12 +1,12 @@
-import { StartSessionRequest } from './types/StartSessionRequest.ts';
-import { nonceValidator } from '../../common/validators/nonceValidator/nonceValidator.ts';
-import { timestampValidator } from '../../common/validators/timestampValidator/timestampValidator.ts';
-import { requestIdValidator } from '../../common/validators/requestIdValidator/requestIdValidator.ts';
-import { originValidator } from '../../common/validators/originValidator/originValidator.ts';
-import { sourceValidator } from '../../common/validators/sourceValidator/sourceValidator.ts';
-import { deviceIdValidator } from '../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { signatureValidator } from '../../common/validators/signatureValidator/signatureValidator.ts';
-import { noSessionRequestSchemaValidator } from '../../common/validators/noSessionRequestSchemaValidator/noSessionRequestSchemaValidator.ts';
+import { StartSessionRequest } from '../types/StartSessionRequest.ts';
+import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
+import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
+import { requestIdValidator } from '../../../common/validators/requestIdValidator/requestIdValidator.ts';
+import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
+import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
+import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
+import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
+import { noSessionRequestSchemaValidator } from '../../../common/validators/noSessionRequestSchemaValidator/noSessionRequestSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID START SESSION REQUEST SCHEMA';
 const startSessionRequestSchemaValidator = (
