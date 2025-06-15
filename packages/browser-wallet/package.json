@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/browser-wallet",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.3",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -40,7 +40,6 @@
     "@guardhivefraudshield/device-fingerprint": "^0.3.0"
   },
   "peerDependencies": {
-    "@splashprotocol/api": "2.0.0-beta.33",
     "@splashprotocol/core": "2.0.0-beta.14"
   }
 }

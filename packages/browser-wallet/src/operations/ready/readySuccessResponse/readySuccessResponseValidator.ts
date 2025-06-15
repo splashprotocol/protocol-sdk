@@ -6,7 +6,7 @@ import { sourceValidator } from '../../../common/validators/sourceValidator/sour
 import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
 import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS RESPONSE SCHEMA';
+const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID READY RESPONSE SCHEMA';
 const readySuccessSchemaValidator = (successResponse: ReadyResponse): true => {
   baseSuccessMessageSchemaValidator(
     successResponse,

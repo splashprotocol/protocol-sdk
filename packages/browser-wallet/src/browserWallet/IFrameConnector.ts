@@ -110,6 +110,7 @@ export const IFrameConnector = (
 
       switch (event.data.type) {
         case 'READY':
+          console.log('ready', event.data);
           readySuccessResponseValidator(event as any, deviceId, [iframeUrl]);
           const newKeyPair = await CommunicationKeyPair.create();
           const sessionRequest = await createStartSessionRequest(
@@ -120,6 +121,7 @@ export const IFrameConnector = (
           iFrame!.contentWindow!.postMessage(sessionRequest, iframeUrl);
           return;
         case 'START_SESSION':
+          console.log('session start', event.data);
           if (event.data.kind === 'success') {
             startSessionSuccessResponseValidator(event as any, deviceId, [
               iframeUrl,
@@ -154,7 +156,7 @@ export const IFrameConnector = (
     };
     window.addEventListener('message', messageHandler);
   });
-
-  window.document.appendChild(iFrame!);
+  console.log(iFrame, iframeUrl);
+  window.document.body.appendChild(iFrame!);
   return result;
 };

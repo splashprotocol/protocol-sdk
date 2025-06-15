@@ -43,3 +43,6 @@ export * from './operations/startSession/startSessionRequest/startSessionRequest
 export * from './operations/startSession/startSessionRequest/createStartSessionRequest.ts';
 
 export * from './operations/startSession/startSessionSuccessResponseValidator.ts';
+
+export * from './browserWallet/IFrameConnector.ts';
+export * from './browserWallet/BrowserWallet.ts';
