@@ -1,8 +1,9 @@
 export interface AnomalyAnalyzerConfig {
   readonly maxErrorCount: number;
   readonly maxRps: number;
-  readonly onAnomalyDetected: () => void;
 }
+
+export class AnomalyError extends Error {}
 
 export class AnomalyAnalyzer {
   static create(config: AnomalyAnalyzerConfig) {
@@ -25,13 +26,12 @@ export class AnomalyAnalyzer {
 
   asserError(): boolean {
     if (this.destroyed) {
-      throw new Error('AnomalyAnalyzer ended');
+      throw new AnomalyError('AnomalyAnalyzer ended');
     }
     this.errorCount += 1;
     if (this.errorCount >= this.config.maxErrorCount) {
       this.destroy();
-      this.config.onAnomalyDetected();
-      return false;
+      throw new AnomalyError('max errors count reached');
     }
     return true;
   }
@@ -43,19 +43,16 @@ export class AnomalyAnalyzer {
     this.rpsCount += 1;
     if (this.rpsCount >= this.config.maxRps) {
       this.destroy();
-      this.config.onAnomalyDetected();
-      return false;
+      throw new AnomalyError('max rps reached');
     }
     return true;
   }
 
   async applyToValidator(validator: () => Promise<true> | true) {
     if (this.destroyed) {
-      throw new Error('AnomalyAnalyzer ended');
+      throw new AnomalyError('AnomalyAnalyzer ended');
     }
-    if (!this.assertRequest()) {
-      throw new Error('Error anomaly detected');
-    }
+    this.assertRequest();
     try {
       await validator();
     } catch (error: unknown) {

@@ -2,9 +2,9 @@ import { GetWalletStatusRequest } from '../types/GetWalletStatusRequest.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
 
-export const createGetWalletStatusRequest = (
+export const createGetWalletStatusRequest = async (
   deviceId: string,
-): GetWalletStatusRequest => {
+): Promise<GetWalletStatusRequest> => {
   return {
     nonce: generateNonce(),
     requestId: generateRequestId(),

@@ -19,11 +19,11 @@ const getWalletStatusSchemaValidator = (
 };
 
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST TYPE';
-export const getWalletStatusRequestValidator = (
+export const getWalletStatusRequestValidator = async (
   event: MessageEvent<GetWalletStatusRequest>,
   deviceId: string,
   validOrigins: string[],
-): true => {
+): Promise<true> => {
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }

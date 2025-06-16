@@ -19,13 +19,7 @@ export const createStartSessionRequest = async (
     type: 'START_SESSION',
     payload,
     signature: await keyPair.privateKey.sign(
-      await generateMessageForSign(
-        payload,
-        timestamp,
-        deviceId,
-        requestId,
-        nonce,
-      ),
+      generateMessageForSign(payload, timestamp, deviceId, requestId, nonce),
     ),
     deviceId,
     requestId,

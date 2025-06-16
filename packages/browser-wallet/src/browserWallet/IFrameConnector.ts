@@ -12,7 +12,7 @@ import {
 } from '../operations/AnyOperation.ts';
 import { getDeviceId } from '../common/utils/getDeviceId/getDeviceId.ts';
 import { createStartSessionRequest } from '../operations/startSession/startSessionRequest/createStartSessionRequest.ts';
-import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponseValidator.ts';
+import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
 import { createGetWalletStatusRequest } from '../operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
 import { GetWalletStatusRequest } from '../operations/getWalletStatus/types/GetWalletStatusRequest.ts';
 import { GetWalletStatusSuccessResponse } from '../operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
@@ -85,10 +85,10 @@ export const IFrameConnector = (
   };
 
   const applyBackup = (deviceId: string) => {
-    const waitings = backupOperations.map((operation) => {
+    const waitings = backupOperations.map(async (operation) => {
       switch (operation.type) {
         case 'GET_STATUS':
-          return submit(createGetWalletStatusRequest(deviceId));
+          return submit(await createGetWalletStatusRequest(deviceId));
         default:
           return Promise.resolve();
       }
@@ -102,15 +102,14 @@ export const IFrameConnector = (
     const messageHandler = async (
       event: MessageEvent<AnySuccessResponse | AnyErrorResponse>,
     ) => {
-      const deviceId = await getDeviceId();
-
-      if (!(event?.data instanceof Object)) {
+      if (!(event?.data instanceof Object) || !(event.data as any)?.type) {
         return;
       }
+      const deviceId = await getDeviceId();
 
       switch (event.data.type) {
         case 'READY':
-          console.log('ready', event.data);
+          console.log(event.data);
           readySuccessResponseValidator(event as any, deviceId, [iframeUrl]);
           const newKeyPair = await CommunicationKeyPair.create();
           const sessionRequest = await createStartSessionRequest(
@@ -121,7 +120,6 @@ export const IFrameConnector = (
           iFrame!.contentWindow!.postMessage(sessionRequest, iframeUrl);
           return;
         case 'START_SESSION':
-          console.log('session start', event.data);
           if (event.data.kind === 'success') {
             startSessionSuccessResponseValidator(event as any, deviceId, [
               iframeUrl,
@@ -137,11 +135,11 @@ export const IFrameConnector = (
               destroy() {
                 window.removeEventListener('message', messageHandler);
               },
-              getStatus() {
+              async getStatus() {
                 return submit<
                   GetWalletStatusRequest,
                   GetWalletStatusSuccessResponse
-                >(createGetWalletStatusRequest(deviceId));
+                >(await createGetWalletStatusRequest(deviceId));
               },
             } as IFrameConnectorResponse);
           }
@@ -156,7 +154,7 @@ export const IFrameConnector = (
     };
     window.addEventListener('message', messageHandler);
   });
-  console.log(iFrame, iframeUrl);
+
   window.document.body.appendChild(iFrame!);
   return result;
 };

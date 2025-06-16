@@ -8,4 +8,5 @@ export interface ErrorResponse<T extends OperationType> {
   readonly message: string;
   readonly deviceId: string;
   readonly nonce: string;
+  readonly sessionEnd: boolean;
 }

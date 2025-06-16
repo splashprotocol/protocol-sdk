@@ -4,12 +4,15 @@ import { GetWalletStatusSuccessResponse } from './getWalletStatus/types/GetWalle
 import { StartSessionSuccessResponse } from './startSession/types/StartSessionSuccessResponse.ts';
 import { ReadyResponse } from './ready/types/ReadyResponse.ts';
 import { GetWalletStatusErrorResponse } from './getWalletStatus/types/GetWalletStatusErrorResponse.ts';
-
-export type AnyRequest = GetWalletStatusRequest | StartSessionRequest;
+import { StartSessionErrorResponse } from './startSession/types/StartSessionErrorResponse.ts';
 
 export type AnySuccessResponse =
   | GetWalletStatusSuccessResponse
   | StartSessionSuccessResponse
   | ReadyResponse;
 
-export type AnyErrorResponse = GetWalletStatusErrorResponse;
+export type AnyRequest = GetWalletStatusRequest | StartSessionRequest;
+
+export type AnyErrorResponse =
+  | GetWalletStatusErrorResponse
+  | StartSessionErrorResponse;
