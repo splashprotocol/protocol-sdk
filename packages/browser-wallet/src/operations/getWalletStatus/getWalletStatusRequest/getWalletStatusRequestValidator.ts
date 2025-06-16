@@ -18,12 +18,19 @@ const getWalletStatusSchemaValidator = (
   return true;
 };
 
+export interface GetWalletStatusRequestValidatorProps {
+  readonly event: MessageEvent<GetWalletStatusRequest>;
+  readonly deviceId: string;
+  readonly validOrigins: string[];
+  readonly expectedSource: MessageEventSource | null;
+}
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST TYPE';
-export const getWalletStatusRequestValidator = async (
-  event: MessageEvent<GetWalletStatusRequest>,
-  deviceId: string,
-  validOrigins: string[],
-): Promise<true> => {
+export const getWalletStatusRequestValidator = async ({
+  event,
+  deviceId,
+  validOrigins,
+  expectedSource,
+}: GetWalletStatusRequestValidatorProps): Promise<true> => {
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
@@ -32,7 +39,7 @@ export const getWalletStatusRequestValidator = async (
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);
   originValidator(validOrigins, event.origin);
-  sourceValidator(window, event.source);
+  sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
   return true;
 };

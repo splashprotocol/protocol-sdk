@@ -1,10 +1,17 @@
-import {
-  getFingerprintHash,
-  setOption,
-} from '@guardhivefraudshield/device-fingerprint';
-
-setOption('exclude', ['permissions']);
+import { getFingerprintData } from '@guardhivefraudshield/device-fingerprint';
+import { sha1 } from 'object-hash';
 
 export const getDeviceId = async () => {
-  return getFingerprintHash();
+  return getFingerprintData().then((data) => {
+    return sha1({
+      audio: data.audio,
+      canvas: data.canvas,
+      deviceName: data.deviceName,
+      fonts: data.fonts,
+      hardware: data.hardware,
+      locales: data.locales,
+      system: data.system,
+      webgl: data.webgl,
+    });
+  });
 };

@@ -18,12 +18,19 @@ const readySuccessSchemaValidator = (successResponse: ReadyResponse): true => {
   return true;
 };
 
+export interface ReadySuccessResponseValidatorProps {
+  readonly event: MessageEvent<ReadyResponse>;
+  readonly deviceId: string;
+  readonly validOrigins: string[];
+  readonly expectedSource: MessageEventSource | null;
+}
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID READY RESPONSE SCHEMA';
-export const readySuccessResponseValidator = (
-  event: MessageEvent<ReadyResponse>,
-  deviceId: string,
-  validOrigins: string[],
-) => {
+export const readySuccessResponseValidator = async ({
+  expectedSource,
+  validOrigins,
+  deviceId,
+  event,
+}: ReadySuccessResponseValidatorProps): Promise<true> => {
   if (event.data.type !== 'READY') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
@@ -31,7 +38,7 @@ export const readySuccessResponseValidator = (
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   originValidator(validOrigins, event.origin);
-  sourceValidator(window, event.source);
+  sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
   return true;
 };

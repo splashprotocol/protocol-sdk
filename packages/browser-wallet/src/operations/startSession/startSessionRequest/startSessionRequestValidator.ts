@@ -20,11 +20,18 @@ const startSessionRequestSchemaValidator = (
 };
 
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID START SESSION REQUEST TYPE';
-export const startSessionRequestValidator = async (
-  event: MessageEvent<StartSessionRequest>,
-  deviceId: string,
-  validOrigins: string[],
-): Promise<true> => {
+export interface StartSessionRequestValidatorProps {
+  readonly event: MessageEvent<StartSessionRequest>;
+  readonly deviceId: string;
+  readonly validOrigins: string[];
+  readonly expectedSource: MessageEventSource | null;
+}
+export const startSessionRequestValidator = async ({
+  event,
+  validOrigins,
+  deviceId,
+  expectedSource,
+}: StartSessionRequestValidatorProps): Promise<true> => {
   if (event.data.type !== 'START_SESSION') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
@@ -33,7 +40,7 @@ export const startSessionRequestValidator = async (
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);
   originValidator(validOrigins, event.origin);
-  sourceValidator(window, event.source);
+  sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
   await signatureValidator(event.data.payload, event.data, deviceId);
   return true;

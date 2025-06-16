@@ -106,11 +106,15 @@ export const IFrameConnector = (
         return;
       }
       const deviceId = await getDeviceId();
-
+      console.log(event.data);
       switch (event.data.type) {
         case 'READY':
-          console.log(event.data);
-          readySuccessResponseValidator(event as any, deviceId, [iframeUrl]);
+          await readySuccessResponseValidator({
+            event: event as any,
+            deviceId,
+            validOrigins: [iframeUrl],
+            expectedSource: iFrame!.contentWindow,
+          });
           const newKeyPair = await CommunicationKeyPair.create();
           const sessionRequest = await createStartSessionRequest(
             deviceId,
@@ -121,16 +125,20 @@ export const IFrameConnector = (
           return;
         case 'START_SESSION':
           if (event.data.kind === 'success') {
-            startSessionSuccessResponseValidator(event as any, deviceId, [
-              iframeUrl,
-            ]);
+            await startSessionSuccessResponseValidator({
+              event: event as any,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow,
+            });
             retryCount = 0;
             status = 'ready';
             sessionId = event.data.sessionId;
             iframePublicKey = await CommunicationPublicKey.fromBytes(
               event.data.payload,
             );
-            applyBackup(deviceId);
+            await applyBackup(deviceId);
+            console.log(event, 'hello!');
             resolve({
               destroy() {
                 window.removeEventListener('message', messageHandler);

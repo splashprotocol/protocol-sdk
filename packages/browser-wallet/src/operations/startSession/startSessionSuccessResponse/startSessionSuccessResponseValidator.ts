@@ -16,19 +16,26 @@ const startSessionSuccessSchemaValidator = (
     successResponse,
     INVALID_SCHEMA_ERROR_MESSAGE,
   );
-  if (successResponse.payload !== undefined) {
+  if (!(successResponse.payload instanceof Uint8Array)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
   return true;
 };
 
+export interface StartSessionSuccessResponseValidatorProps {
+  readonly event: MessageEvent<StartSessionSuccessResponse>;
+  readonly deviceId: string;
+  readonly validOrigins: string[];
+  readonly expectedSource: MessageEventSource | null;
+}
 const INVALID_TYPE_ERROR_MESSAGE =
   'INVALID START SESSION SUCCESS RESPONSE SCHEMA';
-export const startSessionSuccessResponseValidator = async (
-  event: MessageEvent<StartSessionSuccessResponse>,
-  deviceId: string,
-  validOrigins: string[],
-): Promise<true> => {
+export const startSessionSuccessResponseValidator = async ({
+  event,
+  deviceId,
+  validOrigins,
+  expectedSource,
+}: StartSessionSuccessResponseValidatorProps): Promise<true> => {
   if (event.data.type !== 'START_SESSION') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
@@ -36,7 +43,7 @@ export const startSessionSuccessResponseValidator = async (
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   originValidator(validOrigins, event.origin);
-  sourceValidator(window, event.source);
+  sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
   await signatureValidator(event.data.payload, event.data, deviceId);
 
