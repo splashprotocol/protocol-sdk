@@ -62,6 +62,15 @@ export * from './operations/enterPin/enterPinReq/createEnterPinReq.ts';
 export * from './operations/enterPin/enterPinRes/enterPinResValidator.ts';
 export * from './operations/enterPin/enterPinRes/createEnterPinRes.ts';
 
+export * from './operations/getWalletInfo/type/WalletInfo.ts';
+export * from './operations/getWalletInfo/type/GetWalletInfoErr.ts';
+export * from './operations/getWalletInfo/type/GetWalletInfoReq.ts';
+export * from './operations/getWalletInfo/type/GetWalletInfoRes.ts';
+export * from './operations/getWalletInfo/getWalletInfoReq/getWalletInfoReqValidator.ts';
+export * from './operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoReq.ts';
+export * from './operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
+export * from './operations/getWalletInfo/getWalletInfoRes/createGetWalletInfoRes.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 

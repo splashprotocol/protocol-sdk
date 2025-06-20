@@ -7,6 +7,7 @@ const operations: OperationType[] = [
   'SET_THEME',
   'ENTER_PIN',
   'CREATE_OR_ADD_SEED',
+  'GET_WALLET_INFO',
   'REMOVE_SEED',
   'SIGN_TRANSACTION',
   'SIGN_DATA',

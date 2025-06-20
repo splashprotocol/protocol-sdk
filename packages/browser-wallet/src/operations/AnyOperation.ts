@@ -12,22 +12,28 @@ import { EnterPinErr } from './enterPin/types/EnterPinErr.ts';
 import { SetSeedPhraseRes } from './setSeedPhrase/types/setSeedPhraseRes.ts';
 import { SetSeedPhraseReq } from './setSeedPhrase/types/setSeedPhraseReq.ts';
 import { SetSeedPhraseErr } from './setSeedPhrase/types/SetSeedPhraseErr.ts';
+import { GetWalletInfoErr } from './getWalletInfo/type/GetWalletInfoErr.ts';
+import { GetWalletInfoReq } from './getWalletInfo/type/GetWalletInfoReq.ts';
+import { GetWalletInfoRes } from './getWalletInfo/type/GetWalletInfoRes.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
   | StartSessionRes
   | ReadyRes
   | SetSeedPhraseRes
-  | EnterPinSuccessRes;
+  | EnterPinSuccessRes
+  | GetWalletInfoRes;
 
 export type AnyReq =
   | GetWalletStatusReq
   | StartSessionReq
   | SetSeedPhraseReq
-  | EnterPinReq;
+  | EnterPinReq
+  | GetWalletInfoReq;
 
 export type AnyErr =
   | GetWalletStatusErr
   | StartSessionErr
   | SetSeedPhraseErr
-  | EnterPinErr;
+  | EnterPinErr
+  | GetWalletInfoErr;

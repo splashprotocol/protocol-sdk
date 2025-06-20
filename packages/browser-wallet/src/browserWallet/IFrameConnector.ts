@@ -31,6 +31,10 @@ import { EnterPinSuccessRes } from '../operations/enterPin/types/EnterPinSuccess
 import { createEnterPinReq } from '../operations/enterPin/enterPinReq/createEnterPinReq.ts';
 import { enterPinResValidator } from '../operations/enterPin/enterPinRes/enterPinResValidator.ts';
 import { PinStatus } from '../operations/enterPin/types/PinStatus.ts';
+import { WalletInfo } from '../operations/getWalletInfo/type/WalletInfo.ts';
+import { GetWalletInfoRes } from '../operations/getWalletInfo/type/GetWalletInfoRes.ts';
+import { createGetWalletInfoReq } from '../operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoReq.ts';
+import { getWalletInfoResValidator } from '../operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -49,6 +53,7 @@ export interface IFrameConnectorResponse {
   getStatus(): Promise<WalletStatus>;
   addOrGenerateSeed(): Promise<WalletStatus>;
   enterPin(): Promise<PinStatus>;
+  getWalletInfo(): Promise<WalletInfo>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -243,14 +248,17 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     }
 
     try {
+      console.log(event.data, 'here 1');
       await anomalyAnalyzer.applyToValidator(() =>
         currentOperations[event.data.requestId].validator(
           event as MessageEvent<AnyRes>,
           deviceId,
         ),
       );
+      console.log(event.data, 'here 2');
       currentOperations[event.data.requestId].resolve(event.data);
     } catch (error: unknown) {
+      console.log(error);
       await handleError(event.data.requestId, error);
     }
   };
@@ -321,6 +329,33 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           iFrame.style.pointerEvents = 'none';
           throw err;
         });
+    },
+    async getWalletInfo(): Promise<WalletInfo> {
+      return new Promise<GetWalletInfoRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            return createGetWalletInfoReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'GET_WALLET_INFO',
+          validator: (event, deviceId) =>
+            getWalletInfoResValidator({
+              event: event as unknown as MessageEvent<GetWalletInfoRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((res) => res.payload);
     },
     async addOrGenerateSeed(): Promise<WalletStatus> {
       return new Promise<SetSeedPhraseRes>(async (resolve, reject) => {
