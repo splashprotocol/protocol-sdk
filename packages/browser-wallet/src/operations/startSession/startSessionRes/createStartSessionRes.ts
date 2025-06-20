@@ -1,13 +1,18 @@
 import { Session } from '../../../common/models/Session/Session.ts';
-import { StartSessionSuccessResponse } from '../types/StartSessionSuccessResponse.ts';
+import { StartSessionRes } from '../types/StartSessionRes.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 
-export const createStartSessionSuccessResponse = async (
-  deviceId: string,
-  requestId: string,
-  session: Session,
-): Promise<StartSessionSuccessResponse> => {
+export interface CreateStartSessionResParams {
+  readonly deviceId: string;
+  readonly requestId: string;
+  readonly session: Session;
+}
+export const createStartSessionRes = async ({
+  deviceId,
+  requestId,
+  session,
+}: CreateStartSessionResParams): Promise<StartSessionRes> => {
   const timestamp = Date.now();
   const nonce = generateNonce();
   const payload = await session.communicationResponseKeys.publicKey.toBytes();

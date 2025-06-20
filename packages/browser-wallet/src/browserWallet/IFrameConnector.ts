@@ -4,13 +4,9 @@ import {
   CommunicationKeyPair,
   CommunicationPublicKey,
 } from '../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import {
-  AnyErrorResponse,
-  AnyRequest,
-  AnySuccessResponse,
-} from '../operations/AnyOperation.ts';
+import { AnyErr, AnyReq, AnyRes } from '../operations/AnyOperation.ts';
 import { getDeviceId } from '../common/utils/getDeviceId/getDeviceId.ts';
-import { createStartSessionRequest } from '../operations/startSession/startSessionRequest/createStartSessionRequest.ts';
+import { createStartSessionReq } from '../operations/startSession/startSessionReq/createStartSessionReq.ts';
 import { createGetWalletStatusRequest } from '../operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
 import { GetWalletStatusSuccessResponse } from '../operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
 import { isWalletOperation } from '../common/utils/isWalletOperation/isWalletOperation.ts';
@@ -20,8 +16,8 @@ import {
 } from '../common/models/AnomalyAnalyzer/AnomalyAnalyzer.ts';
 import { ErrorTerminate } from '../common/types/ErrorResponse.ts';
 
-import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
-import { StartSessionSuccessResponse } from '../operations/startSession/types/StartSessionSuccessResponse.ts';
+import { startSessionResValidator } from '../operations/startSession/startSessionRes/startSessionResValidator.ts';
+import { StartSessionRes } from '../operations/startSession/types/StartSessionRes.ts';
 import { errorResponseValidator } from '../common/validators/errorResponseValidator/errorResponseValidator.ts';
 import { ReadyRes } from '../operations/ready/types/ReadyRes.ts';
 import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
@@ -38,11 +34,11 @@ import { enterPinSuccessResponseValidator } from '../operations/enterPin/enterPi
 interface IFrameOperation {
   readonly requestId: string;
   readonly operationType: OperationType;
-  readonly request: (requestId: string) => Promise<AnyRequest>;
+  readonly request: (requestId: string) => Promise<AnyReq>;
   readonly resolve: (value: any) => void;
   readonly reject: (reason: Error) => void;
   readonly validator: (
-    response: MessageEvent<AnySuccessResponse>,
+    response: MessageEvent<AnyRes>,
     deviceId: string,
   ) => Promise<true>;
 }
@@ -123,7 +119,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
   };
 
   const startSession = async () => {
-    const response = await new Promise<StartSessionSuccessResponse>(
+    const response = await new Promise<StartSessionRes>(
       async (resolve, reject) => {
         communicationKeyPair = await CommunicationKeyPair.create();
         const requestId = generateRequestId();
@@ -133,15 +129,14 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           requestId,
           operationType: 'START_SESSION',
           request: async (requestId) =>
-            createStartSessionRequest(
+            createStartSessionReq({
               requestId,
-              await getDeviceId(),
-              communicationKeyPair,
-            ),
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+            }),
           validator: (event, deviceId) => {
-            return startSessionSuccessResponseValidator({
-              event:
-                event as unknown as MessageEvent<StartSessionSuccessResponse>,
+            return startSessionResValidator({
+              event: event as unknown as MessageEvent<StartSessionRes>,
               deviceId,
               expectedSource: iFrame!.contentWindow!,
               validOrigins: [iframeUrl],
@@ -197,9 +192,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     }
   };
 
-  const messageHandler = async (
-    event: MessageEvent<AnySuccessResponse | AnyErrorResponse>,
-  ) => {
+  const messageHandler = async (event: MessageEvent<AnyRes | AnyErr>) => {
     if (!isWalletOperation(event.data)) {
       return;
     }
@@ -209,7 +202,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       try {
         await anomalyAnalyzer.applyToValidator(() =>
           errorResponseValidator({
-            event: event as unknown as MessageEvent<AnyErrorResponse>,
+            event: event as unknown as MessageEvent<AnyErr>,
             deviceId,
             expectedSource: iFrame!.contentWindow!,
             validOrigins: [iframeUrl],
@@ -251,7 +244,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     try {
       await anomalyAnalyzer.applyToValidator(() =>
         currentOperations[event.data.requestId].validator(
-          event as MessageEvent<AnySuccessResponse>,
+          event as MessageEvent<AnyRes>,
           deviceId,
         ),
       );

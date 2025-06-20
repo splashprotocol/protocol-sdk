@@ -1,4 +1,4 @@
-import { StartSessionRequest } from '../types/StartSessionRequest.ts';
+import { StartSessionReq } from '../types/StartSessionReq.ts';
 import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
 import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
 import { requestIdValidator } from '../../../common/validators/requestIdValidator/requestIdValidator.ts';
@@ -9,33 +9,26 @@ import { signatureValidator } from '../../../common/validators/signatureValidato
 import { noSessionRequestSchemaValidator } from '../../../common/validators/noSessionRequestSchemaValidator/noSessionRequestSchemaValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID START SESSION REQUEST SCHEMA';
-const startSessionRequestSchemaValidator = (
-  request: StartSessionRequest,
-): true => {
-  noSessionRequestSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
-  if (!(request.payload instanceof Uint8Array)) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  return true;
-};
-
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID START SESSION REQUEST TYPE';
-export interface StartSessionRequestValidatorProps {
-  readonly event: MessageEvent<StartSessionRequest>;
+export interface StartSessionReqValidatorProps {
+  readonly event: MessageEvent<StartSessionReq>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
 }
-export const startSessionRequestValidator = async ({
+export const startSessionReqValidator = async ({
   event,
   validOrigins,
   deviceId,
   expectedSource,
-}: StartSessionRequestValidatorProps): Promise<true> => {
+}: StartSessionReqValidatorProps): Promise<true> => {
   if (event.data.type !== 'START_SESSION') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  startSessionRequestSchemaValidator(event.data);
+  noSessionRequestSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (!(event.data.payload instanceof Uint8Array)) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);

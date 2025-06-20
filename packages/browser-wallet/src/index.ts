@@ -37,12 +37,13 @@ export * from './operations/getWalletStatus/getWalletStatusRequest/createGetWall
 export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
 export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/createGetWalletStatusSuccessResponse.ts';
 
-export * from './operations/startSession/types/StartSessionRequest.ts';
-export * from './operations/startSession/types/StartSessionSuccessResponse.ts';
-export * from './operations/startSession/startSessionRequest/startSessionRequestValidator.ts';
-export * from './operations/startSession/startSessionRequest/createStartSessionRequest.ts';
-export * from './operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
-export * from './operations/startSession/startSessionSuccessResponse/createStartSessionSuccessResponse.ts';
+export * from './operations/startSession/types/StartSessionReq.ts';
+export * from './operations/startSession/types/StartSessionRes.ts';
+export * from './operations/startSession/types/StartSessionErr.ts';
+export * from './operations/startSession/startSessionReq/startSessionReqValidator.ts';
+export * from './operations/startSession/startSessionReq/createStartSessionReq.ts';
+export * from './operations/startSession/startSessionRes/startSessionResValidator.ts';
+export * from './operations/startSession/startSessionRes/createStartSessionRes.ts';
 
 export * from './operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
 export * from './operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';

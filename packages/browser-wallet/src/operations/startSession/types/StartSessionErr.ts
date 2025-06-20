@@ -1,3 +1,3 @@
 import { ErrorResponse } from '../../../common/types/ErrorResponse.ts';
 
-export type StartSessionErrorResponse = ErrorResponse<'START_SESSION'>;
+export type StartSessionErr = ErrorResponse<'START_SESSION'>;

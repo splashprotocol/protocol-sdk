@@ -6,10 +6,10 @@ import { deviceIdValidator } from '../deviceIdValidator/deviceIdValidator.ts';
 
 import { errorMessageSchemaValidator } from '../errorMessageSchemaValidator/errorMessageSchemaValidator.ts';
 
-import { AnyErrorResponse } from '../../../operations/AnyOperation.ts';
+import { AnyErr } from '../../../operations/AnyOperation.ts';
 
 export interface ErrorResponseValidatorProps {
-  readonly event: MessageEvent<AnyErrorResponse>;
+  readonly event: MessageEvent<AnyErr>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;

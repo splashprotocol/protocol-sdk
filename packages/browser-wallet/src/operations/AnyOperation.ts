@@ -1,10 +1,10 @@
 import { GetWalletStatusRequest } from './getWalletStatus/types/GetWalletStatusRequest.ts';
-import { StartSessionRequest } from './startSession/types/StartSessionRequest.ts';
+import { StartSessionReq } from './startSession/types/StartSessionReq.ts';
 import { GetWalletStatusSuccessResponse } from './getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
-import { StartSessionSuccessResponse } from './startSession/types/StartSessionSuccessResponse.ts';
+import { StartSessionRes } from './startSession/types/StartSessionRes.ts';
 import { ReadyRes } from './ready/types/ReadyRes.ts';
 import { GetWalletStatusErrorResponse } from './getWalletStatus/types/GetWalletStatusErrorResponse.ts';
-import { StartSessionErrorResponse } from './startSession/types/StartSessionErrorResponse.ts';
+import { StartSessionErr } from './startSession/types/StartSessionErr.ts';
 import { CreateOrAddSeedPhraseSuccessResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { CreateOrAddSeedPhraseRequest } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
 import { CreateOrAddSeedPhraseErrorResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
@@ -12,21 +12,21 @@ import { EnterPinSuccessResponse } from './enterPin/types/EnterPinSuccessRespons
 import { EnterPinRequest } from './enterPin/types/EnterPinRequest.ts';
 import { EnterPinErrorResponse } from './enterPin/types/EnterPinErrorResponse.ts';
 
-export type AnySuccessResponse =
+export type AnyRes =
   | GetWalletStatusSuccessResponse
-  | StartSessionSuccessResponse
+  | StartSessionRes
   | ReadyRes
   | CreateOrAddSeedPhraseSuccessResponse
   | EnterPinSuccessResponse;
 
-export type AnyRequest =
+export type AnyReq =
   | GetWalletStatusRequest
-  | StartSessionRequest
+  | StartSessionReq
   | CreateOrAddSeedPhraseRequest
   | EnterPinRequest;
 
-export type AnyErrorResponse =
+export type AnyErr =
   | GetWalletStatusErrorResponse
-  | StartSessionErrorResponse
+  | StartSessionErr
   | CreateOrAddSeedPhraseErrorResponse
   | EnterPinErrorResponse;
