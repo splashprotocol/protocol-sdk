@@ -1,4 +1,4 @@
-import { GetWalletStatusRequest } from '../types/GetWalletStatusRequest.ts';
+import { GetWalletStatusReq } from '../types/GetWalletStatusReq.ts';
 import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
 import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
 import { requestIdValidator } from '../../../common/validators/requestIdValidator/requestIdValidator.ts';
@@ -7,25 +7,15 @@ import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/
 import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
 import { baseMessageSchemaValidator } from '../../../common/validators/baseMessageSchemaValidator/baseMessageSchemaValidator.ts';
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST SCHEMA';
-const getWalletStatusSchemaValidator = (
-  request: GetWalletStatusRequest,
-): true => {
-  baseMessageSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
-  if (request.payload !== undefined) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  return true;
-};
-
 export interface GetWalletStatusRequestValidatorProps {
-  readonly event: MessageEvent<GetWalletStatusRequest>;
+  readonly event: MessageEvent<GetWalletStatusReq>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
 }
+const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET STATUS REQUEST TYPE';
-export const getWalletStatusRequestValidator = async ({
+export const getWalletStatusReqValidator = async ({
   event,
   deviceId,
   validOrigins,
@@ -34,7 +24,10 @@ export const getWalletStatusRequestValidator = async ({
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  getWalletStatusSchemaValidator(event.data);
+  baseMessageSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (event.data.payload !== undefined) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);

@@ -29,13 +29,13 @@ export * from './operations/ready/readySuccessResponse/readyResValidator.ts';
 export * from './operations/ready/readySuccessResponse/createReadyRes.ts';
 
 export * from './operations/getWalletStatus/types/WalletStatus.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusRequest.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusErrorResponse.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
-export * from './operations/getWalletStatus/getWalletStatusRequest/getWalletStatusRequestValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
-export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusSuccessResponse/createGetWalletStatusSuccessResponse.ts';
+export * from './operations/getWalletStatus/types/GetWalletStatusReq.ts';
+export * from './operations/getWalletStatus/types/GetWalletStatusErr.ts';
+export * from './operations/getWalletStatus/types/GetWalletStatusRes.ts';
+export * from './operations/getWalletStatus/getWalletStatusReq/getWalletStatusReqValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusReq/createGetWalletStatusReq.ts';
+export * from './operations/getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
+export * from './operations/getWalletStatus/getWalletStatusRes/createGetWalletStatusRes.ts';
 
 export * from './operations/startSession/types/StartSessionReq.ts';
 export * from './operations/startSession/types/StartSessionRes.ts';

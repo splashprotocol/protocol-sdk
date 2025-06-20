@@ -7,8 +7,8 @@ import {
 import { AnyErr, AnyReq, AnyRes } from '../operations/AnyOperation.ts';
 import { getDeviceId } from '../common/utils/getDeviceId/getDeviceId.ts';
 import { createStartSessionReq } from '../operations/startSession/startSessionReq/createStartSessionReq.ts';
-import { createGetWalletStatusRequest } from '../operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
-import { GetWalletStatusSuccessResponse } from '../operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
+import { createGetWalletStatusReq } from '../operations/getWalletStatus/getWalletStatusReq/createGetWalletStatusReq.ts';
+import { GetWalletStatusRes } from '../operations/getWalletStatus/types/GetWalletStatusRes.ts';
 import { isWalletOperation } from '../common/utils/isWalletOperation/isWalletOperation.ts';
 import {
   AnomalyAnalyzer,
@@ -21,7 +21,7 @@ import { StartSessionRes } from '../operations/startSession/types/StartSessionRe
 import { errorResponseValidator } from '../common/validators/errorResponseValidator/errorResponseValidator.ts';
 import { ReadyRes } from '../operations/ready/types/ReadyRes.ts';
 import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
-import { getWalletStatusSuccessResponseValidator } from '../operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
+import { getWalletStatusResValidator } from '../operations/getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
 import { OperationType } from '../common/types/OperationType.ts';
 import { generateRequestId } from '../common/utils/generateRequestId/generateRequestId.ts';
 import { createCreateOrAddSeePhraseRequest } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
@@ -263,27 +263,27 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       window.removeEventListener('message', messageHandler);
     },
     async getStatus(): Promise<WalletStatus> {
-      return new Promise<GetWalletStatusSuccessResponse>(
-        async (resolve, reject) => {
-          const requestId = generateRequestId();
-          registerRequest({
-            request: async (requestId) =>
-              createGetWalletStatusRequest(requestId, await getDeviceId()),
-            resolve,
-            reject,
-            operationType: 'GET_STATUS',
-            requestId,
-            validator: (event, deviceId) =>
-              getWalletStatusSuccessResponseValidator({
-                event:
-                  event as unknown as MessageEvent<GetWalletStatusSuccessResponse>,
-                deviceId,
-                expectedSource: iFrame!.contentWindow!,
-                validOrigins: [iframeUrl],
-              }),
-          });
-        },
-      ).then((data) => data.payload);
+      return new Promise<GetWalletStatusRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) =>
+            createGetWalletStatusReq({
+              requestId,
+              deviceId: await getDeviceId(),
+            }),
+          resolve,
+          reject,
+          operationType: 'GET_STATUS',
+          requestId,
+          validator: (event, deviceId) =>
+            getWalletStatusResValidator({
+              event: event as unknown as MessageEvent<GetWalletStatusRes>,
+              deviceId,
+              expectedSource: iFrame!.contentWindow!,
+              validOrigins: [iframeUrl],
+            }),
+        });
+      }).then((data) => data.payload);
     },
     async enterPin(): Promise<WalletStatus | 'DISCONNECT'> {
       return new Promise<EnterPinSuccessResponse>(async (resolve, reject) => {

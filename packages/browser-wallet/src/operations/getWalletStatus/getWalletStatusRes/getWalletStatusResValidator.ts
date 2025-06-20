@@ -3,7 +3,7 @@ import { timestampValidator } from '../../../common/validators/timestampValidato
 import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
 import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { GetWalletStatusSuccessResponse } from '../types/GetWalletStatusSuccessResponse.ts';
+import { GetWalletStatusRes } from '../types/GetWalletStatusRes.ts';
 import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
 import { WalletStatus } from '../types/WalletStatus.ts';
 
@@ -13,38 +13,29 @@ export const walletStatuses: WalletStatus[] = [
   'NO_SESSION',
   'READY_TO_SIGN',
 ];
-const INVALID_SCHEMA_ERROR_MESSAGE =
-  'INVALID GET STATUS SUCCESS RESPONSE SCHEMA';
-const getWalletStatusSuccessSchemaValidator = (
-  successResponse: GetWalletStatusSuccessResponse,
-): true => {
-  baseSuccessMessageSchemaValidator(
-    successResponse,
-    INVALID_SCHEMA_ERROR_MESSAGE,
-  );
-  if (!walletStatuses.includes(successResponse.payload)) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  return true;
-};
 
-export interface GetWalletStatusSuccessResponseValidatorProps {
-  readonly event: MessageEvent<GetWalletStatusSuccessResponse>;
+export interface GetWalletStatusResValidatorProps {
+  readonly event: MessageEvent<GetWalletStatusRes>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
 }
+const INVALID_SCHEMA_ERROR_MESSAGE =
+  'INVALID GET STATUS SUCCESS RESPONSE SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET SUCCESS STATUS RESPONSE SCHEMA';
-export const getWalletStatusSuccessResponseValidator = async ({
+export const getWalletStatusResValidator = async ({
   event,
   deviceId,
   validOrigins,
   expectedSource,
-}: GetWalletStatusSuccessResponseValidatorProps): Promise<true> => {
+}: GetWalletStatusResValidatorProps): Promise<true> => {
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  getWalletStatusSuccessSchemaValidator(event.data);
+  baseSuccessMessageSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (!walletStatuses.includes(event.data.payload)) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   originValidator(validOrigins, event.origin);

@@ -6,8 +6,9 @@ import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/
 import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
 import { CreateOrAddSeedPhraseSuccessResponse } from '../types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { safetyResponseSchemaValidator } from '../../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
-import { walletStatuses } from '../../getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
+
 import { CommunicationPublicKey } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
+import { walletStatuses } from '../../getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
 
 const INVALID_SCHEMA_ERROR_MESSAGE =
   'INVALID CREATE OR ADD SEED PHRASE SUCCESS RESPONSE SCHEMA';
