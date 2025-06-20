@@ -6,7 +6,7 @@ import { sourceValidator } from '../../../common/validators/sourceValidator/sour
 import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
 import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
 
-export interface ReadySuccessResponseValidatorProps {
+export interface ReadyResValidatorParams {
   readonly event: MessageEvent<ReadyRes>;
   readonly deviceId: string;
   readonly validOrigins: string[];
@@ -19,7 +19,7 @@ export const readyResValidator = async ({
   validOrigins,
   deviceId,
   event,
-}: ReadySuccessResponseValidatorProps): Promise<true> => {
+}: ReadyResValidatorParams): Promise<true> => {
   if (event.data.type !== 'READY') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }

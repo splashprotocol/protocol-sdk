@@ -7,7 +7,7 @@ import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/
 import { noSessionResponseSchemaValidator } from '../../../common/validators/noSessionResponseSchemaValidator/noSessionResponseSchemaValidator.ts';
 import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
 
-export interface StartSessionSuccessResponseValidatorProps {
+export interface StartSessionResValidatorParams {
   readonly event: MessageEvent<StartSessionRes>;
   readonly deviceId: string;
   readonly validOrigins: string[];
@@ -22,7 +22,7 @@ export const startSessionResValidator = async ({
   deviceId,
   validOrigins,
   expectedSource,
-}: StartSessionSuccessResponseValidatorProps): Promise<true> => {
+}: StartSessionResValidatorParams): Promise<true> => {
   if (event.data.type !== 'START_SESSION') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }

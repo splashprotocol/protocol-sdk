@@ -10,7 +10,7 @@ import { noSessionRequestSchemaValidator } from '../../../common/validators/noSe
 
 const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID START SESSION REQUEST SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID START SESSION REQUEST TYPE';
-export interface StartSessionReqValidatorProps {
+export interface StartSessionReqValidatorParams {
   readonly event: MessageEvent<StartSessionReq>;
   readonly deviceId: string;
   readonly validOrigins: string[];
@@ -21,7 +21,7 @@ export const startSessionReqValidator = async ({
   validOrigins,
   deviceId,
   expectedSource,
-}: StartSessionReqValidatorProps): Promise<true> => {
+}: StartSessionReqValidatorParams): Promise<true> => {
   if (event.data.type !== 'START_SESSION') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
