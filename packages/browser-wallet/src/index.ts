@@ -52,6 +52,14 @@ export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/c
 export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
 export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createCreateOrAddSeedPhraseSuccessResponse.ts';
 
+export * from './operations/enterPin/types/EnterPinRequest.ts';
+export * from './operations/enterPin/types/EnterPinErrorResponse.ts';
+export * from './operations/enterPin/types/EnterPinSuccessResponse.ts';
+export * from './operations/enterPin/enterPinRequest/enterPinRequestValidator.ts';
+export * from './operations/enterPin/enterPinRequest/createEnterPinRequest.ts';
+export * from './operations/enterPin/enterPinSuccessResponse/enterPinSuccessResponseValidator.ts';
+export * from './operations/enterPin/enterPinSuccessResponse/createEnterPinSuccessResponse.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 

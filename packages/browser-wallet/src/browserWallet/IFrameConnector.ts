@@ -31,6 +31,9 @@ import { generateRequestId } from '../common/utils/generateRequestId/generateReq
 import { createCreateOrAddSeePhraseRequest } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
 import { CreateOrAddSeedPhraseSuccessResponse } from '../operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { createOrAddSeedPhraseSuccessResponseValidator } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
+import { EnterPinSuccessResponse } from '../operations/enterPin/types/EnterPinSuccessResponse.ts';
+import { createEnterPinRequest } from '../operations/enterPin/enterPinRequest/createEnterPinRequest.ts';
+import { enterPinSuccessResponseValidator } from '../operations/enterPin/enterPinSuccessResponse/enterPinSuccessResponseValidator.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -48,6 +51,7 @@ export interface IFrameConnectorResponse {
   destroy(): void;
   getStatus(): Promise<WalletStatus>;
   addOrGenerateSeed(): Promise<WalletStatus>;
+  enterPin(): Promise<WalletStatus | 'DISCONNECT'>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -288,6 +292,42 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         },
       ).then((data) => data.payload);
     },
+    async enterPin(): Promise<WalletStatus | 'DISCONNECT'> {
+      return new Promise<EnterPinSuccessResponse>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            iFrame.style.pointerEvents = 'initial';
+            return createEnterPinRequest(
+              requestId,
+              await getDeviceId(),
+              communicationKeyPair,
+              sessionId,
+            );
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'ENTER_PIN',
+          validator: (event, deviceId) =>
+            enterPinSuccessResponseValidator({
+              event: event as unknown as MessageEvent<EnterPinSuccessResponse>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      })
+        .then((data) => {
+          iFrame.style.pointerEvents = 'none';
+          return data.payload;
+        })
+        .catch((err) => {
+          iFrame.style.pointerEvents = 'none';
+          throw err;
+        });
+    },
     async addOrGenerateSeed(): Promise<WalletStatus> {
       return new Promise<CreateOrAddSeedPhraseSuccessResponse>(
         async (resolve, reject) => {
@@ -318,7 +358,10 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           });
         },
       )
-        .then((data) => data.payload)
+        .then((data) => {
+          iFrame.style.pointerEvents = 'none';
+          return data.payload;
+        })
         .catch((err) => {
           iFrame.style.pointerEvents = 'none';
           throw err;

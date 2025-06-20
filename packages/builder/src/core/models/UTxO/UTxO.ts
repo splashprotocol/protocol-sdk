@@ -135,6 +135,7 @@ export class UTxO {
         ? wasmAddress.payment_cred()?.as_pub_key()?.to_hex()
         : wasmAddress.payment_cred()?.as_script()?.to_hex();
 
+      this.cbor = config.cbor;
       this.txHash = this.wasmInput.transaction_id().to_hex();
       this.index = this.wasmInput.index();
       this.refHash = `${this.txHash}#${this.index}`;
@@ -150,7 +151,6 @@ export class UTxO {
         .staking_cred()
         ?.as_pub_key()
         ?.to_hex();
-      this.cbor = config.cbor;
     } else {
       const wasmAddress = C.Address.from_bech32(config.address);
       const paymentCredentials = wasmAddress.payment_cred()?.as_pub_key()

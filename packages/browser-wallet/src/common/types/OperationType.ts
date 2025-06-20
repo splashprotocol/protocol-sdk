@@ -1,11 +1,11 @@
 export type OperationType =
-  | 'SET_THEME'
+  | 'READY'
   | 'START_SESSION'
   | 'GET_STATUS'
   | 'CREATE_OR_ADD_SEED'
+  | 'ENTER_PIN'
+  | 'GET_WALLET_INFO'
+  | 'SET_THEME'
   | 'REMOVE_SEED'
-  | 'ENTER_PIN_EXTERNAL'
-  | 'ENTER_PIN_INTERNAL'
   | 'SIGN_TRANSACTION'
-  | 'SIGN_DATA'
-  | 'READY';
+  | 'SIGN_DATA';

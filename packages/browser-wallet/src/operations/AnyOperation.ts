@@ -8,19 +8,25 @@ import { StartSessionErrorResponse } from './startSession/types/StartSessionErro
 import { CreateOrAddSeedPhraseSuccessResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { CreateOrAddSeedPhraseRequest } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
 import { CreateOrAddSeedPhraseErrorResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
+import { EnterPinSuccessResponse } from './enterPin/types/EnterPinSuccessResponse.ts';
+import { EnterPinRequest } from './enterPin/types/EnterPinRequest.ts';
+import { EnterPinErrorResponse } from './enterPin/types/EnterPinErrorResponse.ts';
 
 export type AnySuccessResponse =
   | GetWalletStatusSuccessResponse
   | StartSessionSuccessResponse
   | ReadyResponse
-  | CreateOrAddSeedPhraseSuccessResponse;
+  | CreateOrAddSeedPhraseSuccessResponse
+  | EnterPinSuccessResponse;
 
 export type AnyRequest =
   | GetWalletStatusRequest
   | StartSessionRequest
-  | CreateOrAddSeedPhraseRequest;
+  | CreateOrAddSeedPhraseRequest
+  | EnterPinRequest;
 
 export type AnyErrorResponse =
   | GetWalletStatusErrorResponse
   | StartSessionErrorResponse
-  | CreateOrAddSeedPhraseErrorResponse;
+  | CreateOrAddSeedPhraseErrorResponse
+  | EnterPinErrorResponse;

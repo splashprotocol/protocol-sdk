@@ -1,5 +1,5 @@
 export const generateMessageForSign = (
-  payload: string | Uint8Array | number | undefined,
+  payload: string | Uint8Array | number | undefined | object,
   timestamp: number,
   deviceId: string,
   requestId: string,
@@ -10,7 +10,10 @@ export const generateMessageForSign = (
 
   switch (typeof payload) {
     case 'object':
-      normalizedPayload = payload;
+      normalizedPayload =
+        payload instanceof Uint8Array
+          ? payload
+          : encoder.encode(JSON.stringify(payload));
       break;
     case 'undefined':
       normalizedPayload = encoder.encode('');
