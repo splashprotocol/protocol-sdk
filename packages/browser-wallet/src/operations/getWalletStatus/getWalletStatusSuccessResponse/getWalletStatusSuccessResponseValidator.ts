@@ -7,7 +7,7 @@ import { GetWalletStatusSuccessResponse } from '../types/GetWalletStatusSuccessR
 import { baseSuccessMessageSchemaValidator } from '../../../common/validators/baseSuccessMessageSchemaValidator/baseSuccessMessageSchemaValidator.ts';
 import { WalletStatus } from '../types/WalletStatus.ts';
 
-const walletStatuses: WalletStatus[] = [
+export const walletStatuses: WalletStatus[] = [
   'SEED_REQUIRED',
   'PIN_REQUIRED',
   'NO_SESSION',
@@ -28,12 +28,19 @@ const getWalletStatusSuccessSchemaValidator = (
   return true;
 };
 
+export interface GetWalletStatusSuccessResponseValidatorProps {
+  readonly event: MessageEvent<GetWalletStatusSuccessResponse>;
+  readonly deviceId: string;
+  readonly validOrigins: string[];
+  readonly expectedSource: MessageEventSource | null;
+}
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GET SUCCESS STATUS RESPONSE SCHEMA';
-export const getWalletStatusSuccessResponseValidator = (
-  event: MessageEvent<GetWalletStatusSuccessResponse>,
-  deviceId: string,
-  validOrigins: string[],
-) => {
+export const getWalletStatusSuccessResponseValidator = async ({
+  event,
+  deviceId,
+  validOrigins,
+  expectedSource,
+}: GetWalletStatusSuccessResponseValidatorProps): Promise<true> => {
   if (event.data.type !== 'GET_STATUS') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
@@ -41,7 +48,7 @@ export const getWalletStatusSuccessResponseValidator = (
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   originValidator(validOrigins, event.origin);
-  sourceValidator(window, event.source);
+  sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
   return true;
 };

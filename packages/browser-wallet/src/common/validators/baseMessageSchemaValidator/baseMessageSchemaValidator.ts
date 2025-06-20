@@ -6,7 +6,7 @@ export const baseMessageSchemaValidator = (
   requestOrResponse:
     | BaseSuccessResponse<any, any>
     | ErrorResponse<any>
-    | BaseRequest<any>,
+    | BaseRequest<any, any>,
   invalidSchemaErrorMessage: string,
 ): true => {
   if (

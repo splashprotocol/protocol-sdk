@@ -5,14 +5,22 @@ import { StartSessionSuccessResponse } from './startSession/types/StartSessionSu
 import { ReadyResponse } from './ready/types/ReadyResponse.ts';
 import { GetWalletStatusErrorResponse } from './getWalletStatus/types/GetWalletStatusErrorResponse.ts';
 import { StartSessionErrorResponse } from './startSession/types/StartSessionErrorResponse.ts';
+import { CreateOrAddSeedPhraseSuccessResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
+import { CreateOrAddSeedPhraseRequest } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
+import { CreateOrAddSeedPhraseErrorResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
 
 export type AnySuccessResponse =
   | GetWalletStatusSuccessResponse
   | StartSessionSuccessResponse
-  | ReadyResponse;
+  | ReadyResponse
+  | CreateOrAddSeedPhraseSuccessResponse;
 
-export type AnyRequest = GetWalletStatusRequest | StartSessionRequest;
+export type AnyRequest =
+  | GetWalletStatusRequest
+  | StartSessionRequest
+  | CreateOrAddSeedPhraseRequest;
 
 export type AnyErrorResponse =
   | GetWalletStatusErrorResponse
-  | StartSessionErrorResponse;
+  | StartSessionErrorResponse
+  | CreateOrAddSeedPhraseErrorResponse;

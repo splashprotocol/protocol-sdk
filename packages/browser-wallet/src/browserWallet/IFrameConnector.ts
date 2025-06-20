@@ -1,4 +1,3 @@
-import { OperationType } from '../common/types/OperationType.ts';
 import { Dictionary } from '@splashprotocol/core';
 import { readySuccessResponseValidator } from '../operations/ready/readySuccessResponse/readySuccessResponseValidator.ts';
 import {
@@ -12,46 +11,65 @@ import {
 } from '../operations/AnyOperation.ts';
 import { getDeviceId } from '../common/utils/getDeviceId/getDeviceId.ts';
 import { createStartSessionRequest } from '../operations/startSession/startSessionRequest/createStartSessionRequest.ts';
-import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
 import { createGetWalletStatusRequest } from '../operations/getWalletStatus/getWalletStatusRequest/createGetWalletStatusRequest.ts';
-import { GetWalletStatusRequest } from '../operations/getWalletStatus/types/GetWalletStatusRequest.ts';
 import { GetWalletStatusSuccessResponse } from '../operations/getWalletStatus/types/GetWalletStatusSuccessResponse.ts';
+import { isWalletOperation } from '../common/utils/isWalletOperation/isWalletOperation.ts';
+import {
+  AnomalyAnalyzer,
+  AnomalyError,
+} from '../common/models/AnomalyAnalyzer/AnomalyAnalyzer.ts';
+import { ErrorTerminate } from '../common/types/ErrorResponse.ts';
 
-const IFRAME_ID = '__splash__wallet__';
-let iFrame: HTMLIFrameElement | undefined;
+import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
+import { StartSessionSuccessResponse } from '../operations/startSession/types/StartSessionSuccessResponse.ts';
+import { errorResponseValidator } from '../common/validators/errorResponseValidator/errorResponseValidator.ts';
+import { ReadyResponse } from '../operations/ready/types/ReadyResponse.ts';
+import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
+import { getWalletStatusSuccessResponseValidator } from '../operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
+import { OperationType } from '../common/types/OperationType.ts';
+import { generateRequestId } from '../common/utils/generateRequestId/generateRequestId.ts';
+import { createCreateOrAddSeePhraseRequest } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
+import { CreateOrAddSeedPhraseSuccessResponse } from '../operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
+import { createOrAddSeedPhraseSuccessResponseValidator } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
 
 interface IFrameOperation {
-  readonly type: OperationType;
-  readonly payload: any;
+  readonly requestId: string;
+  readonly operationType: OperationType;
+  readonly request: (requestId: string) => Promise<AnyRequest>;
   readonly resolve: (value: any) => void;
   readonly reject: (reason: Error) => void;
-}
-
-interface IFrameBackupOperation {
-  readonly type: OperationType;
-  readonly payload: any;
-  readonly resolve: (value: any) => void;
-  readonly reject: (reason: Error) => void;
+  readonly validator: (
+    response: MessageEvent<AnySuccessResponse>,
+    deviceId: string,
+  ) => Promise<true>;
 }
 
 export interface IFrameConnectorResponse {
-  destroy: () => void;
-  getStatus: () => Promise<GetWalletStatusSuccessResponse>;
+  destroy(): void;
+  getStatus(): Promise<WalletStatus>;
+  addOrGenerateSeed(): Promise<WalletStatus>;
 }
 
-const MAX_RETRY_COUNT = 5;
-export const IFrameConnector = (
-  iframeUrl: string,
-): Promise<IFrameConnectorResponse> => {
-  let retryCount = 0;
-  let backupOperations: IFrameBackupOperation[] = [];
-  const currentOperations: Dictionary<IFrameOperation> = {};
-  let status: 'loading' | 'ready' = 'loading';
+const IFRAME_ID = '__splash__wallet__';
+let connectionResponse: IFrameConnectorResponse = null as any;
+
+export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
+  if (connectionResponse) {
+    return connectionResponse;
+  }
+  let futureOperations: Dictionary<IFrameOperation> = {};
+  let currentOperations: Dictionary<IFrameOperation> = {};
+  let initialized: boolean = false;
   let iframePublicKey: CommunicationPublicKey = null as any;
   let communicationKeyPair: CommunicationKeyPair = null as any;
   let sessionId: string = null as any;
-  console.log(iframePublicKey, communicationKeyPair, sessionId);
+  let anomalyAnalyzer = AnomalyAnalyzer.create({
+    maxRps: 30,
+    maxErrorCount: 10,
+  });
+
   const unregisteredIframe = document.getElementById(IFRAME_ID);
+  let iFrame: HTMLIFrameElement = null as any;
   if (unregisteredIframe && !iFrame) {
     throw new Error('fake iframe exists');
   }
@@ -59,110 +77,252 @@ export const IFrameConnector = (
     iFrame = document.createElement('iframe');
     iFrame.id = IFRAME_ID;
     iFrame.src = iframeUrl;
+    iFrame.style.height = '100vh';
+    iFrame.style.width = '100vw';
+    iFrame.style.position = 'fixed';
+    iFrame.style.left = '0';
+    iFrame.style.top = '0';
+    iFrame.style.pointerEvents = 'none';
+    iFrame.style.zIndex = '1000';
+    iFrame.style.border = 'none';
+    iFrame.style.outline = 'none';
   }
 
-  const submit = <P extends AnyRequest, R extends AnySuccessResponse>(
-    request: P,
-  ): Promise<R> => {
-    return new Promise((resolve, reject) => {
-      if (status === 'loading') {
-        backupOperations = backupOperations.concat({
-          payload: request.payload,
-          type: request.type,
-          reject,
+  const registerRequest = async ({
+    request,
+    requestId,
+    reject,
+    validator,
+    resolve,
+    operationType,
+  }: IFrameOperation): Promise<void> => {
+    if (operationType === 'START_SESSION' || initialized) {
+      currentOperations[requestId] = {
+        requestId,
+        operationType,
+        request,
+        resolve,
+        reject,
+        validator,
+      };
+      iFrame!.contentWindow!.postMessage(await request(requestId), iframeUrl);
+    } else {
+      futureOperations[requestId] = {
+        requestId,
+        operationType,
+        request,
+        resolve,
+        reject,
+        validator,
+      };
+    }
+  };
+
+  const startSession = async () => {
+    const response = await new Promise<StartSessionSuccessResponse>(
+      async (resolve, reject) => {
+        communicationKeyPair = await CommunicationKeyPair.create();
+        const requestId = generateRequestId();
+        registerRequest({
           resolve,
+          reject,
+          requestId,
+          operationType: 'START_SESSION',
+          request: async (requestId) =>
+            createStartSessionRequest(
+              requestId,
+              await getDeviceId(),
+              communicationKeyPair,
+            ),
+          validator: (event, deviceId) => {
+            return startSessionSuccessResponseValidator({
+              event:
+                event as unknown as MessageEvent<StartSessionSuccessResponse>,
+              deviceId,
+              expectedSource: iFrame!.contentWindow!,
+              validOrigins: [iframeUrl],
+            });
+          },
         });
-      } else {
-        currentOperations[request.requestId] = {
-          reject,
-          resolve,
-          type: request.type,
-          payload: request.payload,
-        };
-        iFrame!.contentWindow!.postMessage(request, iframeUrl);
-      }
-    });
+      },
+    );
+    sessionId = response.sessionId;
+    iframePublicKey = await CommunicationPublicKey.fromBytes(response.payload);
+    currentOperations = futureOperations;
+    initialized = true;
+    Object.values(futureOperations).forEach(async ({ request, requestId }) =>
+      iFrame!.contentWindow!.postMessage(await request(requestId), iframeUrl),
+    );
+    console.log('new session', sessionId);
+    futureOperations = {};
   };
 
-  const applyBackup = (deviceId: string) => {
-    const waitings = backupOperations.map(async (operation) => {
-      switch (operation.type) {
-        case 'GET_STATUS':
-          return submit(await createGetWalletStatusRequest(deviceId));
-        default:
-          return Promise.resolve();
-      }
-    });
-    backupOperations = [];
-
-    return Promise.all(waitings);
+  const clearSession = async () => {
+    sessionId = null as any;
+    await iframePublicKey?.destroy();
+    iframePublicKey = null as any;
+    await communicationKeyPair?.destroy();
+    communicationKeyPair = null as any;
+    initialized = false;
   };
 
-  const result = new Promise<IFrameConnectorResponse>((resolve, reject) => {
-    const messageHandler = async (
-      event: MessageEvent<AnySuccessResponse | AnyErrorResponse>,
-    ) => {
-      if (!(event?.data instanceof Object) || !(event.data as any)?.type) {
+  const handleError = async (
+    requestId: string,
+    error: unknown,
+    terminate?: ErrorTerminate,
+  ) => {
+    if (error instanceof AnomalyError || !!terminate) {
+      futureOperations = currentOperations;
+      currentOperations = {};
+      await clearSession();
+      if (error instanceof AnomalyError) {
+        anomalyAnalyzer = AnomalyAnalyzer.create({
+          maxRps: 30,
+          maxErrorCount: 10,
+        });
+        iFrame!.contentWindow!.location.reload();
+      } else if (terminate === 'session') {
+        await startSession();
+      }
+
+      return;
+    }
+    if (requestId && currentOperations[requestId]) {
+      currentOperations[requestId].reject(error as Error);
+      delete currentOperations[requestId];
+    }
+  };
+
+  const messageHandler = async (
+    event: MessageEvent<AnySuccessResponse | AnyErrorResponse>,
+  ) => {
+    if (!isWalletOperation(event.data)) {
+      return;
+    }
+    const deviceId = await getDeviceId();
+
+    if (event.data.kind === 'error') {
+      try {
+        await anomalyAnalyzer.applyToValidator(() =>
+          errorResponseValidator({
+            event: event as unknown as MessageEvent<AnyErrorResponse>,
+            deviceId,
+            expectedSource: iFrame!.contentWindow!,
+            validOrigins: [iframeUrl],
+          }),
+        );
+      } catch (error: unknown) {
+        await handleError(event.data.requestId, error);
         return;
       }
-      const deviceId = await getDeviceId();
-      console.log(event.data);
-      switch (event.data.type) {
-        case 'READY':
-          await readySuccessResponseValidator({
-            event: event as any,
-            deviceId,
-            validOrigins: [iframeUrl],
-            expectedSource: iFrame!.contentWindow,
-          });
-          const newKeyPair = await CommunicationKeyPair.create();
-          const sessionRequest = await createStartSessionRequest(
-            deviceId,
-            newKeyPair,
-          );
-          communicationKeyPair = newKeyPair;
-          iFrame!.contentWindow!.postMessage(sessionRequest, iframeUrl);
-          return;
-        case 'START_SESSION':
-          if (event.data.kind === 'success') {
-            await startSessionSuccessResponseValidator({
-              event: event as any,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow,
-            });
-            retryCount = 0;
-            status = 'ready';
-            sessionId = event.data.sessionId;
-            iframePublicKey = await CommunicationPublicKey.fromBytes(
-              event.data.payload,
-            );
-            await applyBackup(deviceId);
-            console.log(event, 'hello!');
-            resolve({
-              destroy() {
-                window.removeEventListener('message', messageHandler);
-              },
-              async getStatus() {
-                return submit<
-                  GetWalletStatusRequest,
-                  GetWalletStatusSuccessResponse
-                >(await createGetWalletStatusRequest(deviceId));
-              },
-            } as IFrameConnectorResponse);
-          }
-          // need error validator
-          if (retryCount >= MAX_RETRY_COUNT) {
-            reject(new Error('open session failed'));
-          }
-          retryCount++;
-          iFrame!.contentWindow?.location.reload();
-          return;
+      await handleError(
+        event.data.requestId,
+        new Error(event.data.message),
+        event.data.terminate,
+      );
+      return;
+    }
+    console.log(event.data);
+    if (event.data.type === 'READY') {
+      try {
+        await readySuccessResponseValidator({
+          event: event as unknown as MessageEvent<ReadyResponse>,
+          deviceId,
+          expectedSource: iFrame!.contentWindow,
+          validOrigins: [iframeUrl],
+        });
+        await startSession();
+      } catch (error: unknown) {
+        await handleError(
+          event.data.requestId,
+          new AnomalyError('something with ready'),
+        );
       }
-    };
-    window.addEventListener('message', messageHandler);
-  });
+      return;
+    }
+    if (!currentOperations[event.data.requestId]) {
+      return;
+    }
+
+    try {
+      await anomalyAnalyzer.applyToValidator(() =>
+        currentOperations[event.data.requestId].validator(
+          event as MessageEvent<AnySuccessResponse>,
+          deviceId,
+        ),
+      );
+      currentOperations[event.data.requestId].resolve(event.data);
+    } catch (error: unknown) {
+      await handleError(event.data.requestId, error);
+    }
+  };
+
+  window.addEventListener('message', messageHandler);
 
   window.document.body.appendChild(iFrame!);
-  return result;
+  return {
+    async destroy() {
+      await clearSession();
+      window.removeEventListener('message', messageHandler);
+    },
+    async getStatus(): Promise<WalletStatus> {
+      return new Promise<GetWalletStatusSuccessResponse>(
+        async (resolve, reject) => {
+          const requestId = generateRequestId();
+          registerRequest({
+            request: async (requestId) =>
+              createGetWalletStatusRequest(requestId, await getDeviceId()),
+            resolve,
+            reject,
+            operationType: 'GET_STATUS',
+            requestId,
+            validator: (event, deviceId) =>
+              getWalletStatusSuccessResponseValidator({
+                event:
+                  event as unknown as MessageEvent<GetWalletStatusSuccessResponse>,
+                deviceId,
+                expectedSource: iFrame!.contentWindow!,
+                validOrigins: [iframeUrl],
+              }),
+          });
+        },
+      ).then((data) => data.payload);
+    },
+    async addOrGenerateSeed(): Promise<WalletStatus> {
+      return new Promise<CreateOrAddSeedPhraseSuccessResponse>(
+        async (resolve, reject) => {
+          const requestId = generateRequestId();
+          registerRequest({
+            request: async (requestId) => {
+              iFrame.style.pointerEvents = 'initial';
+              return createCreateOrAddSeePhraseRequest(
+                requestId,
+                await getDeviceId(),
+                communicationKeyPair,
+                sessionId,
+              );
+            },
+            resolve,
+            reject,
+            requestId,
+            operationType: 'CREATE_OR_ADD_SEED',
+            validator: (event, deviceId) =>
+              createOrAddSeedPhraseSuccessResponseValidator({
+                event:
+                  event as unknown as MessageEvent<CreateOrAddSeedPhraseSuccessResponse>,
+                deviceId,
+                validOrigins: [iframeUrl],
+                expectedSource: iFrame!.contentWindow!,
+                publicKey: iframePublicKey,
+              }),
+          });
+        },
+      )
+        .then((data) => data.payload)
+        .catch((err) => {
+          iFrame.style.pointerEvents = 'none';
+          throw err;
+        });
+    },
+  };
 };

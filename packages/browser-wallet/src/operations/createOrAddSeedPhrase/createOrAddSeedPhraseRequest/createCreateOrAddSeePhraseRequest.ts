@@ -1,22 +1,24 @@
-import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import { StartSessionRequest } from '../types/StartSessionRequest.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
+import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
+import { CreateOrAddSeedPhraseRequest } from '../types/CreateOrAddSeedPhraseRequest.ts';
 
-export const createStartSessionRequest = async (
+export const createCreateOrAddSeePhraseRequest = async (
   requestId: string,
   deviceId: string,
   keyPair: CommunicationKeyPair,
-): Promise<StartSessionRequest> => {
+  sessionId: string,
+): Promise<CreateOrAddSeedPhraseRequest> => {
   const timestamp = Date.now();
   const nonce = generateNonce();
-  const payload = await keyPair.publicKey.toBytes();
+  const payload = undefined;
 
   return {
     timestamp,
     nonce,
-    type: 'START_SESSION',
+    type: 'CREATE_OR_ADD_SEED',
     payload,
+    sessionId,
     signature: await keyPair.privateKey.sign(
       generateMessageForSign(payload, timestamp, deviceId, requestId, nonce),
     ),

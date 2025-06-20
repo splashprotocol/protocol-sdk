@@ -1,21 +1,21 @@
-import { ErrorResponse } from '../../types/ErrorResponse.ts';
+import { ErrorResponse, ErrorTerminate } from '../../types/ErrorResponse.ts';
 import { OperationType } from '../../types/OperationType.ts';
-import { generateRequestId } from '../generateRequestId/generateRequestId.ts';
 import { generateNonce } from '../generateNonce/generateNonce.ts';
 
 export const createErrorResponse = <OT extends OperationType>(
   type: OT,
   message: string,
   deviceId: string,
-  sessionEnd?: boolean,
+  requestId: string,
+  errorTerminate?: ErrorTerminate,
 ): ErrorResponse<OT> => {
   return {
     deviceId,
     type,
     message,
-    sessionEnd: sessionEnd || false,
+    terminate: errorTerminate,
     timestamp: Date.now(),
-    requestId: generateRequestId(),
+    requestId,
     nonce: generateNonce(),
     kind: 'error',
   };

@@ -1,5 +1,7 @@
 import { OperationType } from './OperationType.ts';
 
+export type ErrorTerminate = 'session' | 'full';
+
 export interface ErrorResponse<T extends OperationType> {
   readonly requestId: string;
   readonly type: T;
@@ -8,5 +10,5 @@ export interface ErrorResponse<T extends OperationType> {
   readonly message: string;
   readonly deviceId: string;
   readonly nonce: string;
-  readonly sessionEnd: boolean;
+  readonly terminate?: ErrorTerminate;
 }
