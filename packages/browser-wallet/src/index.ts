@@ -45,13 +45,13 @@ export * from './operations/startSession/startSessionReq/createStartSessionReq.t
 export * from './operations/startSession/startSessionRes/startSessionResValidator.ts';
 export * from './operations/startSession/startSessionRes/createStartSessionRes.ts';
 
-export * from './operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
-export * from './operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
-export * from './operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
-export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createOrAddSeedPhraseRequestValidator.ts';
-export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
-export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
-export * from './operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createCreateOrAddSeedPhraseSuccessResponse.ts';
+export * from './operations/setSeedPhrase/types/setSeedPhraseReq.ts';
+export * from './operations/setSeedPhrase/types/SetSeedPhraseErr.ts';
+export * from './operations/setSeedPhrase/types/setSeedPhraseRes.ts';
+export * from './operations/setSeedPhrase/setSeedPhraseReq/setSeedPhraseReqValidator.ts';
+export * from './operations/setSeedPhrase/setSeedPhraseReq/createSetSeedPhraseReq.ts';
+export * from './operations/setSeedPhrase/setSeedPhraseRes/setSeedPhraseResValidator.ts';
+export * from './operations/setSeedPhrase/setSeedPhraseRes/createSetSeedPhraseRes.ts';
 
 export * from './operations/enterPin/types/EnterPinReq.ts';
 export * from './operations/enterPin/types/EnterPinErr.ts';

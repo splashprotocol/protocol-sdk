@@ -24,9 +24,9 @@ import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.t
 import { getWalletStatusResValidator } from '../operations/getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
 import { OperationType } from '../common/types/OperationType.ts';
 import { generateRequestId } from '../common/utils/generateRequestId/generateRequestId.ts';
-import { createCreateOrAddSeePhraseRequest } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
-import { CreateOrAddSeedPhraseSuccessResponse } from '../operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
-import { createOrAddSeedPhraseSuccessResponseValidator } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
+import { createSetSeedPhraseReq } from '../operations/setSeedPhrase/setSeedPhraseReq/createSetSeedPhraseReq.ts';
+import { SetSeedPhraseRes } from '../operations/setSeedPhrase/types/setSeedPhraseRes.ts';
+import { setSeedPhraseResValidator } from '../operations/setSeedPhrase/setSeedPhraseRes/setSeedPhraseResValidator.ts';
 import { EnterPinSuccessRes } from '../operations/enterPin/types/EnterPinSuccessRes.ts';
 import { createEnterPinReq } from '../operations/enterPin/enterPinReq/createEnterPinReq.ts';
 import { enterPinResValidator } from '../operations/enterPin/enterPinRes/enterPinResValidator.ts';
@@ -323,35 +323,32 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
     },
     async addOrGenerateSeed(): Promise<WalletStatus> {
-      return new Promise<CreateOrAddSeedPhraseSuccessResponse>(
-        async (resolve, reject) => {
-          const requestId = generateRequestId();
-          registerRequest({
-            request: async (requestId) => {
-              iFrame.style.pointerEvents = 'initial';
-              return createCreateOrAddSeePhraseRequest(
-                requestId,
-                await getDeviceId(),
-                communicationKeyPair,
-                sessionId,
-              );
-            },
-            resolve,
-            reject,
-            requestId,
-            operationType: 'CREATE_OR_ADD_SEED',
-            validator: (event, deviceId) =>
-              createOrAddSeedPhraseSuccessResponseValidator({
-                event:
-                  event as unknown as MessageEvent<CreateOrAddSeedPhraseSuccessResponse>,
-                deviceId,
-                validOrigins: [iframeUrl],
-                expectedSource: iFrame!.contentWindow!,
-                publicKey: iframePublicKey,
-              }),
-          });
-        },
-      )
+      return new Promise<SetSeedPhraseRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            iFrame.style.pointerEvents = 'initial';
+            return createSetSeedPhraseReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'CREATE_OR_ADD_SEED',
+          validator: (event, deviceId) =>
+            setSeedPhraseResValidator({
+              event: event as unknown as MessageEvent<SetSeedPhraseRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      })
         .then((data) => {
           iFrame.style.pointerEvents = 'none';
           return data.payload;

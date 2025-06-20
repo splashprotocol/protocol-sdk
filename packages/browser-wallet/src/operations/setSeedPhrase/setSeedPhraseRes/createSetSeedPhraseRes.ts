@@ -1,21 +1,21 @@
 import { Session } from '../../../common/models/Session/Session.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
-import { CreateOrAddSeedPhraseSuccessResponse } from '../types/CreateOrAddSeedPhraseSuccessResponse.ts';
+import { SetSeedPhraseRes } from '../types/setSeedPhraseRes.ts';
 import { WalletStatus } from '../../getWalletStatus/types/WalletStatus.ts';
 
-export interface CreateCreateOrAddSeedPhraseSuccessResponseParams {
+export interface CreateSetSeedPhraseResParams {
   readonly deviceId: string;
   readonly requestId: string;
   readonly session: Session;
   readonly walletStatus: WalletStatus;
 }
-export const createCreateOrAddSeedPhraseSuccessResponse = async ({
+export const createSetSeedPhraseRes = async ({
   deviceId,
   requestId,
   session,
   walletStatus,
-}: CreateCreateOrAddSeedPhraseSuccessResponseParams): Promise<CreateOrAddSeedPhraseSuccessResponse> => {
+}: CreateSetSeedPhraseResParams): Promise<SetSeedPhraseRes> => {
   const timestamp = Date.now();
   const nonce = generateNonce();
 

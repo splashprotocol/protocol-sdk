@@ -4,26 +4,14 @@ import { originValidator } from '../../../common/validators/originValidator/orig
 import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
 import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
 import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
-import { CreateOrAddSeedPhraseSuccessResponse } from '../types/CreateOrAddSeedPhraseSuccessResponse.ts';
-import { safetyResponseSchemaValidator } from '../../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
+import { SetSeedPhraseRes } from '../types/setSeedPhraseRes.ts';
 
 import { CommunicationPublicKey } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
+import { safetyResponseSchemaValidator } from '../../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
 import { walletStatuses } from '../../getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
 
-const INVALID_SCHEMA_ERROR_MESSAGE =
-  'INVALID CREATE OR ADD SEED PHRASE SUCCESS RESPONSE SCHEMA';
-const startSessionSuccessSchemaValidator = (
-  successResponse: CreateOrAddSeedPhraseSuccessResponse,
-): true => {
-  safetyResponseSchemaValidator(successResponse, INVALID_SCHEMA_ERROR_MESSAGE);
-  if (!walletStatuses.includes(successResponse.payload)) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  return true;
-};
-
 export interface CreateOrAddSeedPhraseSuccessResponseValidatorProps {
-  readonly event: MessageEvent<CreateOrAddSeedPhraseSuccessResponse>;
+  readonly event: MessageEvent<SetSeedPhraseRes>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
@@ -31,7 +19,9 @@ export interface CreateOrAddSeedPhraseSuccessResponseValidatorProps {
 }
 const INVALID_TYPE_ERROR_MESSAGE =
   'INVALID CREATE OR ADD SEED PHRASE SUCCESS RESPONSE SCHEMA';
-export const createOrAddSeedPhraseSuccessResponseValidator = async ({
+const INVALID_SCHEMA_ERROR_MESSAGE =
+  'INVALID CREATE OR ADD SEED PHRASE SUCCESS RESPONSE SCHEMA';
+export const setSeedPhraseResValidator = async ({
   event,
   deviceId,
   validOrigins,
@@ -41,7 +31,10 @@ export const createOrAddSeedPhraseSuccessResponseValidator = async ({
   if (event.data.type !== 'CREATE_OR_ADD_SEED') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  startSessionSuccessSchemaValidator(event.data);
+  safetyResponseSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (!walletStatuses.includes(event.data.payload)) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   originValidator(validOrigins, event.origin);

@@ -1,14 +1,20 @@
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import { CreateOrAddSeedPhraseRequest } from '../types/CreateOrAddSeedPhraseRequest.ts';
+import { SetSeedPhraseReq } from '../types/setSeedPhraseReq.ts';
 
-export const createCreateOrAddSeePhraseRequest = async (
-  requestId: string,
-  deviceId: string,
-  keyPair: CommunicationKeyPair,
-  sessionId: string,
-): Promise<CreateOrAddSeedPhraseRequest> => {
+export interface CreateSetSeedPhraseReqParams {
+  readonly requestId: string;
+  readonly deviceId: string;
+  readonly keyPair: CommunicationKeyPair;
+  readonly sessionId: string;
+}
+export const createSetSeedPhraseReq = async ({
+  requestId,
+  deviceId,
+  keyPair,
+  sessionId,
+}: CreateSetSeedPhraseReqParams): Promise<SetSeedPhraseReq> => {
   const timestamp = Date.now();
   const nonce = generateNonce();
   const payload = undefined;

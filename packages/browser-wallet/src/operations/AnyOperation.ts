@@ -5,28 +5,29 @@ import { StartSessionRes } from './startSession/types/StartSessionRes.ts';
 import { ReadyRes } from './ready/types/ReadyRes.ts';
 import { GetWalletStatusErr } from './getWalletStatus/types/GetWalletStatusErr.ts';
 import { StartSessionErr } from './startSession/types/StartSessionErr.ts';
-import { CreateOrAddSeedPhraseSuccessResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
-import { CreateOrAddSeedPhraseRequest } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
-import { CreateOrAddSeedPhraseErrorResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
+
 import { EnterPinSuccessRes } from './enterPin/types/EnterPinSuccessRes.ts';
 import { EnterPinReq } from './enterPin/types/EnterPinReq.ts';
 import { EnterPinErr } from './enterPin/types/EnterPinErr.ts';
+import { SetSeedPhraseRes } from './setSeedPhrase/types/setSeedPhraseRes.ts';
+import { SetSeedPhraseReq } from './setSeedPhrase/types/setSeedPhraseReq.ts';
+import { SetSeedPhraseErr } from './setSeedPhrase/types/SetSeedPhraseErr.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
   | StartSessionRes
   | ReadyRes
-  | CreateOrAddSeedPhraseSuccessResponse
+  | SetSeedPhraseRes
   | EnterPinSuccessRes;
 
 export type AnyReq =
   | GetWalletStatusReq
   | StartSessionReq
-  | CreateOrAddSeedPhraseRequest
+  | SetSeedPhraseReq
   | EnterPinReq;
 
 export type AnyErr =
   | GetWalletStatusErr
   | StartSessionErr
-  | CreateOrAddSeedPhraseErrorResponse
+  | SetSeedPhraseErr
   | EnterPinErr;
