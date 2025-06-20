@@ -8,25 +8,25 @@ import { StartSessionErr } from './startSession/types/StartSessionErr.ts';
 import { CreateOrAddSeedPhraseSuccessResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { CreateOrAddSeedPhraseRequest } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseRequest.ts';
 import { CreateOrAddSeedPhraseErrorResponse } from './createOrAddSeedPhrase/types/CreateOrAddSeedPhraseErrorResponse.ts';
-import { EnterPinSuccessResponse } from './enterPin/types/EnterPinSuccessResponse.ts';
-import { EnterPinRequest } from './enterPin/types/EnterPinRequest.ts';
-import { EnterPinErrorResponse } from './enterPin/types/EnterPinErrorResponse.ts';
+import { EnterPinSuccessRes } from './enterPin/types/EnterPinSuccessRes.ts';
+import { EnterPinReq } from './enterPin/types/EnterPinReq.ts';
+import { EnterPinErr } from './enterPin/types/EnterPinErr.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
   | StartSessionRes
   | ReadyRes
   | CreateOrAddSeedPhraseSuccessResponse
-  | EnterPinSuccessResponse;
+  | EnterPinSuccessRes;
 
 export type AnyReq =
   | GetWalletStatusReq
   | StartSessionReq
   | CreateOrAddSeedPhraseRequest
-  | EnterPinRequest;
+  | EnterPinReq;
 
 export type AnyErr =
   | GetWalletStatusErr
   | StartSessionErr
   | CreateOrAddSeedPhraseErrorResponse
-  | EnterPinErrorResponse;
+  | EnterPinErr;

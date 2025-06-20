@@ -1,22 +1,21 @@
 import { Session } from '../../../common/models/Session/Session.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
+import { EnterPinSuccessRes } from '../types/EnterPinSuccessRes.ts';
+import { PinStatus } from '../types/PinStatus.ts';
 
-import { WalletStatus } from '../../getWalletStatus/types/WalletStatus.ts';
-import { EnterPinSuccessResponse } from '../types/EnterPinSuccessResponse.ts';
-
-export interface CreateEnterPinSuccessResponseParams {
+export interface CreateEnterPinResParams {
   readonly deviceId: string;
   readonly requestId: string;
   readonly session: Session;
-  readonly walletStatus: WalletStatus | 'DISCONNECT';
+  readonly pinStatus: PinStatus;
 }
-export const createEnterPinSuccessResponse = async ({
+export const createEnterPinRes = async ({
   deviceId,
   requestId,
   session,
-  walletStatus,
-}: CreateEnterPinSuccessResponseParams): Promise<EnterPinSuccessResponse> => {
+  pinStatus,
+}: CreateEnterPinResParams): Promise<EnterPinSuccessRes> => {
   const timestamp = Date.now();
   const nonce = generateNonce();
 
@@ -27,15 +26,9 @@ export const createEnterPinSuccessResponse = async ({
     timestamp,
     nonce,
     requestId,
-    payload: walletStatus,
+    payload: pinStatus,
     signature: await session.communicationResponseKeys.privateKey.sign(
-      generateMessageForSign(
-        walletStatus,
-        timestamp,
-        deviceId,
-        requestId,
-        nonce,
-      ),
+      generateMessageForSign(pinStatus, timestamp, deviceId, requestId, nonce),
     ),
   };
 };

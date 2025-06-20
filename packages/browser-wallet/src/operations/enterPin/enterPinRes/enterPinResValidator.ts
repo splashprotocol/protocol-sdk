@@ -6,18 +6,18 @@ import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/
 import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
 import { safetyResponseSchemaValidator } from '../../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
 import { CommunicationPublicKey } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import { EnterPinSuccessResponse } from '../types/EnterPinSuccessResponse.ts';
-import { WalletStatus } from '../../getWalletStatus/types/WalletStatus.ts';
+import { EnterPinSuccessRes } from '../types/EnterPinSuccessRes.ts';
+import { PinStatus } from '../types/PinStatus.ts';
 
-export interface EnterPinSuccessResponseValidatorProps {
-  readonly event: MessageEvent<EnterPinSuccessResponse>;
+export interface EnterPinResValidatorParams {
+  readonly event: MessageEvent<EnterPinSuccessRes>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
   readonly publicKey: CommunicationPublicKey;
 }
 
-const walletStatusesWithDisconnect: (WalletStatus | 'DISCONNECT')[] = [
+const pinStatuses: PinStatus[] = [
   'DISCONNECT',
   'SEED_REQUIRED',
   'PIN_REQUIRED',
@@ -28,18 +28,18 @@ const walletStatusesWithDisconnect: (WalletStatus | 'DISCONNECT')[] = [
 const INVALID_SCHEMA_ERROR_MESSAGE =
   'INVALID ENTER PIN SUCCESS RESPONSE SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID ENTER PIN SUCCESS RESPONSE';
-export const enterPinSuccessResponseValidator = async ({
+export const enterPinResValidator = async ({
   event,
   deviceId,
   validOrigins,
   expectedSource,
   publicKey,
-}: EnterPinSuccessResponseValidatorProps): Promise<true> => {
+}: EnterPinResValidatorParams): Promise<true> => {
   if (event.data.type !== 'ENTER_PIN') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
   safetyResponseSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
-  if (!walletStatusesWithDisconnect.includes(event.data.payload)) {
+  if (!pinStatuses.includes(event.data.payload)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
   nonceValidator(event.data.nonce);

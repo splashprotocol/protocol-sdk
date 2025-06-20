@@ -27,9 +27,10 @@ import { generateRequestId } from '../common/utils/generateRequestId/generateReq
 import { createCreateOrAddSeePhraseRequest } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseRequest/createCreateOrAddSeePhraseRequest.ts';
 import { CreateOrAddSeedPhraseSuccessResponse } from '../operations/createOrAddSeedPhrase/types/CreateOrAddSeedPhraseSuccessResponse.ts';
 import { createOrAddSeedPhraseSuccessResponseValidator } from '../operations/createOrAddSeedPhrase/createOrAddSeedPhraseSuccessResponse/createOrAddSeedPhraseSuccessResponseValidator.ts';
-import { EnterPinSuccessResponse } from '../operations/enterPin/types/EnterPinSuccessResponse.ts';
-import { createEnterPinRequest } from '../operations/enterPin/enterPinRequest/createEnterPinRequest.ts';
-import { enterPinSuccessResponseValidator } from '../operations/enterPin/enterPinSuccessResponse/enterPinSuccessResponseValidator.ts';
+import { EnterPinSuccessRes } from '../operations/enterPin/types/EnterPinSuccessRes.ts';
+import { createEnterPinReq } from '../operations/enterPin/enterPinReq/createEnterPinReq.ts';
+import { enterPinResValidator } from '../operations/enterPin/enterPinRes/enterPinResValidator.ts';
+import { PinStatus } from '../operations/enterPin/types/PinStatus.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -47,7 +48,7 @@ export interface IFrameConnectorResponse {
   destroy(): void;
   getStatus(): Promise<WalletStatus>;
   addOrGenerateSeed(): Promise<WalletStatus>;
-  enterPin(): Promise<WalletStatus | 'DISCONNECT'>;
+  enterPin(): Promise<PinStatus>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -285,26 +286,26 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       }).then((data) => data.payload);
     },
-    async enterPin(): Promise<WalletStatus | 'DISCONNECT'> {
-      return new Promise<EnterPinSuccessResponse>(async (resolve, reject) => {
+    async enterPin(): Promise<PinStatus> {
+      return new Promise<EnterPinSuccessRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
         registerRequest({
           request: async (requestId) => {
             iFrame.style.pointerEvents = 'initial';
-            return createEnterPinRequest(
+            return createEnterPinReq({
               requestId,
-              await getDeviceId(),
-              communicationKeyPair,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
               sessionId,
-            );
+            });
           },
           resolve,
           reject,
           requestId,
           operationType: 'ENTER_PIN',
           validator: (event, deviceId) =>
-            enterPinSuccessResponseValidator({
-              event: event as unknown as MessageEvent<EnterPinSuccessResponse>,
+            enterPinResValidator({
+              event: event as unknown as MessageEvent<EnterPinSuccessRes>,
               deviceId,
               validOrigins: [iframeUrl],
               expectedSource: iFrame!.contentWindow!,

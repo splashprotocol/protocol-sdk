@@ -8,36 +8,31 @@ import { baseMessageSchemaValidator } from '../../../common/validators/baseMessa
 import { Session } from '../../../common/models/Session/Session.ts';
 import { sessionIdValidator } from '../../../common/validators/sessionIdValidator/sessionIdValidator.ts';
 import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
-import { EnterPinRequest } from '../types/EnterPinRequest.ts';
+import { EnterPinReq } from '../types/EnterPinReq.ts';
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID ENTER PIN REQUEST SCHEMA';
-const enterPinRequestSchemaValidator = (request: EnterPinRequest): true => {
-  baseMessageSchemaValidator(request, INVALID_SCHEMA_ERROR_MESSAGE);
-  if (request.payload !== undefined) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  return true;
-};
-
-export interface EnterPinRequestValidatorProps {
-  readonly event: MessageEvent<EnterPinRequest>;
+export interface EnterPinReqValidatorParams {
+  readonly event: MessageEvent<EnterPinReq>;
   readonly deviceId: string;
   readonly validOrigins: string[];
   readonly expectedSource: MessageEventSource | null;
   readonly session: Session;
 }
+const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID ENTER PIN REQUEST SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID ENTER PIN REQUEST TYPE';
-export const enterPinRequestValidator = async ({
+export const enterPinReqValidator = async ({
   event,
   deviceId,
   validOrigins,
   expectedSource,
   session,
-}: EnterPinRequestValidatorProps): Promise<true> => {
+}: EnterPinReqValidatorParams): Promise<true> => {
   if (event.data.type !== 'ENTER_PIN') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  enterPinRequestSchemaValidator(event.data);
+  baseMessageSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
+  if (event.data.payload !== undefined) {
+    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
+  }
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);
