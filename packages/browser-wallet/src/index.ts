@@ -23,10 +23,10 @@ export * from './common/validators/originValidator/originValidator.ts';
 export * from './common/validators/sessionIdValidator/sessionIdValidator.ts';
 export * from './common/validators/signatureValidator/signatureValidator.ts';
 
-export * from './operations/ready/types/ReadyResponse.ts';
-export * from './operations/ready/types/ReadyResponse.ts';
-export * from './operations/ready/readySuccessResponse/readySuccessResponseValidator.ts';
-export * from './operations/ready/readySuccessResponse/createReadySuccessResponse.ts';
+export * from './operations/ready/types/ReadyRes.ts';
+export * from './operations/ready/types/ReadyRes.ts';
+export * from './operations/ready/readySuccessResponse/readyResValidator.ts';
+export * from './operations/ready/readySuccessResponse/createReadyRes.ts';
 
 export * from './operations/getWalletStatus/types/WalletStatus.ts';
 export * from './operations/getWalletStatus/types/GetWalletStatusRequest.ts';

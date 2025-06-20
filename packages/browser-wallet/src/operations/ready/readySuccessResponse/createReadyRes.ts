@@ -1,8 +1,8 @@
-import { ReadyResponse } from '../types/ReadyResponse.ts';
+import { ReadyRes } from '../types/ReadyRes.ts';
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
 
-export const createReadySuccessResponse = (deviceId: string): ReadyResponse => {
+export const createReadyRes = (deviceId: string): ReadyRes => {
   return {
     timestamp: Date.now(),
     nonce: generateNonce(),

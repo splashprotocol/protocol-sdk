@@ -1,5 +1,5 @@
 import { Dictionary } from '@splashprotocol/core';
-import { readySuccessResponseValidator } from '../operations/ready/readySuccessResponse/readySuccessResponseValidator.ts';
+import { readyResValidator } from '../operations/ready/readySuccessResponse/readyResValidator.ts';
 import {
   CommunicationKeyPair,
   CommunicationPublicKey,
@@ -23,7 +23,7 @@ import { ErrorTerminate } from '../common/types/ErrorResponse.ts';
 import { startSessionSuccessResponseValidator } from '../operations/startSession/startSessionSuccessResponse/startSessionSuccessResponseValidator.ts';
 import { StartSessionSuccessResponse } from '../operations/startSession/types/StartSessionSuccessResponse.ts';
 import { errorResponseValidator } from '../common/validators/errorResponseValidator/errorResponseValidator.ts';
-import { ReadyResponse } from '../operations/ready/types/ReadyResponse.ts';
+import { ReadyRes } from '../operations/ready/types/ReadyRes.ts';
 import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
 import { getWalletStatusSuccessResponseValidator } from '../operations/getWalletStatus/getWalletStatusSuccessResponse/getWalletStatusSuccessResponseValidator.ts';
 import { OperationType } from '../common/types/OperationType.ts';
@@ -229,8 +229,8 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     console.log(event.data);
     if (event.data.type === 'READY') {
       try {
-        await readySuccessResponseValidator({
-          event: event as unknown as MessageEvent<ReadyResponse>,
+        await readyResValidator({
+          event: event as unknown as MessageEvent<ReadyRes>,
           deviceId,
           expectedSource: iFrame!.contentWindow,
           validOrigins: [iframeUrl],
