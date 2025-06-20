@@ -35,7 +35,7 @@ export class CommunicationPrivateKey {
   }
 
   async destroy() {
-    (await this.toBytes()).fill(0);
+    // (await this.toBytes()).fill(0);
   }
 }
 
