@@ -42,6 +42,10 @@ import { signDataResValidator } from '../operations/signData/signDataRes/signDat
 import { SignTxRes } from '../operations/signTx/types/SignTxRes.ts';
 import { createSignTxReq } from '../operations/signTx/signTxReq/createSignTxReq.ts';
 import { signTxResValidator } from '../operations/signTx/signTxRes/signTxResValidator.ts';
+import { SetThemeRes } from '../operations/setTheme/types/SetThemeRes.ts';
+import { createSetThemeReq } from '../operations/setTheme/setThemeReq/createSetThemeReq.ts';
+import { setThemeResValidator } from '../operations/setTheme/setThemeRes/setThemeResValidator.ts';
+import { Theme } from '../operations/setTheme/types/Theme.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -57,6 +61,7 @@ interface IFrameOperation {
 
 export interface IFrameConnectorResponse {
   destroy(): void;
+  setTheme(theme: Theme): Promise<void>;
   getStatus(): Promise<WalletStatus>;
   addOrGenerateSeed(): Promise<WalletStatus>;
   enterPin(): Promise<PinStatus>;
@@ -290,6 +295,33 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     async destroy() {
       await clearSession();
       window.removeEventListener('message', messageHandler);
+    },
+    async setTheme(theme: Theme): Promise<void> {
+      return new Promise<SetThemeRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) =>
+            createSetThemeReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+              payload: theme,
+            }),
+          resolve,
+          reject,
+          operationType: 'SET_THEME',
+          requestId,
+          validator: (event, deviceId) =>
+            setThemeResValidator({
+              event: event as unknown as MessageEvent<SetThemeRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then(() => {});
     },
     async getStatus(): Promise<WalletStatus> {
       return new Promise<GetWalletStatusRes>(async (resolve, reject) => {

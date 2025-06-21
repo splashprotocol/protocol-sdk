@@ -88,6 +88,15 @@ export * from './operations/signTx/signTxReq/signTxReqValidator.ts';
 export * from './operations/signTx/signTxRes/signTxResValidator.ts';
 export * from './operations/signTx/signTxRes/createSignTxRes.ts';
 
+export * from './operations/setTheme/types/SetThemeErr.ts';
+export * from './operations/setTheme/types/SetThemeReq.ts';
+export * from './operations/setTheme/types/SetThemeRes.ts';
+export * from './operations/setTheme/types/Theme.ts';
+export * from './operations/setTheme/setThemeReq/createSetThemeReq.ts';
+export * from './operations/setTheme/setThemeReq/setThemeReqValidator.ts';
+export * from './operations/setTheme/setThemeRes/setThemeResValidator.ts';
+export * from './operations/setTheme/setThemeRes/createSetThemeRes.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 
