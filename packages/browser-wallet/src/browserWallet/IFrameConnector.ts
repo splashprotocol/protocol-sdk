@@ -92,7 +92,18 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     iFrame.style.zIndex = '1000';
     iFrame.style.border = 'none';
     iFrame.style.outline = 'none';
+    iFrame.style.display = 'none';
   }
+
+  const showIframe = () => {
+    iFrame.style.display = 'initial';
+    iFrame.style.pointerEvents = 'initial';
+  };
+
+  const hideIframe = () => {
+    iFrame.style.pointerEvents = 'none';
+    iFrame.style.display = 'none';
+  };
 
   const registerRequest = async ({
     request,
@@ -299,7 +310,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         const requestId = generateRequestId();
         registerRequest({
           request: async (requestId) => {
-            iFrame.style.pointerEvents = 'initial';
+            showIframe();
             return createEnterPinReq({
               requestId,
               deviceId: await getDeviceId(),
@@ -322,11 +333,11 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       })
         .then((data) => {
-          iFrame.style.pointerEvents = 'none';
+          hideIframe();
           return data.payload;
         })
         .catch((err) => {
-          iFrame.style.pointerEvents = 'none';
+          hideIframe();
           throw err;
         });
     },
@@ -362,7 +373,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         const requestId = generateRequestId();
         registerRequest({
           request: async (requestId) => {
-            iFrame.style.pointerEvents = 'initial';
+            showIframe();
             return createSetSeedPhraseReq({
               requestId,
               deviceId: await getDeviceId(),
@@ -385,11 +396,11 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       })
         .then((data) => {
-          iFrame.style.pointerEvents = 'none';
+          hideIframe();
           return data.payload;
         })
         .catch((err) => {
-          iFrame.style.pointerEvents = 'none';
+          hideIframe();
           throw err;
         });
     },
