@@ -18,6 +18,9 @@ import { GetWalletInfoRes } from './getWalletInfo/type/GetWalletInfoRes.ts';
 import { SignDataRes } from './signData/types/SignDataRes.ts';
 import { SignDataReq } from './signData/types/SignDataReq.ts';
 import { SignDataErr } from './signData/types/SignDataErr.ts';
+import { SignTxRes } from './signTx/types/SignTxRes.ts';
+import { SignTxReq } from './signTx/types/SignTxReq.ts';
+import { SignTxErr } from './signTx/types/SignTxErr.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
@@ -26,7 +29,8 @@ export type AnyRes =
   | SetSeedPhraseRes
   | EnterPinSuccessRes
   | GetWalletInfoRes
-  | SignDataRes;
+  | SignDataRes
+  | SignTxRes;
 
 export type AnyReq =
   | GetWalletStatusReq
@@ -34,7 +38,8 @@ export type AnyReq =
   | SetSeedPhraseReq
   | EnterPinReq
   | GetWalletInfoReq
-  | SignDataReq;
+  | SignDataReq
+  | SignTxReq;
 
 export type AnyErr =
   | GetWalletStatusErr
@@ -42,4 +47,5 @@ export type AnyErr =
   | SetSeedPhraseErr
   | EnterPinErr
   | GetWalletInfoErr
-  | SignDataErr;
+  | SignDataErr
+  | SignTxErr;

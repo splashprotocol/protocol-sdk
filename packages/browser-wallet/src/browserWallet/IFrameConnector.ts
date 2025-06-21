@@ -1,4 +1,4 @@
-import { Dictionary } from '@splashprotocol/core';
+import { CborHexString, Dictionary } from '@splashprotocol/core';
 import { readyResValidator } from '../operations/ready/readySuccessResponse/readyResValidator.ts';
 import {
   CommunicationKeyPair,
@@ -39,6 +39,9 @@ import { DataSignature } from '../operations/signData/types/DataSignature.ts';
 import { SignDataRes } from '../operations/signData/types/SignDataRes.ts';
 import { createSignDataReq } from '../operations/signData/signDataReq/createSignDataReq.ts';
 import { signDataResValidator } from '../operations/signData/signDataRes/signDataResValidator.ts';
+import { SignTxRes } from '../operations/signTx/types/SignTxRes.ts';
+import { createSignTxReq } from '../operations/signTx/signTxReq/createSignTxReq.ts';
+import { signTxResValidator } from '../operations/signTx/signTxRes/signTxResValidator.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -59,6 +62,7 @@ export interface IFrameConnectorResponse {
   enterPin(): Promise<PinStatus>;
   getWalletInfo(): Promise<WalletInfo>;
   signData(payload: Uint8Array): Promise<DataSignature>;
+  signTx(TxCbor: CborHexString);
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -393,6 +397,34 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           validator: (event, deviceId) =>
             signDataResValidator({
               event: event as unknown as MessageEvent<SignDataRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((res) => res.payload);
+    },
+    async signTx(payload: CborHexString): Promise<CborHexString> {
+      return new Promise<SignTxRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            return createSignTxReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+              payload,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'SIGN_TRANSACTION',
+          validator: (event, deviceId) =>
+            signTxResValidator({
+              event: event as unknown as MessageEvent<SignTxRes>,
               deviceId,
               validOrigins: [iframeUrl],
               expectedSource: iFrame!.contentWindow!,

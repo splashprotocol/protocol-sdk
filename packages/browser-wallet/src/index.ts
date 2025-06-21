@@ -80,6 +80,14 @@ export * from './operations/signData/signDataReq/signDataReqValidator.ts';
 export * from './operations/signData/signDataRes/signDataResValidator.ts';
 export * from './operations/signData/signDataRes/createSignDataRes.ts';
 
+export * from './operations/signTx/types/SignTxErr.ts';
+export * from './operations/signTx/types/SignTxReq.ts';
+export * from './operations/signTx/types/SignTxRes.ts';
+export * from './operations/signTx/signTxReq/createSignTxReq.ts';
+export * from './operations/signTx/signTxReq/signTxReqValidator.ts';
+export * from './operations/signTx/signTxRes/signTxResValidator.ts';
+export * from './operations/signTx/signTxRes/createSignTxRes.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 
