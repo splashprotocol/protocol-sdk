@@ -6,10 +6,12 @@ import {
   Bech32String,
   CborHexString,
   Currencies,
+  BaseAddress,
   Currency,
   HexString,
   Network,
   uint,
+  CredentialType,
 } from '@splashprotocol/core';
 import { WalletInfo } from '../operations/getWalletInfo/type/WalletInfo.ts';
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
@@ -172,9 +174,15 @@ export class BrowserWallet {
     return this.enable().then(() => this.iFrameConnector.signData(data));
   }
 
-  // async getAddress(): Promise<Bech32String> {
-  //   return this.getWalletInfo().then((walletInfo) => BaseAddress.fromCredentials());
-  // }
+  async getAddress(): Promise<Bech32String> {
+    return this.getWalletInfo().then((walletInfo) =>
+      BaseAddress.fromCredentials(
+        0,
+        { type: CredentialType.KeyHash, hash: walletInfo.pkh },
+        { type: CredentialType.KeyHash, hash: walletInfo.skh },
+      ).toBech32(),
+    );
+  }
 
   async getPublicKey(): Promise<HexString> {
     return this.getWalletInfo().then((walletInfo) => walletInfo.publicKey);

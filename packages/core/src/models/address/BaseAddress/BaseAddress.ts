@@ -115,7 +115,7 @@ export class BaseAddress implements Address {
     ]);
     const bech32Address = bech32.encode(
       getBech32Prefix(AddressKind.BasePaymentKeyStakeKey, network),
-      words,
+      bech32.toWords(words),
       BECH32_LIMIT,
     );
     const hex = bytesToHex(
