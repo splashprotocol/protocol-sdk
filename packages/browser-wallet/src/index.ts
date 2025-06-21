@@ -71,6 +71,15 @@ export * from './operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoRe
 export * from './operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
 export * from './operations/getWalletInfo/getWalletInfoRes/createGetWalletInfoRes.ts';
 
+export * from './operations/signData/types/SignDataErr.ts';
+export * from './operations/signData/types/SignDataReq.ts';
+export * from './operations/signData/types/SignDataRes.ts';
+export * from './operations/signData/types/DataSignature.ts';
+export * from './operations/signData/signDataReq/createSignDataReq.ts';
+export * from './operations/signData/signDataReq/signDataReqValidator.ts';
+export * from './operations/signData/signDataRes/signDataResValidator.ts';
+export * from './operations/signData/signDataRes/createSignDataRes.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 

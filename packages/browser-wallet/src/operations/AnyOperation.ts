@@ -15,6 +15,9 @@ import { SetSeedPhraseErr } from './setSeedPhrase/types/SetSeedPhraseErr.ts';
 import { GetWalletInfoErr } from './getWalletInfo/type/GetWalletInfoErr.ts';
 import { GetWalletInfoReq } from './getWalletInfo/type/GetWalletInfoReq.ts';
 import { GetWalletInfoRes } from './getWalletInfo/type/GetWalletInfoRes.ts';
+import { SignDataRes } from './signData/types/SignDataRes.ts';
+import { SignDataReq } from './signData/types/SignDataReq.ts';
+import { SignDataErr } from './signData/types/SignDataErr.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
@@ -22,18 +25,21 @@ export type AnyRes =
   | ReadyRes
   | SetSeedPhraseRes
   | EnterPinSuccessRes
-  | GetWalletInfoRes;
+  | GetWalletInfoRes
+  | SignDataRes;
 
 export type AnyReq =
   | GetWalletStatusReq
   | StartSessionReq
   | SetSeedPhraseReq
   | EnterPinReq
-  | GetWalletInfoReq;
+  | GetWalletInfoReq
+  | SignDataReq;
 
 export type AnyErr =
   | GetWalletStatusErr
   | StartSessionErr
   | SetSeedPhraseErr
   | EnterPinErr
-  | GetWalletInfoErr;
+  | GetWalletInfoErr
+  | SignDataErr;

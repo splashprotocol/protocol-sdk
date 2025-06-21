@@ -35,6 +35,10 @@ import { WalletInfo } from '../operations/getWalletInfo/type/WalletInfo.ts';
 import { GetWalletInfoRes } from '../operations/getWalletInfo/type/GetWalletInfoRes.ts';
 import { createGetWalletInfoReq } from '../operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoReq.ts';
 import { getWalletInfoResValidator } from '../operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
+import { DataSignature } from '../operations/signData/types/DataSignature.ts';
+import { SignDataRes } from '../operations/signData/types/SignDataRes.ts';
+import { createSignDataReq } from '../operations/signData/signDataReq/createSignDataReq.ts';
+import { signDataResValidator } from '../operations/signData/signDataRes/signDataResValidator.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -54,6 +58,7 @@ export interface IFrameConnectorResponse {
   addOrGenerateSeed(): Promise<WalletStatus>;
   enterPin(): Promise<PinStatus>;
   getWalletInfo(): Promise<WalletInfo>;
+  signData(payload: Uint8Array): Promise<DataSignature>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -245,7 +250,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           expectedSource: iFrame!.contentWindow,
           validOrigins: [iframeUrl],
         });
-        await startSession();
+        startSession();
       } catch (error: unknown) {
         await handleError(
           event.data.requestId,
@@ -360,6 +365,34 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           validator: (event, deviceId) =>
             getWalletInfoResValidator({
               event: event as unknown as MessageEvent<GetWalletInfoRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((res) => res.payload);
+    },
+    async signData(payload: Uint8Array): Promise<DataSignature> {
+      return new Promise<SignDataRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            return createSignDataReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+              payload,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'SIGN_DATA',
+          validator: (event, deviceId) =>
+            signDataResValidator({
+              event: event as unknown as MessageEvent<SignDataRes>,
               deviceId,
               validOrigins: [iframeUrl],
               expectedSource: iFrame!.contentWindow!,
