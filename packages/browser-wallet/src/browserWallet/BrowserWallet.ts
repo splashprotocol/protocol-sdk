@@ -177,7 +177,7 @@ export class BrowserWallet {
   async getAddress(): Promise<Bech32String> {
     return this.getWalletInfo().then((walletInfo) =>
       BaseAddress.fromCredentials(
-        0,
+        1,
         { type: CredentialType.KeyHash, hash: walletInfo.pkh },
         { type: CredentialType.KeyHash, hash: walletInfo.skh },
       ).toBech32(),
