@@ -627,13 +627,14 @@ export class SplashBackend implements Backend<SplashBackend> {
   }
 
   getBalance({ api }: BackendMethodArgument<null>): Promise<Currencies> {
-    return api
-      .getBalanceCbor()
-      .then((balanceCbor) =>
-        Currencies.fromCbor(balanceCbor, (currency) =>
-          currency.isAda() ? AssetInfo.ada.metadata : undefined,
-        ),
+    return api.getBalanceInner().then((balance) => {
+      if (balance instanceof Currencies) {
+        return balance;
+      }
+      return Currencies.fromCbor(balance, (currency) =>
+        currency.isAda() ? AssetInfo.ada.metadata : undefined,
       );
+    });
   }
 
   getAssetMetadata(assetId: AssetId): Promise<AssetInfoMetadata | undefined> {

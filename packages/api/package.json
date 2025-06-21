@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/api",
-  "version": "2.0.0-beta.38",
+  "version": "2.0.0-beta.48",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -35,6 +35,6 @@
   "dependencies": {},
   "peerDependencies": {
     "@splashprotocol/core": "2.0.0-beta.17",
-    "@splashprotocol/browser-wallet": "1.0.0-beta.6"
+    "@splashprotocol/browser-wallet": "1.0.0-beta.12"
   }
 }

@@ -1,8 +1,9 @@
-import { Bech32String, Network } from '@splashprotocol/core';
+import { Bech32String, Currencies, Network } from '@splashprotocol/core';
 import {
   CardanoCIP30WalletBridge,
   CardanoCIP30WalletContext,
 } from '../../types/CardanoCIP30WalletBridge.ts';
+import { BrowserWallet } from '@splashprotocol/browser-wallet';
 
 export interface BasicApi {
   readonly network: Network;
@@ -14,7 +15,8 @@ export interface BasicApi {
   selectWallet(
     walletFactory?:
       | (() => Promise<CardanoCIP30WalletContext> | CardanoCIP30WalletContext)
-      | CardanoCIP30WalletBridge,
+      | CardanoCIP30WalletBridge
+      | BrowserWallet,
   ): void;
 
   /**
@@ -39,16 +41,22 @@ export interface BasicApi {
    * Returns current wallet balance
    * @returns {Promise<Currencies>}
    */
-  getBalanceCbor(): Promise<string>;
+  getBalanceInner(): Promise<Currencies>;
 
   /**
    * Returns cip30 context
    */
-  getWalletContext(): Promise<CardanoCIP30WalletContext>;
+  getWalletContext(): Promise<CardanoCIP30WalletContext | BrowserWallet>;
 
   /**
    * Utility method for error handling
    * @param promise
    */
   handleCIP30WalletError<T>(promise: Promise<T>): Promise<T>;
+
+  /**
+   * Utility method for browser error handling
+   * @param promise
+   */
+  handleBrowserWalletError<T>(promise: Promise<T>): Promise<T>;
 }

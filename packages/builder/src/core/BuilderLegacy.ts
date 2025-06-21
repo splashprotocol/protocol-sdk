@@ -12,7 +12,11 @@ import {
   uint,
 } from '@splashprotocol/core';
 import { Operation, OperationContext } from './types/Operation.ts';
-import { BasicApi } from '@splashprotocol/api';
+import {
+  BasicApi,
+  CardanoCIP30WalletBridge,
+  CardanoCIP30WalletContext,
+} from '@splashprotocol/api';
 import { BuilderExplorer } from './types/BuilderExplorer.ts';
 import { getTransactionBuilderConfig } from './utils/getTransactionBuilderConfig/getTransactionBuilderConfig.ts';
 import { CML } from './utils/Cml/Cml.ts';
@@ -33,12 +37,9 @@ import { InsufficientFundsErrorForChange } from './errors/InsufficientFundsError
 import { defaultOperations } from './Builder.ts';
 import { Transaction } from './models/Transaction/Transaction.ts';
 import { SignedTransaction } from './models/SignedTransaction/SignedTransaction.ts';
-import {
-  CardanoCIP30WalletBridge,
-  CardanoCIP30WalletContext,
-} from '@splashprotocol/api/src/types/CardanoCIP30WalletBridge.ts';
 import { RemoteCollateralsConfig } from './legacyUtils/remoteCollaterals/RemoteCollateralsConfig.ts';
 import { NetworkContext } from './types/NetworkContext.ts';
+import { BrowserWallet } from '@splashprotocol/browser-wallet';
 
 export interface NewTransactionConfig {
   readonly changeAddress?: Bech32String;
@@ -143,9 +144,13 @@ export class BuilderLegacy<
       signedTransaction.wasm.to_canonical_cbor_hex(),
     );
 
-    return this.api
-      .getWalletContext()
-      .then((ctx) => ctx.submitTx(wasmTx.to_cbor_hex()));
+    return this.api.getWalletContext().then((ctx) => {
+      // TODO: FIX
+      if (ctx instanceof BrowserWallet) {
+        return Promise.resolve('');
+      }
+      return ctx.submitTx(wasmTx.to_cbor_hex());
+    });
   }
 
   newTx(
@@ -210,7 +215,12 @@ export class BuilderLegacy<
             )
           : this.api
               .getWalletContext()
-              .then((ctx) => ctx.getUtxos())
+              .then((ctx) => {
+                if (ctx instanceof BrowserWallet) {
+                  return [];
+                }
+                return ctx.getUtxos();
+              })
               .then((utxoCbors) => {
                 if (!utxoCbors) {
                   return [];
@@ -231,13 +241,16 @@ export class BuilderLegacy<
             )
           : this.api
               .getWalletContext()
-              .then((ctx) =>
-                ctx.getCollateral
+              .then((ctx) => {
+                if (ctx instanceof BrowserWallet) {
+                  return [];
+                }
+                return ctx.getCollateral
                   ? ctx.getCollateral()
                   : ctx.experimental?.getCollateral
                     ? ctx.experimental.getCollateral()
-                    : [],
-              )
+                    : [];
+              })
               .then((utxoCbors) => {
                 if (!utxoCbors) {
                   return [];

@@ -15,8 +15,9 @@ import {
 } from '@splashprotocol/core';
 import { WalletInfo } from '../operations/getWalletInfo/type/WalletInfo.ts';
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
+import { Theme } from '../operations/setTheme/types/Theme.ts';
 
-export const a = 1;
+export class DisconnectError extends Error {}
 
 export interface BrowserWalletBaseConfig {
   readonly relay: 'splash' | 'snekfun' | 'none' | { url: string };
@@ -32,7 +33,9 @@ type CacheKey =
   | 'ENABLE'
   | 'GET_WALLET_INFO'
   | 'GET_UTXO'
-  | 'GET_BALANCE';
+  | 'GET_BALANCE'
+  | 'UNBIND_SEED'
+  | 'SET_THEME';
 
 interface WalletUTxOValue {
   readonly policyId: HexString;
@@ -65,7 +68,10 @@ export class BrowserWallet {
     if (BrowserWallet.instance) {
       return BrowserWallet.instance;
     }
-    return new BrowserWallet(config);
+    const instance = new BrowserWallet(config);
+    BrowserWallet.instance = instance;
+
+    return instance;
   }
 
   private cache: {
@@ -100,6 +106,10 @@ export class BrowserWallet {
       .then((balance) => {
         delete this.cache.GET_BALANCE;
         return balance;
+      })
+      .catch((err) => {
+        delete this.cache.GET_BALANCE;
+        throw err;
       });
     this.cache.GET_BALANCE = result;
 
@@ -126,7 +136,6 @@ export class BrowserWallet {
       })
         .then((res) => res.json())
         .then((uTxODataConfigs: WalletUTxO[]) => {
-          console.log(uTxODataConfigs?.length, 'here');
           if (uTxODataConfigs.length < limit) {
             return uTxODataConfigs;
           }
@@ -143,6 +152,11 @@ export class BrowserWallet {
         delete this.cache.GET_UTXO;
 
         return uTxOs;
+      })
+      .catch((err) => {
+        delete this.cache.GET_UTXO;
+
+        throw err;
       });
 
     this.cache.GET_UTXO = result;
@@ -213,11 +227,49 @@ export class BrowserWallet {
     return result;
   }
 
+  async setTheme(theme: Theme): Promise<void> {
+    if (this.cache.SET_THEME) {
+      this.cache.SET_THEME;
+    }
+    const result = this.iFrameConnector
+      .setTheme(theme)
+      .then(() => {
+        delete this.cache.SET_THEME;
+      })
+      .catch((err) => {
+        delete this.cache.SET_THEME;
+        throw err;
+      });
+    this.cache.SET_THEME = result;
+
+    return result;
+  }
+
+  async unbindSeed(): Promise<WalletStatus> {
+    if (this.cache.UNBIND_SEED) {
+      return this.cache.UNBIND_SEED;
+    }
+    const result = this.enable()
+      .then(() => this.iFrameConnector.removeSeedPhrase())
+      .then((status) => {
+        delete this.cache.UNBIND_SEED;
+        return status;
+      })
+      .catch((err) => {
+        delete this.cache.UNBIND_SEED;
+
+        throw err;
+      });
+
+    this.cache.UNBIND_SEED = result;
+
+    return result;
+  }
+
   private async enable(): Promise<PinStatus> {
     const status = await this.getStatus();
     if (status !== 'READY_TO_SIGN') {
-      delete this.cache.ENABLE;
-      delete this.cache.GET_WALLET_INFO;
+      this.cache = {};
     }
     if (this.cache.ENABLE) {
       return this.cache.ENABLE;
@@ -227,12 +279,22 @@ export class BrowserWallet {
         return Promise.resolve(status);
       }
       if (status === 'PIN_REQUIRED') {
-        return this.iFrameConnector.enterPin();
+        return this.iFrameConnector.enterPin().then((status) => {
+          if (status === 'DISCONNECT') {
+            this.cache = {};
+            throw new DisconnectError();
+          }
+          return status;
+        });
       }
       if (status === 'SEED_REQUIRED') {
-        return this.iFrameConnector.addOrGenerateSeed();
+        return this.iFrameConnector.addOrGenerateSeed().catch(() => {
+          this.cache = {};
+          throw new DisconnectError();
+        });
       }
-      throw new Error('impossible');
+      this.cache = {};
+      throw new DisconnectError('impossible');
     });
     this.cache.ENABLE = result;
 
