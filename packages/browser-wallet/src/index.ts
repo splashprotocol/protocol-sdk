@@ -97,6 +97,14 @@ export * from './operations/setTheme/setThemeReq/setThemeReqValidator.ts';
 export * from './operations/setTheme/setThemeRes/setThemeResValidator.ts';
 export * from './operations/setTheme/setThemeRes/createSetThemeRes.ts';
 
+export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseErr.ts';
+export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseReq.ts';
+export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseRes.ts';
+export * from './operations/removeSeedPhrase/removeSeedPhraseReq/createRemoveSeedPhraseReq.ts';
+export * from './operations/removeSeedPhrase/removeSeedPhraseReq/removeSeedPhraseReqValidator.ts';
+export * from './operations/removeSeedPhrase/removeSeedPhraseRes/createRemoveSeedPhraseRes.ts';
+export * from './operations/removeSeedPhrase/removeSeedPhraseRes/removeSeedPhraseResValidator.ts';
+
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';
 

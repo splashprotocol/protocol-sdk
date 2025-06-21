@@ -24,6 +24,9 @@ import { SignTxErr } from './signTx/types/SignTxErr.ts';
 import { SetThemeRes } from './setTheme/types/SetThemeRes.ts';
 import { SetThemeReq } from './setTheme/types/SetThemeReq.ts';
 import { SetThemeErr } from './setTheme/types/SetThemeErr.ts';
+import { RemoveSeedPhraseRes } from './removeSeedPhrase/types/RemoveSeedPhraseRes.ts';
+import { RemoveSeedPhraseReq } from './removeSeedPhrase/types/RemoveSeedPhraseReq.ts';
+import { RemoveSeedPhraseErr } from './removeSeedPhrase/types/RemoveSeedPhraseErr.ts';
 
 export type AnyRes =
   | GetWalletStatusRes
@@ -34,7 +37,8 @@ export type AnyRes =
   | GetWalletInfoRes
   | SignDataRes
   | SignTxRes
-  | SetThemeRes;
+  | SetThemeRes
+  | RemoveSeedPhraseRes;
 
 export type AnyReq =
   | GetWalletStatusReq
@@ -44,7 +48,8 @@ export type AnyReq =
   | GetWalletInfoReq
   | SignDataReq
   | SignTxReq
-  | SetThemeReq;
+  | SetThemeReq
+  | RemoveSeedPhraseReq;
 
 export type AnyErr =
   | GetWalletStatusErr
@@ -54,4 +59,5 @@ export type AnyErr =
   | GetWalletInfoErr
   | SignDataErr
   | SignTxErr
-  | SetThemeErr;
+  | SetThemeErr
+  | RemoveSeedPhraseErr;

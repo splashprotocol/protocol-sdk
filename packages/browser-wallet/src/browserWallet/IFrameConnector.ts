@@ -46,6 +46,9 @@ import { SetThemeRes } from '../operations/setTheme/types/SetThemeRes.ts';
 import { createSetThemeReq } from '../operations/setTheme/setThemeReq/createSetThemeReq.ts';
 import { setThemeResValidator } from '../operations/setTheme/setThemeRes/setThemeResValidator.ts';
 import { Theme } from '../operations/setTheme/types/Theme.ts';
+import { RemoveSeedPhraseRes } from '../operations/removeSeedPhrase/types/RemoveSeedPhraseRes.ts';
+import { createRemoveSeedPhraseReq } from '../operations/removeSeedPhrase/removeSeedPhraseReq/createRemoveSeedPhraseReq.ts';
+import { removeSeddPhraseResValidator } from '../operations/removeSeedPhrase/removeSeedPhraseRes/removeSeedPhraseResValidator.ts';
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -67,7 +70,8 @@ export interface IFrameConnectorResponse {
   enterPin(): Promise<PinStatus>;
   getWalletInfo(): Promise<WalletInfo>;
   signData(payload: Uint8Array): Promise<DataSignature>;
-  signTx(TxCbor: CborHexString);
+  signTx(TxCbor: CborHexString): Promise<CborHexString>;
+  removeSeedPhrase(): Promise<WalletStatus>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -295,6 +299,32 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     async destroy() {
       await clearSession();
       window.removeEventListener('message', messageHandler);
+    },
+    async removeSeedPhrase(): Promise<WalletStatus> {
+      return new Promise<RemoveSeedPhraseRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) =>
+            createRemoveSeedPhraseReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+            }),
+          resolve,
+          reject,
+          operationType: 'REMOVE_SEED',
+          requestId,
+          validator: (event, deviceId) =>
+            removeSeddPhraseResValidator({
+              event: event as unknown as MessageEvent<RemoveSeedPhraseRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((data) => data.payload);
     },
     async setTheme(theme: Theme): Promise<void> {
       return new Promise<SetThemeRes>(async (resolve, reject) => {
