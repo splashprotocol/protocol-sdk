@@ -101,6 +101,34 @@ export class BaseAddress implements Address {
     });
   }
 
+  fromCredentials(network: 0 | 1, payment: Credential, stake: Credential) {
+    const words = Uint8Array.from([
+      ...Uint8Array.from([
+        packKind(AddressKind.BasePaymentKeyStakeKey) | network!,
+      ]),
+      ...hexToBytes(payment.hash),
+      ...hexToBytes(stake.hash),
+    ]);
+    const bech32Address = bech32.encode(
+      getBech32Prefix(AddressKind.BasePaymentKeyStakeKey, network),
+      words,
+      BECH32_LIMIT,
+    );
+    const hex = bytesToHex(
+      Uint8Array.from(
+        bech32.fromWords(bech32.decode(bech32Address, BECH32_LIMIT).words),
+      ),
+    );
+
+    return new BaseAddress({
+      bech32: bech32Address,
+      hex,
+      payment,
+      stake,
+      network,
+    });
+  }
+
   readonly payment: Credential;
 
   readonly stake: Credential;

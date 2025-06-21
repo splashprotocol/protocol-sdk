@@ -147,14 +147,6 @@ export class BrowserWallet {
     return result;
   }
 
-  async signAndSubmitTx(cbor: CborHexString) {
-    return this.signTx(cbor).then((witness) => {
-      console.log(witness);
-
-      return this.submitTx();
-    });
-  }
-
   async submitTx() {
     console.log(this.config.relay);
   }
@@ -180,15 +172,19 @@ export class BrowserWallet {
     return this.enable().then(() => this.iFrameConnector.signData(data));
   }
 
-  async getPublicKey(): Promise<Bech32String> {
+  // async getAddress(): Promise<Bech32String> {
+  //   return this.getWalletInfo().then((walletInfo) => BaseAddress.fromCredentials());
+  // }
+
+  async getPublicKey(): Promise<HexString> {
     return this.getWalletInfo().then((walletInfo) => walletInfo.publicKey);
   }
 
-  async getPaymentKeyHash(): Promise<Bech32String> {
+  async getPaymentKeyHash(): Promise<HexString> {
     return this.getWalletInfo().then((walletInfo) => walletInfo.pkh);
   }
 
-  async getStakeKeyHash(): Promise<Bech32String> {
+  async getStakeKeyHash(): Promise<HexString> {
     return this.getWalletInfo().then((walletInfo) => walletInfo.skh);
   }
 
