@@ -2,9 +2,11 @@ import { IFrameConnector, IFrameConnectorResponse } from './IFrameConnector.ts';
 import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
 import { PinStatus } from '../operations/enterPin/types/PinStatus.ts';
 import {
+  AssetInfo,
   Bech32String,
   CborHexString,
   Currencies,
+  Currency,
   HexString,
   Network,
   uint,
@@ -40,7 +42,7 @@ interface WalletUTxO {
   readonly address: Bech32String;
   readonly txHash: HexString;
   readonly index: string;
-  readonly value: WalletUTxOValue;
+  readonly value: WalletUTxOValue[];
 }
 
 export class BrowserWallet {
@@ -78,16 +80,31 @@ export class BrowserWallet {
     if (this.cache.GET_BALANCE) {
       return this.cache.GET_BALANCE;
     }
-    const result = Promise.resolve(Currencies.empty).then((balance) => {
-      delete this.cache.GET_BALANCE;
-      return balance;
-    });
+    const result = this.getUTxOs()
+      .then((uTxOs) => {
+        return uTxOs.reduce((balance, uTxO) => {
+          return balance.plus(
+            uTxO.value.map((item) =>
+              Currency.new(
+                BigInt(item.amount),
+                item.policyId === '' && item.base16Name === ''
+                  ? AssetInfo.ada
+                  : AssetInfo.fromBase16(item.policyId, item.base16Name),
+              ),
+            ),
+          );
+        }, Currencies.empty);
+      })
+      .then((balance) => {
+        delete this.cache.GET_BALANCE;
+        return balance;
+      });
     this.cache.GET_BALANCE = result;
 
     return result;
   }
 
-  async getUTxOs() {
+  async getUTxOs(): Promise<WalletUTxO[]> {
     if (this.cache.GET_UTXO) {
       return this.cache.GET_UTXO;
     }
