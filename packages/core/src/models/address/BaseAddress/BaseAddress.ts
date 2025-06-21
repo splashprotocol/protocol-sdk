@@ -101,7 +101,11 @@ export class BaseAddress implements Address {
     });
   }
 
-  fromCredentials(network: 0 | 1, payment: Credential, stake: Credential) {
+  static fromCredentials(
+    network: 0 | 1,
+    payment: Credential,
+    stake: Credential,
+  ): BaseAddress {
     const words = Uint8Array.from([
       ...Uint8Array.from([
         packKind(AddressKind.BasePaymentKeyStakeKey) | network!,
