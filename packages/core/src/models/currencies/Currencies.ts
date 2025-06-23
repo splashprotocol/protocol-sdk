@@ -11,7 +11,9 @@ export class Currencies {
    * empty currencies structure
    * @returns {Currencies}
    */
-  static empty = this.new([]);
+  static get empty(): Currencies {
+    return Currencies.new([]);
+  }
 
   /**
    * Produce Currencies structure instance

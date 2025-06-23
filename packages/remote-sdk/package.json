@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/remote-sdk",
-  "version": "2.0.0-beta.61",
+  "version": "2.0.0-beta.63",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -18,10 +18,10 @@
   },
   "private": false,
   "dependencies": {
-    "@splashprotocol/remote-builder": "2.0.0-beta.71",
-    "@splashprotocol/api": "2.0.0-beta.48",
-    "@splashprotocol/core": "2.0.0-beta.17",
-    "@splashprotocol/browser-wallet": "1.0.0-beta.12"
+    "@splashprotocol/remote-builder": "2.0.0-beta.73",
+    "@splashprotocol/api": "2.0.0-beta.50",
+    "@splashprotocol/core": "2.0.0-beta.19",
+    "@splashprotocol/browser-wallet": "1.0.0-beta.14"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",
