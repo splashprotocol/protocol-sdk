@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "2.0.0-beta.116",
+  "version": "2.0.0-beta.117",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -18,10 +18,10 @@
   },
   "private": false,
   "dependencies": {
-    "@splashprotocol/cml-builder": "2.0.0-beta.120",
-    "@splashprotocol/api": "2.0.0-beta.50",
+    "@splashprotocol/cml-builder": "2.0.0-beta.121",
+    "@splashprotocol/api": "2.0.0-beta.51",
     "@splashprotocol/core": "2.0.0-beta.19",
-    "@splashprotocol/browser-wallet": "1.0.0-beta.40"
+    "@splashprotocol/browser-wallet": "1.0.0-beta.15"
   },
   "devDependencies": {
     "@types/jest": "^29.5.13",

@@ -132,7 +132,7 @@ export class BrowserWallet {
           Accept: 'application/json',
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pkh, offset, limit }),
+        body: JSON.stringify({ pkh, offset, limit, query: 'Unspent' }),
       })
         .then((res) => res.json())
         .then((uTxODataConfigs: WalletUTxO[]) => {
