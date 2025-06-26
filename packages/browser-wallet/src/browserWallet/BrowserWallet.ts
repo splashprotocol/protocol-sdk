@@ -172,7 +172,13 @@ export class BrowserWallet {
       return this.cache.GET_STATUS;
     }
     const result = this.iFrameConnector.getStatus().then((status) => {
-      delete this.cache.GET_STATUS;
+      setTimeout(
+        () => {
+          console.log('clear status');
+          delete this.cache.GET_STATUS;
+        },
+        10 * 60 * 1000,
+      );
       return status;
     });
     this.cache.GET_STATUS = result;
@@ -252,11 +258,11 @@ export class BrowserWallet {
     const result = this.enable()
       .then(() => this.iFrameConnector.removeSeedPhrase())
       .then((status) => {
-        delete this.cache.UNBIND_SEED;
+        this.cache = {};
         return status;
       })
       .catch((err) => {
-        delete this.cache.UNBIND_SEED;
+        this.cache = {};
 
         throw err;
       });

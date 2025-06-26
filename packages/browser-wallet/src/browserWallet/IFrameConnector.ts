@@ -101,6 +101,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     iFrame = document.createElement('iframe');
     iFrame.id = IFRAME_ID;
     iFrame.src = iframeUrl;
+    iFrame.allow = 'clipboard-write';
     iFrame.style.height = '100vh';
     iFrame.style.width = '100vw';
     iFrame.style.position = 'fixed';

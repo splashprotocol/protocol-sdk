@@ -7,7 +7,6 @@ export const getDeviceId = async () => {
       audio: data.audio,
       canvas: data.canvas,
       deviceName: data.deviceName,
-      fonts: data.fonts,
       hardware: data.hardware,
       locales: data.locales,
       system: data.system,
