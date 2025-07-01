@@ -26,6 +26,7 @@ export interface BrowserWalletBaseConfig {
 export interface BrowserConfig extends BrowserWalletBaseConfig {
   readonly walletUrl: string;
   readonly uTxOMonitorUrl: string;
+  readonly submitUrl: string;
 }
 
 type CacheKey =
@@ -60,6 +61,7 @@ export class BrowserWallet {
     return new BrowserWallet({
       walletUrl: '',
       uTxOMonitorUrl: '',
+      submitUrl: '',
       ...config,
     });
   }
@@ -163,10 +165,6 @@ export class BrowserWallet {
     return result;
   }
 
-  async submitTx() {
-    console.log(this.config.relay);
-  }
-
   async getStatus(): Promise<WalletStatus> {
     if (this.cache.GET_STATUS) {
       return this.cache.GET_STATUS;
@@ -184,6 +182,31 @@ export class BrowserWallet {
     this.cache.GET_STATUS = result;
 
     return result;
+  }
+
+  async submitTx(cbor: CborHexString): Promise<HexString> {
+    return this.getAddress()
+      .then((changeAddress) => {
+        return fetch(this.config.submitUrl, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({
+            cbor,
+            changeAddress,
+            withSplashWallet: true,
+          }),
+        });
+      })
+      .then(async (res) => {
+        const text = await res.text();
+        if (res.ok) {
+          return text;
+        } else {
+          throw new Error(text);
+        }
+      });
   }
 
   async signTx(cbor: CborHexString): Promise<CborHexString> {

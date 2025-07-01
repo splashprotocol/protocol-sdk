@@ -215,7 +215,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           maxRps: 30,
           maxErrorCount: 10,
         });
-        iFrame!.contentWindow!.location.reload();
+        iFrame.src += '';
       } else if (terminate === 'session') {
         await startSession();
       }

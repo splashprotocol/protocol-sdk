@@ -9,7 +9,6 @@ export const getDeviceId = async () => {
       deviceName: data.deviceName,
       hardware: data.hardware,
       locales: data.locales,
-      system: data.system,
       webgl: data.webgl,
     });
   });
