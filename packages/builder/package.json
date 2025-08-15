@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/cml-builder",
-  "version": "2.0.0-beta.127",
+  "version": "2.0.0-beta.129",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -42,8 +42,8 @@
     "ramda": "^0.30.1"
   },
   "peerDependencies": {
-    "@splashprotocol/api": "2.0.0-beta.57",
+    "@splashprotocol/api": "2.0.0-beta.58",
     "@splashprotocol/core": "2.0.0-beta.19",
-    "@splashprotocol/browser-wallet": "1.0.0-beta.21"
+    "@splashprotocol/browser-wallet": "1.0.0-beta.22"
   }
 }
