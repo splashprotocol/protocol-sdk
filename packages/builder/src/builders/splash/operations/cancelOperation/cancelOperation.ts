@@ -158,6 +158,7 @@ const splashOperationDeserializers: {
   spotOrderV2: anySpotOrderDeserializer,
   spotOrderV3: anySpotOrderDeserializer,
   snekfunOrder: anySpotOrderDeserializer,
+  snekfunOrderV2: anySpotOrderDeserializer,
   redeemFeeSwitch: anyRedeemDeserializer,
   redeemWeighted: anyRedeemDeserializer,
   redeemWeightedV2: anyRedeemDeserializer,

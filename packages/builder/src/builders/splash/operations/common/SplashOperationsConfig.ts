@@ -52,6 +52,7 @@ export interface SplashOperationsConfig {
     readonly swapDefault: SplashOperation;
     readonly depositWeighted: SplashOperation;
     readonly snekfunOrder: SplashSpotOrder;
+    readonly snekfunOrderV2: SplashSpotOrderV2;
     readonly depositWeightedOld: SplashOperation;
     readonly depositStable: SplashOperation;
     readonly depositRoyalty: SplashOperation;
