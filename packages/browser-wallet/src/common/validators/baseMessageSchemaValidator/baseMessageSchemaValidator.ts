@@ -1,6 +1,7 @@
 import { BaseSuccessResponse } from '../../types/SuccessResponse.ts';
 import { ErrorResponse } from '../../types/ErrorResponse.ts';
 import { BaseRequest } from '../../types/Request.ts';
+import { isWalletOperation } from '../../utils/isWalletOperation/isWalletOperation.ts';
 
 export const baseMessageSchemaValidator = (
   requestOrResponse:
@@ -30,10 +31,14 @@ export const baseMessageSchemaValidator = (
     throw new Error(invalidSchemaErrorMessage);
   }
   if (
-    !requestOrResponse.requestId &&
+    !requestOrResponse.requestId ||
     typeof requestOrResponse.requestId !== 'string'
   ) {
     throw new Error(invalidSchemaErrorMessage);
   }
+  if (!isWalletOperation(requestOrResponse)) {
+    throw new Error(invalidSchemaErrorMessage);
+  }
+
   return true;
 };

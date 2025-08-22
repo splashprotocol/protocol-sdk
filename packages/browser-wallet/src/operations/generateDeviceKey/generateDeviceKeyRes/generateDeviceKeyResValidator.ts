@@ -44,12 +44,12 @@ export const generateDeviceKeyResValidator = async ({
   ) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
-  if (typeof payload.publicKey !== 'string') {
+  if (!(payload.publicKey instanceof Uint8Array)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
 
   if (payload.storageAccess === 'restricted') {
-    if (typeof payload.privateKey !== 'string') {
+    if (!(payload.privateKey instanceof Uint8Array)) {
       throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
     }
   } else if (payload.storageAccess === 'allowed') {
