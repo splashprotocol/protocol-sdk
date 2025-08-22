@@ -223,6 +223,18 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
   };
 
   const messageHandler = async (event: MessageEvent<AnyRes | AnyErr>) => {
+    try {
+      const expectedOrigin = new URL(iframeUrl).origin;
+      if (event.origin !== expectedOrigin) {
+        return;
+      }
+    } catch (error) {
+      console.error('Invalid iframe URL:', iframeUrl);
+      return;
+    }
+    if (event.source !== iFrame.contentWindow) {
+      return;
+    }
     if (!isWalletOperation(event.data)) {
       return;
     }
@@ -249,16 +261,15 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       );
       return;
     }
-    
-    // 🔒 ЗАЩИТА: Безопасное логирование операций
+
     if (process.env.NODE_ENV === 'development') {
       console.debug('Wallet message received:', {
         type: event.data.type,
         requestId: event.data.requestId,
-        kind: event.data.kind
+        kind: event.data.kind,
       });
     }
-    
+
     if (event.data.type === 'READY') {
       try {
         await readyResValidator({
