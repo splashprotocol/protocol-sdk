@@ -10,7 +10,7 @@ test('errorMessageSchemaValidator should pass validation with valid error messag
     kind: 'error',
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -26,7 +26,7 @@ test('errorMessageSchemaValidator should fail validation with wrong kind', () =>
     kind: 'success',
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -41,7 +41,7 @@ test('errorMessageSchemaValidator should fail validation with missing kind', () 
     timestamp: Date.now(),
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -56,7 +56,7 @@ test('errorMessageSchemaValidator should fail validation with missing deviceId',
     timestamp: Date.now(),
     kind: 'error',
     message: 'Test error message',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -71,7 +71,7 @@ test('errorMessageSchemaValidator should fail validation with missing nonce', ()
     timestamp: Date.now(),
     kind: 'error',
     message: 'Test error message',
-    deviceId: 'test-device-id'
+    deviceId: 'test-device-id',
   } as any;
 
   expect(() => {
@@ -86,7 +86,7 @@ test('errorMessageSchemaValidator should fail validation with missing timestamp'
     kind: 'error',
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -101,7 +101,7 @@ test('errorMessageSchemaValidator should fail validation with missing requestId'
     kind: 'error',
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -117,7 +117,7 @@ test('errorMessageSchemaValidator should fail validation with invalid operation 
     kind: 'error',
     message: 'Test error message',
     deviceId: 'test-device-id',
-    nonce: generateNonce()
+    nonce: generateNonce(),
   } as any;
 
   expect(() => {
@@ -127,7 +127,7 @@ test('errorMessageSchemaValidator should fail validation with invalid operation 
 
 test('errorMessageSchemaValidator should use custom error message', () => {
   const invalidMessage = {
-    kind: 'success'
+    kind: 'success',
   } as any;
 
   expect(() => {

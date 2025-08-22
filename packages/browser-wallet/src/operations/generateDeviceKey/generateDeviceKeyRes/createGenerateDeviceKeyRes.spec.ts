@@ -12,8 +12,8 @@ beforeEach(async () => {
   keyPair = await CommunicationKeyPair.create();
   mockSession = {
     communicationResponseKeys: {
-      privateKey: keyPair.privateKey
-    }
+      privateKey: keyPair.privateKey,
+    },
   } as Session;
 });
 
@@ -24,14 +24,14 @@ afterEach(async () => {
 test('createGenerateDeviceKeyRes should create valid response with allowed storage access', async () => {
   const payload: DeviceKeyResult = {
     storageAccess: 'allowed',
-    publicKey: new Uint8Array([1, 2, 3, 4, 5])
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
   };
 
   const response = await createGenerateDeviceKeyRes({
     deviceId: 'test-device-id',
     requestId: '123e4567-e89b-12d3-a456-426614174000',
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response.type).toBe('GENERATE_DEVICE_KEY');
@@ -48,14 +48,14 @@ test('createGenerateDeviceKeyRes should create valid response with restricted st
   const payload: DeviceKeyResult = {
     storageAccess: 'restricted',
     publicKey: new Uint8Array([1, 2, 3, 4, 5]),
-    privateKey: new Uint8Array([6, 7, 8, 9, 10])
+    privateKey: new Uint8Array([6, 7, 8, 9, 10]),
   };
 
   const response = await createGenerateDeviceKeyRes({
     deviceId: 'test-device-id',
     requestId: '123e4567-e89b-12d3-a456-426614174001',
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response.type).toBe('GENERATE_DEVICE_KEY');
@@ -71,21 +71,21 @@ test('createGenerateDeviceKeyRes should create valid response with restricted st
 test('createGenerateDeviceKeyRes should create responses with unique nonces and requestIds', async () => {
   const payload: DeviceKeyResult = {
     storageAccess: 'allowed',
-    publicKey: new Uint8Array([1, 2, 3, 4, 5])
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
   };
 
   const response1 = await createGenerateDeviceKeyRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
     session: mockSession,
-    payload
+    payload,
   });
 
   const response2 = await createGenerateDeviceKeyRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response1.nonce).not.toBe(response2.nonce);
@@ -98,14 +98,14 @@ test('createGenerateDeviceKeyRes should create valid signature that can be verif
   const deviceId = 'test-device-id';
   const payload: DeviceKeyResult = {
     storageAccess: 'allowed',
-    publicKey: new Uint8Array([1, 2, 3, 4, 5])
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
   };
 
   const response = await createGenerateDeviceKeyRes({
     requestId,
     deviceId,
     session: mockSession,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -113,12 +113,12 @@ test('createGenerateDeviceKeyRes should create valid signature that can be verif
     response.timestamp,
     deviceId,
     requestId,
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -130,21 +130,21 @@ test('createGenerateDeviceKeyRes should create different signatures for differen
   const requestId = '123e4567-e89b-12d3-a456-426614174003';
   const payload: DeviceKeyResult = {
     storageAccess: 'allowed',
-    publicKey: new Uint8Array([1, 2, 3, 4, 5])
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
   };
 
   const response1 = await createGenerateDeviceKeyRes({
     requestId,
     deviceId: 'device-id-1',
     session: mockSession,
-    payload
+    payload,
   });
 
   const response2 = await createGenerateDeviceKeyRes({
     requestId,
     deviceId: 'device-id-2',
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response1.signature).not.toEqual(response2.signature);
@@ -156,14 +156,14 @@ test('createGenerateDeviceKeyRes signature should fail verification with wrong p
   const wrongKeyPair = await CommunicationKeyPair.create();
   const payload: DeviceKeyResult = {
     storageAccess: 'allowed',
-    publicKey: new Uint8Array([1, 2, 3, 4, 5])
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
   };
 
   const response = await createGenerateDeviceKeyRes({
     requestId: '123e4567-e89b-12d3-a456-426614174004',
     deviceId: 'test-device-id',
     session: mockSession,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -171,12 +171,12 @@ test('createGenerateDeviceKeyRes signature should fail verification with wrong p
     response.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174004',
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(false);

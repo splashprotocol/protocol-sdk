@@ -13,14 +13,15 @@ afterEach(async () => {
 });
 
 test('createSignTxReq should create valid request with correct structure', async () => {
-  const payload = 'a400818258201234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef00018282581d60a1b2c3d4e5f6071819202122232425262728293031323334353637383900821a001e8480a1581c1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdefa14474657374';
+  const payload =
+    'a400818258201234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef00018282581d60a1b2c3d4e5f6071819202122232425262728293031323334353637383900821a001e8480a1581c1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdefa14474657374';
 
   const request = await createSignTxReq({
     requestId: '123e4567-e89b-12d3-a456-426614174000',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   expect(request.type).toBe('SIGN_TRANSACTION');
@@ -37,14 +38,15 @@ test('createSignTxReq should create valid signature that can be verified with pu
   const requestId = '123e4567-e89b-12d3-a456-426614174001';
   const deviceId = 'test-device-id';
   const sessionId = 'test-session-id';
-  const payload = 'a400818258201234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef00018282581d60a1b2c3d4e5f6071819202122232425262728293031323334353637383900821a001e8480a1581c1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdefa14474657374';
+  const payload =
+    'a400818258201234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef00018282581d60a1b2c3d4e5f6071819202122232425262728293031323334353637383900821a001e8480a1581c1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdefa14474657374';
 
   const request = await createSignTxReq({
     requestId,
     deviceId,
     keyPair,
     sessionId,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -52,12 +54,12 @@ test('createSignTxReq should create valid signature that can be verified with pu
     request.timestamp,
     deviceId,
     requestId,
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -73,7 +75,7 @@ test('createSignTxReq should create different signatures for different transacti
     deviceId,
     keyPair,
     sessionId,
-    payload: 'tx1-cbor-hex'
+    payload: 'tx1-cbor-hex',
   });
 
   const request2 = await createSignTxReq({
@@ -81,7 +83,7 @@ test('createSignTxReq should create different signatures for different transacti
     deviceId,
     keyPair,
     sessionId,
-    payload: 'tx2-cbor-hex'
+    payload: 'tx2-cbor-hex',
   });
 
   expect(request1.signature).not.toEqual(request2.signature);
@@ -92,13 +94,13 @@ test('createSignTxReq should create different signatures for different transacti
 test('createSignTxReq signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
   const payload = 'test-transaction-cbor';
-  
+
   const request = await createSignTxReq({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -106,15 +108,15 @@ test('createSignTxReq signature should fail verification with wrong public key',
     request.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(false);
-  
+
   await wrongKeyPair.destroy();
 });

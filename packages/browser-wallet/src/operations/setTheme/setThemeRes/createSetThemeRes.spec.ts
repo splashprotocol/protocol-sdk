@@ -11,8 +11,8 @@ beforeEach(async () => {
   keyPair = await CommunicationKeyPair.create();
   mockSession = {
     communicationResponseKeys: {
-      privateKey: keyPair.privateKey
-    }
+      privateKey: keyPair.privateKey,
+    },
   } as Session;
 });
 
@@ -24,7 +24,7 @@ test('createSetThemeRes should create valid response with correct structure', as
   const response = await createSetThemeRes({
     deviceId: 'test-device-id',
     requestId: '123e4567-e89b-12d3-a456-426614174000',
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response.type).toBe('SET_THEME');
@@ -41,13 +41,13 @@ test('createSetThemeRes should create responses with unique nonces and requestId
   const response1 = await createSetThemeRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   const response2 = await createSetThemeRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response1.nonce).not.toBe(response2.nonce);
@@ -62,7 +62,7 @@ test('createSetThemeRes should create valid signature that can be verified with 
   const response = await createSetThemeRes({
     requestId,
     deviceId,
-    session: mockSession
+    session: mockSession,
   });
 
   const messageForSign = generateMessageForSign(
@@ -70,12 +70,12 @@ test('createSetThemeRes should create valid signature that can be verified with 
     response.timestamp,
     deviceId,
     requestId,
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -89,13 +89,13 @@ test('createSetThemeRes should create different signatures for different deviceI
   const response1 = await createSetThemeRes({
     requestId,
     deviceId: 'device-id-1',
-    session: mockSession
+    session: mockSession,
   });
 
   const response2 = await createSetThemeRes({
     requestId,
     deviceId: 'device-id-2',
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response1.signature).not.toEqual(response2.signature);
@@ -109,7 +109,7 @@ test('createSetThemeRes signature should fail verification with wrong public key
   const response = await createSetThemeRes({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
-    session: mockSession
+    session: mockSession,
   });
 
   const messageForSign = generateMessageForSign(
@@ -117,12 +117,12 @@ test('createSetThemeRes signature should fail verification with wrong public key
     response.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(false);
@@ -134,13 +134,13 @@ test('createSetThemeRes should always have undefined payload', async () => {
   const response1 = await createSetThemeRes({
     deviceId: 'test-device-id-1',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   const response2 = await createSetThemeRes({
     deviceId: 'test-device-id-2',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response1.payload).toBeUndefined();

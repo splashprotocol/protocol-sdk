@@ -28,8 +28,6 @@ export * from './operations/ready/types/ReadyRes.ts';
 export * from './operations/ready/readySuccessResponse/readyResValidator.ts';
 export * from './operations/ready/readySuccessResponse/createReadyRes.ts';
 
-
-
 export * from './operations/startSession/types/StartSessionReq.ts';
 export * from './operations/startSession/types/StartSessionRes.ts';
 export * from './operations/startSession/types/StartSessionErr.ts';
@@ -57,7 +55,6 @@ export * from './operations/generateDeviceKey/generateDeviceKeyReq/createGenerat
 export * from './operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
 export * from './operations/generateDeviceKey/generateDeviceKeyRes/createGenerateDeviceKeyRes.ts';
 
-
 export * from './operations/signData/types/SignDataErr.ts';
 export * from './operations/signData/types/SignDataReq.ts';
 export * from './operations/signData/types/SignDataRes.ts';
@@ -83,8 +80,6 @@ export * from './operations/setTheme/setThemeReq/createSetThemeReq.ts';
 export * from './operations/setTheme/setThemeReq/setThemeReqValidator.ts';
 export * from './operations/setTheme/setThemeRes/setThemeResValidator.ts';
 export * from './operations/setTheme/setThemeRes/createSetThemeRes.ts';
-
-
 
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';

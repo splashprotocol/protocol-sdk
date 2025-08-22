@@ -13,8 +13,8 @@ beforeEach(async () => {
     id: { data: 'test-session-id' },
     communicationResponseKeys: {
       privateKey: keyPair.privateKey,
-      publicKey: keyPair.publicKey
-    }
+      publicKey: keyPair.publicKey,
+    },
   } as Session;
 });
 
@@ -26,7 +26,7 @@ test('createStartSessionRes should create valid response with correct structure'
   const response = await createStartSessionRes({
     deviceId: 'test-device-id',
     requestId: '123e4567-e89b-12d3-a456-426614174000',
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response.type).toBe('START_SESSION');
@@ -44,13 +44,13 @@ test('createStartSessionRes should create responses with unique nonces and reque
   const response1 = await createStartSessionRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   const response2 = await createStartSessionRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response1.nonce).not.toBe(response2.nonce);
@@ -65,7 +65,7 @@ test('createStartSessionRes should create valid signature that can be verified w
   const response = await createStartSessionRes({
     requestId,
     deviceId,
-    session: mockSession
+    session: mockSession,
   });
 
   const messageForSign = generateMessageForSign(
@@ -73,12 +73,12 @@ test('createStartSessionRes should create valid signature that can be verified w
     response.timestamp,
     deviceId,
     requestId,
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -92,13 +92,13 @@ test('createStartSessionRes should create different signatures for different dev
   const response1 = await createStartSessionRes({
     requestId,
     deviceId: 'device-id-1',
-    session: mockSession
+    session: mockSession,
   });
 
   const response2 = await createStartSessionRes({
     requestId,
     deviceId: 'device-id-2',
-    session: mockSession
+    session: mockSession,
   });
 
   expect(response1.signature).not.toEqual(response2.signature);
@@ -112,7 +112,7 @@ test('createStartSessionRes signature should fail verification with wrong public
   const response = await createStartSessionRes({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
-    session: mockSession
+    session: mockSession,
   });
 
   const messageForSign = generateMessageForSign(
@@ -120,12 +120,12 @@ test('createStartSessionRes signature should fail verification with wrong public
     response.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(false);
@@ -137,7 +137,7 @@ test('createStartSessionRes should use public key from session as payload', asyn
   const response = await createStartSessionRes({
     requestId: '123e4567-e89b-12d3-a456-426614174004',
     deviceId: 'test-device-id',
-    session: mockSession
+    session: mockSession,
   });
 
   const expectedPayload = await keyPair.publicKey.toBytes();

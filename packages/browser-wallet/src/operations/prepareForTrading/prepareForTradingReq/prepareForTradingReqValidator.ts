@@ -18,29 +18,37 @@ export interface PrepareForTradingReqValidatorParams {
   readonly session: Session;
 }
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID PREPARE FOR TRADING REQUEST SCHEMA';
+const INVALID_SCHEMA_ERROR_MESSAGE =
+  'INVALID PREPARE FOR TRADING REQUEST SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID PREPARE FOR TRADING REQUEST TYPE';
 
 const validateSeedData = (seed: any): boolean => {
   if (seed === undefined) return true;
-  return seed &&
+  return (
+    seed &&
     seed.iv instanceof Uint8Array &&
     seed.salt instanceof Uint8Array &&
-    seed.ciphertext instanceof Uint8Array;
+    seed.ciphertext instanceof Uint8Array
+  );
 };
 
 const validateSessionData = (session: any): boolean => {
   if (session === undefined) return true;
-  return session &&
+  return (
+    session &&
     session.iv instanceof Uint8Array &&
     session.ciphertext instanceof Uint8Array &&
-    session.ephemeralPublicKey instanceof Uint8Array;
+    session.ephemeralPublicKey instanceof Uint8Array
+  );
 };
 
 const validateDeviceKeys = (deviceKeys: any): boolean => {
-  return deviceKeys &&
+  return (
+    deviceKeys &&
     deviceKeys.publicKey instanceof Uint8Array &&
-    (deviceKeys.privateKey === undefined || deviceKeys.privateKey instanceof Uint8Array);
+    (deviceKeys.privateKey === undefined ||
+      deviceKeys.privateKey instanceof Uint8Array)
+  );
 };
 
 export const prepareForTradingReqValidator = async ({
@@ -53,27 +61,27 @@ export const prepareForTradingReqValidator = async ({
   if (event.data.type !== 'PREPARE_FOR_TRADING') {
     throw new Error(INVALID_TYPE_ERROR_MESSAGE);
   }
-  
+
   baseMessageSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
-  
+
   // Validate payload structure
   const payload = event.data.payload;
   if (!payload) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
-  
+
   if (!validateSeedData(payload.seed)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
-  
+
   if (!validateSessionData(payload.session)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
-  
+
   if (!validateDeviceKeys(payload.deviceKeys)) {
     throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
   }
-  
+
   nonceValidator(event.data.nonce);
   timestampValidator(event.data.timestamp);
   requestIdValidator(event.data.requestId);
@@ -82,6 +90,6 @@ export const prepareForTradingReqValidator = async ({
   await signatureValidator(session.anotherSidePublicKey, event.data, deviceId);
   sourceValidator(expectedSource, event.source);
   deviceIdValidator(event.data.deviceId, deviceId);
-  
+
   return true;
 };

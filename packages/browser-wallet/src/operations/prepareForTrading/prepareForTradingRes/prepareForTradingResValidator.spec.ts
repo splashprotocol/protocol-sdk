@@ -15,49 +15,62 @@ afterEach(async () => {
   await keyPair.destroy();
 });
 
-const createValidPrepareForTradingRes = async (): Promise<PrepareForTradingRes> => {
-  const timestamp = Date.now();
-  const nonce = generateNonce();
-  const requestId = generateRequestId();
-  const deviceId = 'test-device-id';
-  const payload = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash'
-  };
-  
-  const messageForSign = generateMessageForSign(payload, timestamp, deviceId, requestId, nonce);
-  const signature = await keyPair.privateKey.sign(messageForSign);
-  
-  return {
-    type: 'PREPARE_FOR_TRADING',
-    kind: 'success',
-    deviceId,
-    timestamp,
-    nonce,
-    requestId,
-    signature,
-    payload
-  };
-};
+const createValidPrepareForTradingRes =
+  async (): Promise<PrepareForTradingRes> => {
+    const timestamp = Date.now();
+    const nonce = generateNonce();
+    const requestId = generateRequestId();
+    const deviceId = 'test-device-id';
+    const payload = {
+      pk: 'test-public-key-hex',
+      pkh: 'test-payment-key-hash',
+      skh: 'test-stake-key-hash',
+    };
 
-const createMockEvent = (data: PrepareForTradingRes, origin = 'https://trusted.com'): MessageEvent<PrepareForTradingRes> => ({
-  data,
-  origin,
-  source: {} as MessageEventSource
-} as MessageEvent<PrepareForTradingRes>);
+    const messageForSign = generateMessageForSign(
+      payload,
+      timestamp,
+      deviceId,
+      requestId,
+      nonce,
+    );
+    const signature = await keyPair.privateKey.sign(messageForSign);
+
+    return {
+      type: 'PREPARE_FOR_TRADING',
+      kind: 'success',
+      deviceId,
+      timestamp,
+      nonce,
+      requestId,
+      signature,
+      payload,
+    };
+  };
+
+const createMockEvent = (
+  data: PrepareForTradingRes,
+  origin = 'https://trusted.com',
+): MessageEvent<PrepareForTradingRes> =>
+  ({
+    data,
+    origin,
+    source: {} as MessageEventSource,
+  }) as MessageEvent<PrepareForTradingRes>;
 
 test('prepareForTradingResValidator should pass validation with valid payload', async () => {
   const validResponse = await createValidPrepareForTradingRes();
   const mockEvent = createMockEvent(validResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).resolves.toBe(true);
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).resolves.toBe(true);
 });
 
 test('prepareForTradingResValidator should fail validation with missing pk field', async () => {
@@ -67,18 +80,20 @@ test('prepareForTradingResValidator should fail validation with missing pk field
     payload: {
       // pk missing
       pkh: 'test-payment-key-hash',
-      skh: 'test-stake-key-hash'
-    } as any
+      skh: 'test-stake-key-hash',
+    } as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
 });
 
 test('prepareForTradingResValidator should fail validation with invalid pk type', async () => {
@@ -88,18 +103,20 @@ test('prepareForTradingResValidator should fail validation with invalid pk type'
     payload: {
       pk: 123, // Should be string
       pkh: 'test-payment-key-hash',
-      skh: 'test-stake-key-hash'
-    } as any
+      skh: 'test-stake-key-hash',
+    } as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
 });
 
 test('prepareForTradingResValidator should fail validation with missing pkh field', async () => {
@@ -109,18 +126,20 @@ test('prepareForTradingResValidator should fail validation with missing pkh fiel
     payload: {
       pk: 'test-public-key-hex',
       // pkh missing
-      skh: 'test-stake-key-hash'
-    } as any
+      skh: 'test-stake-key-hash',
+    } as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
 });
 
 test('prepareForTradingResValidator should fail validation with missing skh field', async () => {
@@ -129,47 +148,53 @@ test('prepareForTradingResValidator should fail validation with missing skh fiel
     ...validResponse,
     payload: {
       pk: 'test-public-key-hex',
-      pkh: 'test-payment-key-hash'
+      pkh: 'test-payment-key-hash',
       // skh missing
-    } as any
+    } as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE SCHEMA');
 });
 
 test('prepareForTradingResValidator should fail validation with wrong operation type', async () => {
   const validResponse = await createValidPrepareForTradingRes();
   const invalidResponse = {
     ...validResponse,
-    type: 'INVALID_TYPE' as any
+    type: 'INVALID_TYPE' as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE TYPE');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID PREPARE FOR TRADING SUCCESS RESPONSE TYPE');
 });
 
 test('prepareForTradingResValidator should fail validation with invalid origin', async () => {
   const validResponse = await createValidPrepareForTradingRes();
   const mockEvent = createMockEvent(validResponse, 'https://malicious.com');
 
-  await expect(prepareForTradingResValidator({
-    event: mockEvent,
-    deviceId: 'test-device-id',
-    validOrigins: ['https://trusted.com'],
-    expectedSource: mockEvent.source,
-    publicKey: keyPair.publicKey
-  })).rejects.toThrow('INVALID ORIGIN');
+  await expect(
+    prepareForTradingResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID ORIGIN');
 });

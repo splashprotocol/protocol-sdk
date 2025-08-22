@@ -8,6 +8,9 @@ export const errorMessageSchemaValidator = (
   if (errorResponse.kind !== 'error') {
     throw new Error(invalidSchemaErrorMessage);
   }
+  if (typeof errorResponse.message !== 'string') {
+    throw new Error(invalidSchemaErrorMessage);
+  }
   baseMessageSchemaValidator(errorResponse, invalidSchemaErrorMessage);
   return true;
 };

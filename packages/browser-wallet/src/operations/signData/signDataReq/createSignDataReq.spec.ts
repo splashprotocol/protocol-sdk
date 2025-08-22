@@ -21,7 +21,7 @@ test('createSignDataReq should create valid request with correct structure', asy
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   expect(request.type).toBe('SIGN_DATA');
@@ -45,7 +45,7 @@ test('createSignDataReq should create valid signature that can be verified with 
     deviceId,
     keyPair,
     sessionId,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -53,12 +53,12 @@ test('createSignDataReq should create valid signature that can be verified with 
     request.timestamp,
     deviceId,
     requestId,
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -72,7 +72,7 @@ test('createSignDataReq should create requests with unique nonces and requestIds
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   const request2 = await createSignDataReq({
@@ -80,7 +80,7 @@ test('createSignDataReq should create requests with unique nonces and requestIds
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   expect(request1.nonce).not.toBe(request2.nonce);
@@ -98,7 +98,7 @@ test('createSignDataReq should create different signatures for different payload
     deviceId,
     keyPair,
     sessionId,
-    payload: new Uint8Array([1, 2, 3, 4])
+    payload: new Uint8Array([1, 2, 3, 4]),
   });
 
   const request2 = await createSignDataReq({
@@ -106,7 +106,7 @@ test('createSignDataReq should create different signatures for different payload
     deviceId,
     keyPair,
     sessionId,
-    payload: new Uint8Array([5, 6, 7, 8])
+    payload: new Uint8Array([5, 6, 7, 8]),
   });
 
   expect(request1.signature).not.toEqual(request2.signature);
@@ -117,13 +117,13 @@ test('createSignDataReq should create different signatures for different payload
 test('createSignDataReq signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
   const payload = new Uint8Array([1, 2, 3, 4, 5]);
-  
+
   const request = await createSignDataReq({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -131,15 +131,15 @@ test('createSignDataReq signature should fail verification with wrong public key
     request.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(false);
-  
+
   await wrongKeyPair.destroy();
 });

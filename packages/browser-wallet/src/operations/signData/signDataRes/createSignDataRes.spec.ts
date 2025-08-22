@@ -12,8 +12,8 @@ beforeEach(async () => {
   keyPair = await CommunicationKeyPair.create();
   mockSession = {
     communicationResponseKeys: {
-      privateKey: keyPair.privateKey
-    }
+      privateKey: keyPair.privateKey,
+    },
   } as Session;
 });
 
@@ -23,15 +23,17 @@ afterEach(async () => {
 
 test('createSignDataRes should create valid response with correct structure', async () => {
   const payload: DataSignature = {
-    signature: '304502210098a1b2c3d4e5f6071819202122232425262728293031323334353637383940414243440220556677889900aabbccddeeff112233445566778899aabbccddeeff1122334455',
-    publicKey: 'a1b2c3d4e5f6071819202122232425262728293031323334353637383940414243'
+    signature:
+      '304502210098a1b2c3d4e5f6071819202122232425262728293031323334353637383940414243440220556677889900aabbccddeeff112233445566778899aabbccddeeff1122334455',
+    publicKey:
+      'a1b2c3d4e5f6071819202122232425262728293031323334353637383940414243',
   };
 
   const response = await createSignDataRes({
     deviceId: 'test-device-id',
     requestId: '123e4567-e89b-12d3-a456-426614174000',
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response.type).toBe('SIGN_DATA');
@@ -47,21 +49,21 @@ test('createSignDataRes should create valid response with correct structure', as
 test('createSignDataRes should create responses with unique nonces and requestIds', async () => {
   const payload: DataSignature = {
     signature: 'test-signature-hex',
-    publicKey: 'test-public-key-hex'
+    publicKey: 'test-public-key-hex',
   };
 
   const response1 = await createSignDataRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
     session: mockSession,
-    payload
+    payload,
   });
 
   const response2 = await createSignDataRes({
     deviceId: 'test-device-id',
     requestId: generateRequestId(),
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response1.nonce).not.toBe(response2.nonce);
@@ -74,14 +76,14 @@ test('createSignDataRes should create valid signature that can be verified with 
   const deviceId = 'test-device-id';
   const payload: DataSignature = {
     signature: 'test-signature-hex',
-    publicKey: 'test-public-key-hex'
+    publicKey: 'test-public-key-hex',
   };
 
   const response = await createSignDataRes({
     requestId,
     deviceId,
     session: mockSession,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -89,12 +91,12 @@ test('createSignDataRes should create valid signature that can be verified with 
     response.timestamp,
     deviceId,
     requestId,
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -106,21 +108,21 @@ test('createSignDataRes should create different signatures for different deviceI
   const requestId = '123e4567-e89b-12d3-a456-426614174002';
   const payload: DataSignature = {
     signature: 'test-signature-hex',
-    publicKey: 'test-public-key-hex'
+    publicKey: 'test-public-key-hex',
   };
 
   const response1 = await createSignDataRes({
     requestId,
     deviceId: 'device-id-1',
     session: mockSession,
-    payload
+    payload,
   });
 
   const response2 = await createSignDataRes({
     requestId,
     deviceId: 'device-id-2',
     session: mockSession,
-    payload
+    payload,
   });
 
   expect(response1.signature).not.toEqual(response2.signature);
@@ -132,14 +134,14 @@ test('createSignDataRes signature should fail verification with wrong public key
   const wrongKeyPair = await CommunicationKeyPair.create();
   const payload: DataSignature = {
     signature: 'test-signature-hex',
-    publicKey: 'test-public-key-hex'
+    publicKey: 'test-public-key-hex',
   };
 
   const response = await createSignDataRes({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
     session: mockSession,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -147,12 +149,12 @@ test('createSignDataRes signature should fail verification with wrong public key
     response.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    response.nonce
+    response.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    response.signature
+    response.signature,
   );
 
   expect(isSignatureValid).toBe(false);

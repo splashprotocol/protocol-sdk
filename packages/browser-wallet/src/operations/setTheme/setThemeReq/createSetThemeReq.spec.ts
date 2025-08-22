@@ -21,7 +21,7 @@ test('createSetThemeReq should create valid request with light theme', async () 
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload
+    payload,
   });
 
   expect(request.type).toBe('SET_THEME');
@@ -45,7 +45,7 @@ test('createSetThemeReq should create valid signature that can be verified with 
     deviceId,
     keyPair,
     sessionId,
-    payload
+    payload,
   });
 
   const messageForSign = generateMessageForSign(
@@ -53,12 +53,12 @@ test('createSetThemeReq should create valid signature that can be verified with 
     request.timestamp,
     deviceId,
     requestId,
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await keyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(true);
@@ -74,7 +74,7 @@ test('createSetThemeReq should create different signatures for different themes'
     deviceId,
     keyPair,
     sessionId,
-    payload: 'light'
+    payload: 'light',
   });
 
   const request2 = await createSetThemeReq({
@@ -82,7 +82,7 @@ test('createSetThemeReq should create different signatures for different themes'
     deviceId,
     keyPair,
     sessionId,
-    payload: 'dark'
+    payload: 'dark',
   });
 
   expect(request1.signature).not.toEqual(request2.signature);
@@ -92,13 +92,13 @@ test('createSetThemeReq should create different signatures for different themes'
 
 test('createSetThemeReq signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
-  
+
   const request = await createSetThemeReq({
     requestId: '123e4567-e89b-12d3-a456-426614174003',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
-    payload: 'light'
+    payload: 'light',
   });
 
   const messageForSign = generateMessageForSign(
@@ -106,15 +106,15 @@ test('createSetThemeReq signature should fail verification with wrong public key
     request.timestamp,
     'test-device-id',
     '123e4567-e89b-12d3-a456-426614174003',
-    request.nonce
+    request.nonce,
   );
 
   const isSignatureValid = await wrongKeyPair.publicKey.verify(
     messageForSign,
-    request.signature
+    request.signature,
   );
 
   expect(isSignatureValid).toBe(false);
-  
+
   await wrongKeyPair.destroy();
 });

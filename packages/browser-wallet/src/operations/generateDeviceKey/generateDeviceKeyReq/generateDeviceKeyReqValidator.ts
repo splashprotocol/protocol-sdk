@@ -18,7 +18,8 @@ export interface GenerateDeviceKeyReqValidatorParams {
   readonly session: Session;
 }
 
-const INVALID_SCHEMA_ERROR_MESSAGE = 'INVALID GENERATE DEVICE KEY REQUEST SCHEMA';
+const INVALID_SCHEMA_ERROR_MESSAGE =
+  'INVALID GENERATE DEVICE KEY REQUEST SCHEMA';
 const INVALID_TYPE_ERROR_MESSAGE = 'INVALID GENERATE DEVICE KEY REQUEST TYPE';
 
 export const generateDeviceKeyReqValidator = async ({
