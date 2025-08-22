@@ -7,8 +7,7 @@ import {
 import { AnyErr, AnyReq, AnyRes } from '../operations/AnyOperation.ts';
 import { getDeviceId } from '../common/utils/getDeviceId/getDeviceId.ts';
 import { createStartSessionReq } from '../operations/startSession/startSessionReq/createStartSessionReq.ts';
-import { createGetWalletStatusReq } from '../operations/getWalletStatus/getWalletStatusReq/createGetWalletStatusReq.ts';
-import { GetWalletStatusRes } from '../operations/getWalletStatus/types/GetWalletStatusRes.ts';
+
 import { isWalletOperation } from '../common/utils/isWalletOperation/isWalletOperation.ts';
 import {
   AnomalyAnalyzer,
@@ -20,21 +19,20 @@ import { startSessionResValidator } from '../operations/startSession/startSessio
 import { StartSessionRes } from '../operations/startSession/types/StartSessionRes.ts';
 import { errorResponseValidator } from '../common/validators/errorResponseValidator/errorResponseValidator.ts';
 import { ReadyRes } from '../operations/ready/types/ReadyRes.ts';
-import { WalletStatus } from '../operations/getWalletStatus/types/WalletStatus.ts';
-import { getWalletStatusResValidator } from '../operations/getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
+
 import { OperationType } from '../common/types/OperationType.ts';
+
 import { generateRequestId } from '../common/utils/generateRequestId/generateRequestId.ts';
-import { createSetSeedPhraseReq } from '../operations/setSeedPhrase/setSeedPhraseReq/createSetSeedPhraseReq.ts';
-import { SetSeedPhraseRes } from '../operations/setSeedPhrase/types/setSeedPhraseRes.ts';
-import { setSeedPhraseResValidator } from '../operations/setSeedPhrase/setSeedPhraseRes/setSeedPhraseResValidator.ts';
-import { EnterPinSuccessRes } from '../operations/enterPin/types/EnterPinSuccessRes.ts';
-import { createEnterPinReq } from '../operations/enterPin/enterPinReq/createEnterPinReq.ts';
-import { enterPinResValidator } from '../operations/enterPin/enterPinRes/enterPinResValidator.ts';
-import { PinStatus } from '../operations/enterPin/types/PinStatus.ts';
-import { WalletInfo } from '../operations/getWalletInfo/type/WalletInfo.ts';
-import { GetWalletInfoRes } from '../operations/getWalletInfo/type/GetWalletInfoRes.ts';
-import { createGetWalletInfoReq } from '../operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoReq.ts';
-import { getWalletInfoResValidator } from '../operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
+import { PrepareForTradingRes } from '../operations/prepareForTrading/types/PrepareForTradingRes.ts';
+import { prepareForTradingResValidator } from '../operations/prepareForTrading/prepareForTradingRes/prepareForTradingResValidator.ts';
+import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+import { PrepareForTradingResult } from '../operations/prepareForTrading/types/PrepareForTradingResult.ts';
+import { createPrepareForTradingReq } from '../operations/prepareForTrading/prepareForTradingReq/createPrepareForTradingReq.ts';
+import { DeviceKeyResult } from '../operations/generateDeviceKey/types/DeviceKeyResult.ts';
+import { GenerateDeviceKeyRes } from '../operations/generateDeviceKey/types/GenerateDeviceKeyRes.ts';
+import { createGenerateDeviceKeyReq } from '../operations/generateDeviceKey/generateDeviceKeyReq/createGenerateDeviceKeyReq.ts';
+import { generateDeviceKeyResValidator } from '../operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
+
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
 import { SignDataRes } from '../operations/signData/types/SignDataRes.ts';
 import { createSignDataReq } from '../operations/signData/signDataReq/createSignDataReq.ts';
@@ -46,9 +44,7 @@ import { SetThemeRes } from '../operations/setTheme/types/SetThemeRes.ts';
 import { createSetThemeReq } from '../operations/setTheme/setThemeReq/createSetThemeReq.ts';
 import { setThemeResValidator } from '../operations/setTheme/setThemeRes/setThemeResValidator.ts';
 import { Theme } from '../operations/setTheme/types/Theme.ts';
-import { RemoveSeedPhraseRes } from '../operations/removeSeedPhrase/types/RemoveSeedPhraseRes.ts';
-import { createRemoveSeedPhraseReq } from '../operations/removeSeedPhrase/removeSeedPhraseReq/createRemoveSeedPhraseReq.ts';
-import { removeSeddPhraseResValidator } from '../operations/removeSeedPhrase/removeSeedPhraseRes/removeSeedPhraseResValidator.ts';
+
 
 interface IFrameOperation {
   readonly requestId: string;
@@ -65,13 +61,10 @@ interface IFrameOperation {
 export interface IFrameConnectorResponse {
   destroy(): void;
   setTheme(theme: Theme): Promise<void>;
-  getStatus(): Promise<WalletStatus>;
-  addOrGenerateSeed(): Promise<WalletStatus>;
-  enterPin(): Promise<PinStatus>;
-  getWalletInfo(): Promise<WalletInfo>;
+  prepareForTrading(payload: PrepareForTradingRequestPayload): Promise<PrepareForTradingResult>;
+  generateDeviceKey(): Promise<DeviceKeyResult>;
   signData(payload: Uint8Array): Promise<DataSignature>;
   signTx(TxCbor: CborHexString): Promise<CborHexString>;
-  removeSeedPhrase(): Promise<WalletStatus>;
 }
 
 const IFRAME_ID = '__splash__wallet__';
@@ -301,32 +294,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       await clearSession();
       window.removeEventListener('message', messageHandler);
     },
-    async removeSeedPhrase(): Promise<WalletStatus> {
-      return new Promise<RemoveSeedPhraseRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) =>
-            createRemoveSeedPhraseReq({
-              requestId,
-              deviceId: await getDeviceId(),
-              keyPair: communicationKeyPair,
-              sessionId,
-            }),
-          resolve,
-          reject,
-          operationType: 'REMOVE_SEED',
-          requestId,
-          validator: (event, deviceId) =>
-            removeSeddPhraseResValidator({
-              event: event as unknown as MessageEvent<RemoveSeedPhraseRes>,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow!,
-              publicKey: iframePublicKey,
-            }),
-        });
-      }).then((data) => data.payload);
-    },
+
     async setTheme(theme: Theme): Promise<void> {
       return new Promise<SetThemeRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
@@ -354,92 +322,9 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       }).then(() => {});
     },
-    async getStatus(): Promise<WalletStatus> {
-      return new Promise<GetWalletStatusRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) =>
-            createGetWalletStatusReq({
-              requestId,
-              deviceId: await getDeviceId(),
-            }),
-          resolve,
-          reject,
-          operationType: 'GET_STATUS',
-          requestId,
-          validator: (event, deviceId) =>
-            getWalletStatusResValidator({
-              event: event as unknown as MessageEvent<GetWalletStatusRes>,
-              deviceId,
-              expectedSource: iFrame!.contentWindow!,
-              validOrigins: [iframeUrl],
-            }),
-        });
-      }).then((data) => data.payload);
-    },
-    async enterPin(): Promise<PinStatus> {
-      return new Promise<EnterPinSuccessRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) => {
-            showIframe();
-            return createEnterPinReq({
-              requestId,
-              deviceId: await getDeviceId(),
-              keyPair: communicationKeyPair,
-              sessionId,
-            });
-          },
-          resolve,
-          reject,
-          requestId,
-          operationType: 'ENTER_PIN',
-          validator: (event, deviceId) =>
-            enterPinResValidator({
-              event: event as unknown as MessageEvent<EnterPinSuccessRes>,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow!,
-              publicKey: iframePublicKey,
-            }),
-        });
-      })
-        .then((data) => {
-          hideIframe();
-          return data.payload;
-        })
-        .catch((err) => {
-          hideIframe();
-          throw err;
-        });
-    },
-    async getWalletInfo(): Promise<WalletInfo> {
-      return new Promise<GetWalletInfoRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) => {
-            return createGetWalletInfoReq({
-              requestId,
-              deviceId: await getDeviceId(),
-              keyPair: communicationKeyPair,
-              sessionId,
-            });
-          },
-          resolve,
-          reject,
-          requestId,
-          operationType: 'GET_WALLET_INFO',
-          validator: (event, deviceId) =>
-            getWalletInfoResValidator({
-              event: event as unknown as MessageEvent<GetWalletInfoRes>,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow!,
-              publicKey: iframePublicKey,
-            }),
-        });
-      }).then((res) => res.payload);
-    },
+
+
+
     async signData(payload: Uint8Array): Promise<DataSignature> {
       return new Promise<SignDataRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
@@ -496,26 +381,27 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       }).then((res) => res.payload);
     },
-    async addOrGenerateSeed(): Promise<WalletStatus> {
-      return new Promise<SetSeedPhraseRes>(async (resolve, reject) => {
+    async prepareForTrading(payload: PrepareForTradingRequestPayload): Promise<PrepareForTradingResult> {
+      return new Promise<PrepareForTradingRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
         registerRequest({
           request: async (requestId) => {
             showIframe();
-            return createSetSeedPhraseReq({
+            return createPrepareForTradingReq({
               requestId,
               deviceId: await getDeviceId(),
               keyPair: communicationKeyPair,
               sessionId,
+              payload,
             });
           },
           resolve,
           reject,
           requestId,
-          operationType: 'CREATE_OR_ADD_SEED',
+          operationType: 'PREPARE_FOR_TRADING',
           validator: (event, deviceId) =>
-            setSeedPhraseResValidator({
-              event: event as unknown as MessageEvent<SetSeedPhraseRes>,
+            prepareForTradingResValidator({
+              event: event as unknown as MessageEvent<PrepareForTradingRes>,
               deviceId,
               validOrigins: [iframeUrl],
               expectedSource: iFrame!.contentWindow!,
@@ -531,6 +417,33 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           hideIframe();
           throw err;
         });
+    },
+    async generateDeviceKey(): Promise<DeviceKeyResult> {
+      return new Promise<GenerateDeviceKeyRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            return createGenerateDeviceKeyReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'GENERATE_DEVICE_KEY',
+          validator: (event, deviceId) =>
+            generateDeviceKeyResValidator({
+              event: event as unknown as MessageEvent<GenerateDeviceKeyRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((res) => res.payload);
     },
   };
 };

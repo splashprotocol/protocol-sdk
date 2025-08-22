@@ -1,11 +1,8 @@
 export type OperationType =
   | 'READY'
   | 'START_SESSION'
-  | 'GET_STATUS'
-  | 'CREATE_OR_ADD_SEED'
-  | 'ENTER_PIN'
-  | 'GET_WALLET_INFO'
+  | 'PREPARE_FOR_TRADING'
   | 'SET_THEME'
-  | 'REMOVE_SEED'
   | 'SIGN_TRANSACTION'
-  | 'SIGN_DATA';
+  | 'SIGN_DATA'
+  | 'GENERATE_DEVICE_KEY';

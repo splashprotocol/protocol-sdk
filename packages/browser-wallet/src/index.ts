@@ -28,14 +28,7 @@ export * from './operations/ready/types/ReadyRes.ts';
 export * from './operations/ready/readySuccessResponse/readyResValidator.ts';
 export * from './operations/ready/readySuccessResponse/createReadyRes.ts';
 
-export * from './operations/getWalletStatus/types/WalletStatus.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusReq.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusErr.ts';
-export * from './operations/getWalletStatus/types/GetWalletStatusRes.ts';
-export * from './operations/getWalletStatus/getWalletStatusReq/getWalletStatusReqValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusReq/createGetWalletStatusReq.ts';
-export * from './operations/getWalletStatus/getWalletStatusRes/getWalletStatusResValidator.ts';
-export * from './operations/getWalletStatus/getWalletStatusRes/createGetWalletStatusRes.ts';
+
 
 export * from './operations/startSession/types/StartSessionReq.ts';
 export * from './operations/startSession/types/StartSessionRes.ts';
@@ -45,31 +38,25 @@ export * from './operations/startSession/startSessionReq/createStartSessionReq.t
 export * from './operations/startSession/startSessionRes/startSessionResValidator.ts';
 export * from './operations/startSession/startSessionRes/createStartSessionRes.ts';
 
-export * from './operations/setSeedPhrase/types/setSeedPhraseReq.ts';
-export * from './operations/setSeedPhrase/types/SetSeedPhraseErr.ts';
-export * from './operations/setSeedPhrase/types/setSeedPhraseRes.ts';
-export * from './operations/setSeedPhrase/setSeedPhraseReq/setSeedPhraseReqValidator.ts';
-export * from './operations/setSeedPhrase/setSeedPhraseReq/createSetSeedPhraseReq.ts';
-export * from './operations/setSeedPhrase/setSeedPhraseRes/setSeedPhraseResValidator.ts';
-export * from './operations/setSeedPhrase/setSeedPhraseRes/createSetSeedPhraseRes.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingReq.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingRes.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingErr.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingResult.ts';
+export * from './operations/prepareForTrading/prepareForTradingReq/prepareForTradingReqValidator.ts';
+export * from './operations/prepareForTrading/prepareForTradingReq/createPrepareForTradingReq.ts';
+export * from './operations/prepareForTrading/prepareForTradingRes/prepareForTradingResValidator.ts';
+export * from './operations/prepareForTrading/prepareForTradingRes/createPrepareForTradingRes.ts';
 
-export * from './operations/enterPin/types/EnterPinReq.ts';
-export * from './operations/enterPin/types/EnterPinErr.ts';
-export * from './operations/enterPin/types/EnterPinSuccessRes.ts';
-export * from './operations/enterPin/types/PinStatus.ts';
-export * from './operations/enterPin/enterPinReq/enterPinReqValidator.ts';
-export * from './operations/enterPin/enterPinReq/createEnterPinReq.ts';
-export * from './operations/enterPin/enterPinRes/enterPinResValidator.ts';
-export * from './operations/enterPin/enterPinRes/createEnterPinRes.ts';
+export * from './operations/generateDeviceKey/types/GenerateDeviceKeyReq.ts';
+export * from './operations/generateDeviceKey/types/GenerateDeviceKeyRes.ts';
+export * from './operations/generateDeviceKey/types/GenerateDeviceKeyErr.ts';
+export * from './operations/generateDeviceKey/types/DeviceKeyResult.ts';
+export * from './operations/generateDeviceKey/generateDeviceKeyReq/generateDeviceKeyReqValidator.ts';
+export * from './operations/generateDeviceKey/generateDeviceKeyReq/createGenerateDeviceKeyReq.ts';
+export * from './operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
+export * from './operations/generateDeviceKey/generateDeviceKeyRes/createGenerateDeviceKeyRes.ts';
 
-export * from './operations/getWalletInfo/type/WalletInfo.ts';
-export * from './operations/getWalletInfo/type/GetWalletInfoErr.ts';
-export * from './operations/getWalletInfo/type/GetWalletInfoReq.ts';
-export * from './operations/getWalletInfo/type/GetWalletInfoRes.ts';
-export * from './operations/getWalletInfo/getWalletInfoReq/getWalletInfoReqValidator.ts';
-export * from './operations/getWalletInfo/getWalletInfoReq/createGetWalletInfoReq.ts';
-export * from './operations/getWalletInfo/getWalletInfoRes/getWalletInfoResValidator.ts';
-export * from './operations/getWalletInfo/getWalletInfoRes/createGetWalletInfoRes.ts';
 
 export * from './operations/signData/types/SignDataErr.ts';
 export * from './operations/signData/types/SignDataReq.ts';
@@ -97,13 +84,7 @@ export * from './operations/setTheme/setThemeReq/setThemeReqValidator.ts';
 export * from './operations/setTheme/setThemeRes/setThemeResValidator.ts';
 export * from './operations/setTheme/setThemeRes/createSetThemeRes.ts';
 
-export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseErr.ts';
-export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseReq.ts';
-export * from './operations/removeSeedPhrase/types/RemoveSeedPhraseRes.ts';
-export * from './operations/removeSeedPhrase/removeSeedPhraseReq/createRemoveSeedPhraseReq.ts';
-export * from './operations/removeSeedPhrase/removeSeedPhraseReq/removeSeedPhraseReqValidator.ts';
-export * from './operations/removeSeedPhrase/removeSeedPhraseRes/createRemoveSeedPhraseRes.ts';
-export * from './operations/removeSeedPhrase/removeSeedPhraseRes/removeSeedPhraseResValidator.ts';
+
 
 export * from './browserWallet/IFrameConnector.ts';
 export * from './browserWallet/BrowserWallet.ts';

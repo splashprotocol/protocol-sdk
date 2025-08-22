@@ -2,15 +2,12 @@ import { OperationType } from '../../types/OperationType.ts';
 
 const operations: OperationType[] = [
   'START_SESSION',
-  'GET_STATUS',
   'READY',
   'SET_THEME',
-  'ENTER_PIN',
-  'CREATE_OR_ADD_SEED',
-  'GET_WALLET_INFO',
-  'REMOVE_SEED',
+  'PREPARE_FOR_TRADING',
   'SIGN_TRANSACTION',
   'SIGN_DATA',
+  'GENERATE_DEVICE_KEY',
 ];
 export const isWalletOperation = (data: any) => {
   if (data instanceof Object) {
