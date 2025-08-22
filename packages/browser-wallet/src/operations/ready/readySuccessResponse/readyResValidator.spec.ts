@@ -51,7 +51,7 @@ test('readyResValidator should fail validation with wrong operation type', async
       validOrigins: ['https://trusted.com'],
       expectedSource: mockEvent.source,
     }),
-  ).rejects.toThrow('INVALID READY RESPONSE SCHEMA');
+  ).rejects.toThrow('INVALID READY SUCCESS RESPONSE TYPE');
 });
 
 test('readyResValidator should fail validation with non-undefined payload', async () => {
@@ -68,7 +68,7 @@ test('readyResValidator should fail validation with non-undefined payload', asyn
       validOrigins: ['https://trusted.com'],
       expectedSource: mockEvent.source,
     }),
-  ).rejects.toThrow('INVALID READY RESPONSE SCHEMA');
+  ).rejects.toThrow('INVALID READY SUCCESS RESPONSE SCHEMA');
 });
 
 test('readyResValidator should fail validation with wrong deviceId', async () => {
@@ -128,7 +128,7 @@ test('readyResValidator should fail validation with missing kind field', async (
       validOrigins: ['https://trusted.com'],
       expectedSource: mockEvent.source,
     }),
-  ).rejects.toThrow('INVALID READY RESPONSE SCHEMA');
+  ).rejects.toThrow('INVALID READY SUCCESS RESPONSE SCHEMA');
 });
 
 test('readyResValidator should fail validation with wrong kind value', async () => {
@@ -145,7 +145,7 @@ test('readyResValidator should fail validation with wrong kind value', async () 
       validOrigins: ['https://trusted.com'],
       expectedSource: mockEvent.source,
     }),
-  ).rejects.toThrow('INVALID READY RESPONSE SCHEMA');
+  ).rejects.toThrow('INVALID READY SUCCESS RESPONSE SCHEMA');
 });
 
 test('readyResValidator should fail validation with invalid timestamp type', async () => {

@@ -1,69 +1,35 @@
-import { nonceValidator } from '../../../common/validators/nonceValidator/nonceValidator.ts';
-import { timestampValidator } from '../../../common/validators/timestampValidator/timestampValidator.ts';
-import { originValidator } from '../../../common/validators/originValidator/originValidator.ts';
-import { sourceValidator } from '../../../common/validators/sourceValidator/sourceValidator.ts';
-import { deviceIdValidator } from '../../../common/validators/deviceIdValidator/deviceIdValidator.ts';
-import { signatureValidator } from '../../../common/validators/signatureValidator/signatureValidator.ts';
-
-import { CommunicationPublicKey } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import { safetyResponseSchemaValidator } from '../../../common/validators/safetyResponseSchemaValidator/safetyResponseSchemaValidator.ts';
+import { createValidator } from '../../../common/utils/createValidator/createValidator.ts';
 import { GenerateDeviceKeyRes } from '../types/GenerateDeviceKeyRes.ts';
+import { DeviceKeyResult } from '../types/DeviceKeyResult.ts';
 
-export interface GenerateDeviceKeyResValidatorParams {
-  readonly event: MessageEvent<GenerateDeviceKeyRes>;
-  readonly deviceId: string;
-  readonly validOrigins: string[];
-  readonly expectedSource: MessageEventSource | null;
-  readonly publicKey: CommunicationPublicKey;
-}
+export const generateDeviceKeyResValidator =
+  createValidator<GenerateDeviceKeyRes>({
+    type: 'safety-response',
+    operation: 'GENERATE_DEVICE_KEY',
+    isSchemaInvalid: (payload: DeviceKeyResult) => {
+      if (typeof payload.storageAccess !== 'string') {
+        return true;
+      }
+      if (
+        payload.storageAccess !== 'allowed' &&
+        payload.storageAccess !== 'restricted'
+      ) {
+        return true;
+      }
+      if (!(payload.publicKey instanceof Uint8Array)) {
+        return true;
+      }
 
-const INVALID_TYPE_ERROR_MESSAGE =
-  'INVALID GENERATE DEVICE KEY SUCCESS RESPONSE TYPE';
-const INVALID_SCHEMA_ERROR_MESSAGE =
-  'INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA';
+      if (payload.storageAccess === 'restricted') {
+        if (!(payload.privateKey instanceof Uint8Array)) {
+          return true;
+        }
+      } else if (payload.storageAccess === 'allowed') {
+        if ('privateKey' in payload) {
+          return true;
+        }
+      }
 
-export const generateDeviceKeyResValidator = async ({
-  event,
-  deviceId,
-  validOrigins,
-  expectedSource,
-  publicKey,
-}: GenerateDeviceKeyResValidatorParams): Promise<true> => {
-  if (event.data.type !== 'GENERATE_DEVICE_KEY') {
-    throw new Error(INVALID_TYPE_ERROR_MESSAGE);
-  }
-  safetyResponseSchemaValidator(event.data, INVALID_SCHEMA_ERROR_MESSAGE);
-
-  const payload = event.data.payload;
-  if (typeof payload.storageAccess !== 'string') {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (
-    payload.storageAccess !== 'allowed' &&
-    payload.storageAccess !== 'restricted'
-  ) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-  if (!(payload.publicKey instanceof Uint8Array)) {
-    throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-  }
-
-  if (payload.storageAccess === 'restricted') {
-    if (!(payload.privateKey instanceof Uint8Array)) {
-      throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-    }
-  } else if (payload.storageAccess === 'allowed') {
-    if ('privateKey' in payload) {
-      throw new Error(INVALID_SCHEMA_ERROR_MESSAGE);
-    }
-  }
-
-  nonceValidator(event.data.nonce);
-  timestampValidator(event.data.timestamp);
-  originValidator(validOrigins, event.origin);
-  sourceValidator(expectedSource, event.source);
-  deviceIdValidator(event.data.deviceId, deviceId);
-  await signatureValidator(publicKey, event.data, deviceId);
-
-  return true;
-};
+      return false;
+    },
+  });
