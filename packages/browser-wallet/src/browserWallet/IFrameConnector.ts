@@ -45,7 +45,6 @@ import { createSetThemeReq } from '../operations/setTheme/setThemeReq/createSetT
 import { setThemeResValidator } from '../operations/setTheme/setThemeRes/setThemeResValidator.ts';
 import { Theme } from '../operations/setTheme/types/Theme.ts';
 
-
 interface IFrameOperation {
   readonly requestId: string;
   readonly operationType: OperationType;
@@ -61,7 +60,9 @@ interface IFrameOperation {
 export interface IFrameConnectorResponse {
   destroy(): void;
   setTheme(theme: Theme): Promise<void>;
-  prepareForTrading(payload: PrepareForTradingRequestPayload): Promise<PrepareForTradingResult>;
+  prepareForTrading(
+    payload: PrepareForTradingRequestPayload,
+  ): Promise<PrepareForTradingResult>;
   generateDeviceKey(): Promise<DeviceKeyResult>;
   signData(payload: Uint8Array): Promise<DataSignature>;
   signTx(TxCbor: CborHexString): Promise<CborHexString>;
@@ -81,8 +82,8 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
   let communicationKeyPair: CommunicationKeyPair = null as any;
   let sessionId: string = null as any;
   let anomalyAnalyzer = AnomalyAnalyzer.create({
-    maxRps: 30,
-    maxErrorCount: 10,
+    maxRps: 10,
+    maxErrorCount: 3,
   });
 
   const unregisteredIframe = document.getElementById(IFRAME_ID);
@@ -248,7 +249,16 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       );
       return;
     }
-    console.log(event.data);
+    
+    // 🔒 ЗАЩИТА: Безопасное логирование операций
+    if (process.env.NODE_ENV === 'development') {
+      console.debug('Wallet message received:', {
+        type: event.data.type,
+        requestId: event.data.requestId,
+        kind: event.data.kind
+      });
+    }
+    
     if (event.data.type === 'READY') {
       try {
         await readyResValidator({
@@ -323,8 +333,6 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
       }).then(() => {});
     },
 
-
-
     async signData(payload: Uint8Array): Promise<DataSignature> {
       return new Promise<SignDataRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
@@ -381,7 +389,9 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
         });
       }).then((res) => res.payload);
     },
-    async prepareForTrading(payload: PrepareForTradingRequestPayload): Promise<PrepareForTradingResult> {
+    async prepareForTrading(
+      payload: PrepareForTradingRequestPayload,
+    ): Promise<PrepareForTradingResult> {
       return new Promise<PrepareForTradingRes>(async (resolve, reject) => {
         const requestId = generateRequestId();
         registerRequest({
