@@ -2,7 +2,9 @@ import { createValidator } from '../../../common/utils/createValidator/createVal
 import { PrepareForTradingReq } from '../types/PrepareForTradingReq.ts';
 
 const validateSeedData = (seed: any): boolean => {
-  if (seed === undefined) return true;
+  if (seed === undefined) {
+    return true;
+  }
   return (
     seed &&
     seed.iv instanceof Uint8Array &&
@@ -12,7 +14,9 @@ const validateSeedData = (seed: any): boolean => {
 };
 
 const validateSessionData = (session: any): boolean => {
-  if (session === undefined) return true;
+  if (session === undefined) {
+    return true;
+  }
   return (
     session &&
     session.iv instanceof Uint8Array &&
@@ -22,8 +26,13 @@ const validateSessionData = (session: any): boolean => {
 };
 
 const validateDeviceKeys = (deviceKeys: any): boolean => {
+  if (deviceKeys === 'sandbox') {
+    return true;
+  }
+
   return (
     deviceKeys &&
+    typeof deviceKeys === 'object' &&
     deviceKeys.publicKey instanceof Uint8Array &&
     (deviceKeys.privateKey === undefined ||
       deviceKeys.privateKey instanceof Uint8Array)

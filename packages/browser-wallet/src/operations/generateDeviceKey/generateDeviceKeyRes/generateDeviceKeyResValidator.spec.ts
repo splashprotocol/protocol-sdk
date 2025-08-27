@@ -31,7 +31,11 @@ const createValidGenerateDeviceKeyRes = async (
       : {
           storageAccess: 'restricted' as const,
           publicKey: new Uint8Array([1, 2, 3, 4, 5]),
-          privateKey: new Uint8Array([6, 7, 8, 9, 10]),
+          privateKey: {
+            iv: new Uint8Array([6, 7, 8, 9]),
+            salt: new Uint8Array([10, 11, 12, 13]),
+            ciphertext: new Uint8Array([14, 15, 16, 17]),
+          },
         };
 
   const messageForSign = generateMessageForSign(
@@ -147,7 +151,11 @@ test('generateDeviceKeyResValidator should fail validation when privateKey is pr
     payload: {
       storageAccess: 'allowed',
       publicKey: new Uint8Array([1, 2, 3, 4, 5]),
-      privateKey: new Uint8Array([6, 7, 8, 9, 10]), // Should not be present for allowed access
+      privateKey: {
+        iv: new Uint8Array([6, 7, 8, 9]),
+        salt: new Uint8Array([10, 11, 12, 13]),
+        ciphertext: new Uint8Array([14, 15, 16, 17]),
+      }, // Should not be present for allowed access
     } as any,
   };
   const mockEvent = createMockEvent(invalidResponse);
@@ -217,4 +225,163 @@ test('generateDeviceKeyResValidator should fail validation with invalid origin',
       publicKey: keyPair.publicKey,
     }),
   ).rejects.toThrow('INVALID ORIGIN');
+});
+
+test('generateDeviceKeyResValidator should fail validation with null payload', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('allowed');
+  const invalidResponse = {
+    ...validResponse,
+    payload: null as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with undefined payload', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('allowed');
+  const invalidResponse = {
+    ...validResponse,
+    payload: undefined as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with invalid privateKey type for restricted access', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('restricted');
+  const invalidResponse = {
+    ...validResponse,
+    payload: {
+      storageAccess: 'restricted',
+      publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+      privateKey: new Uint8Array([6, 7, 8, 9, 10]), // Should be object, not Uint8Array
+    } as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with missing privateKey fields for restricted access', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('restricted');
+  const invalidResponse = {
+    ...validResponse,
+    payload: {
+      storageAccess: 'restricted',
+      publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+      privateKey: {
+        iv: new Uint8Array([6, 7, 8, 9]),
+        // missing salt and ciphertext
+      },
+    } as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with invalid privateKey field types for restricted access', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('restricted');
+  const invalidResponse = {
+    ...validResponse,
+    payload: {
+      storageAccess: 'restricted',
+      publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+      privateKey: {
+        iv: 'not-uint8array', // Should be Uint8Array
+        salt: new Uint8Array([10, 11, 12, 13]),
+        ciphertext: new Uint8Array([14, 15, 16, 17]),
+      },
+    } as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with missing publicKey', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('allowed');
+  const invalidResponse = {
+    ...validResponse,
+    payload: {
+      storageAccess: 'allowed',
+      // missing publicKey
+    } as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
+});
+
+test('generateDeviceKeyResValidator should fail validation with empty object as privateKey for restricted access', async () => {
+  const validResponse = await createValidGenerateDeviceKeyRes('restricted');
+  const invalidResponse = {
+    ...validResponse,
+    payload: {
+      storageAccess: 'restricted',
+      publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+      privateKey: {}, // Empty object
+    } as any,
+  };
+  const mockEvent = createMockEvent(invalidResponse);
+
+  await expect(
+    generateDeviceKeyResValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      publicKey: keyPair.publicKey,
+    }),
+  ).rejects.toThrow('INVALID GENERATE DEVICE KEY SUCCESS RESPONSE SCHEMA');
 });

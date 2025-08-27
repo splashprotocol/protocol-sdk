@@ -32,6 +32,9 @@ import { DeviceKeyResult } from '../operations/generateDeviceKey/types/DeviceKey
 import { GenerateDeviceKeyRes } from '../operations/generateDeviceKey/types/GenerateDeviceKeyRes.ts';
 import { createGenerateDeviceKeyReq } from '../operations/generateDeviceKey/generateDeviceKeyReq/createGenerateDeviceKeyReq.ts';
 import { generateDeviceKeyResValidator } from '../operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
+import { GetExistedDevicePublicKeyRes } from '../operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
+import { createGetExistedDevicePublicKeyReq } from '../operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/createGetExistedDevicePublicKeyReq.ts';
+import { getExistedDevicePublicKeyResValidator } from '../operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/getExistedDevicePublicKeyResValidator.ts';
 
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
 import { SignDataRes } from '../operations/signData/types/SignDataRes.ts';
@@ -64,6 +67,7 @@ export interface IFrameConnectorResponse {
     payload: PrepareForTradingRequestPayload,
   ): Promise<PrepareForTradingResult>;
   generateDeviceKey(): Promise<DeviceKeyResult>;
+  getExistedDevicePublicKey(): Promise<Uint8Array | undefined>;
   signData(payload: Uint8Array): Promise<DataSignature>;
   signTx(TxCbor: CborHexString): Promise<CborHexString>;
 }
@@ -182,7 +186,6 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     Object.values(futureOperations).forEach(async ({ request, requestId }) =>
       iFrame!.contentWindow!.postMessage(await request(requestId), iframeUrl),
     );
-    console.log('new session', sessionId);
     futureOperations = {};
   };
 
@@ -292,14 +295,12 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     }
 
     try {
-      console.log(event.data, 'here 1');
       await anomalyAnalyzer.applyToValidator(() =>
         currentOperations[event.data.requestId].validator(
           event as MessageEvent<AnyRes>,
           deviceId,
         ),
       );
-      console.log(event.data, 'here 2');
       currentOperations[event.data.requestId].resolve(event.data);
     } catch (error: unknown) {
       console.log(error);
@@ -314,6 +315,7 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
     async destroy() {
       await clearSession();
       window.removeEventListener('message', messageHandler);
+      window.document.body.removeChild(iFrame!);
     },
 
     async setTheme(theme: Theme): Promise<void> {
@@ -458,6 +460,33 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           validator: (event, deviceId) =>
             generateDeviceKeyResValidator({
               event: event as unknown as MessageEvent<GenerateDeviceKeyRes>,
+              deviceId,
+              validOrigins: [iframeUrl],
+              expectedSource: iFrame!.contentWindow!,
+              publicKey: iframePublicKey,
+            }),
+        });
+      }).then((res) => res.payload);
+    },
+    async getExistedDevicePublicKey(): Promise<Uint8Array | undefined> {
+      return new Promise<GetExistedDevicePublicKeyRes>(async (resolve, reject) => {
+        const requestId = generateRequestId();
+        registerRequest({
+          request: async (requestId) => {
+            return createGetExistedDevicePublicKeyReq({
+              requestId,
+              deviceId: await getDeviceId(),
+              keyPair: communicationKeyPair,
+              sessionId,
+            });
+          },
+          resolve,
+          reject,
+          requestId,
+          operationType: 'GET_EXISTED_DEVICE_PUBLIC_KEY',
+          validator: (event, deviceId) =>
+            getExistedDevicePublicKeyResValidator({
+              event: event as unknown as MessageEvent<GetExistedDevicePublicKeyRes>,
               deviceId,
               validOrigins: [iframeUrl],
               expectedSource: iFrame!.contentWindow!,

@@ -55,6 +55,14 @@ export * from './operations/generateDeviceKey/generateDeviceKeyReq/createGenerat
 export * from './operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
 export * from './operations/generateDeviceKey/generateDeviceKeyRes/createGenerateDeviceKeyRes.ts';
 
+export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyReq.ts';
+export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
+export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyErr.ts';
+export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/getExistedDevicePublicKeyReqValidator.ts';
+export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/createGetExistedDevicePublicKeyReq.ts';
+export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/getExistedDevicePublicKeyResValidator.ts';
+export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/createGetExistedDevicePublicKeyRes.ts';
+
 export * from './operations/signData/types/SignDataErr.ts';
 export * from './operations/signData/types/SignDataReq.ts';
 export * from './operations/signData/types/SignDataRes.ts';

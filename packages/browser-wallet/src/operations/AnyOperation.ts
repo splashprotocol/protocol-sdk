@@ -20,6 +20,10 @@ import { GenerateDeviceKeyRes } from './generateDeviceKey/types/GenerateDeviceKe
 import { GenerateDeviceKeyReq } from './generateDeviceKey/types/GenerateDeviceKeyReq.ts';
 import { GenerateDeviceKeyErr } from './generateDeviceKey/types/GenerateDeviceKeyErr.ts';
 
+import { GetExistedDevicePublicKeyRes } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
+import { GetExistedDevicePublicKeyReq } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyReq.ts';
+import { GetExistedDevicePublicKeyErr } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyErr.ts';
+
 export type AnyRes =
   | StartSessionRes
   | ReadyRes
@@ -27,7 +31,8 @@ export type AnyRes =
   | SignDataRes
   | SignTxRes
   | SetThemeRes
-  | GenerateDeviceKeyRes;
+  | GenerateDeviceKeyRes
+  | GetExistedDevicePublicKeyRes;
 
 export type AnyReq =
   | StartSessionReq
@@ -35,7 +40,8 @@ export type AnyReq =
   | SignDataReq
   | SignTxReq
   | SetThemeReq
-  | GenerateDeviceKeyReq;
+  | GenerateDeviceKeyReq
+  | GetExistedDevicePublicKeyReq;
 
 export type AnyErr =
   | StartSessionErr
@@ -43,4 +49,5 @@ export type AnyErr =
   | SignDataErr
   | SignTxErr
   | SetThemeErr
-  | GenerateDeviceKeyErr;
+  | GenerateDeviceKeyErr
+  | GetExistedDevicePublicKeyErr;

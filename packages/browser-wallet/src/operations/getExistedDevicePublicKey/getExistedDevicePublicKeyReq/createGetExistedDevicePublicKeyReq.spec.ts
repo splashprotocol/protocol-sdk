@@ -1,4 +1,4 @@
-import { createGenerateDeviceKeyReq } from './createGenerateDeviceKeyReq.ts';
+import { createGetExistedDevicePublicKeyReq } from './createGetExistedDevicePublicKeyReq.ts';
 import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
@@ -13,15 +13,15 @@ afterEach(async () => {
   await keyPair.destroy();
 });
 
-test('createGenerateDeviceKeyReq should create valid request with correct structure', async () => {
-  const request = await createGenerateDeviceKeyReq({
+test('createGetExistedDevicePublicKeyReq should create valid request with correct structure', async () => {
+  const request = await createGetExistedDevicePublicKeyReq({
     requestId: '123e4567-e89b-12d3-a456-426614174000',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
   });
 
-  expect(request.type).toBe('GENERATE_DEVICE_KEY');
+  expect(request.type).toBe('GET_EXISTED_DEVICE_PUBLIC_KEY');
   expect(request.payload).toBeUndefined();
   expect(request.requestId).toBe('123e4567-e89b-12d3-a456-426614174000');
   expect(request.deviceId).toBe('test-device-id');
@@ -31,15 +31,15 @@ test('createGenerateDeviceKeyReq should create valid request with correct struct
   expect(request.nonce).toBeDefined();
 });
 
-test('createGenerateDeviceKeyReq should create requests with unique nonces and requestIds', async () => {
-  const request1 = await createGenerateDeviceKeyReq({
+test('createGetExistedDevicePublicKeyReq should create requests with unique nonces and requestIds', async () => {
+  const request1 = await createGetExistedDevicePublicKeyReq({
     requestId: generateRequestId(),
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
   });
 
-  const request2 = await createGenerateDeviceKeyReq({
+  const request2 = await createGetExistedDevicePublicKeyReq({
     requestId: generateRequestId(),
     deviceId: 'test-device-id',
     keyPair,
@@ -51,12 +51,12 @@ test('createGenerateDeviceKeyReq should create requests with unique nonces and r
   expect(request1.timestamp).toBeLessThanOrEqual(request2.timestamp);
 });
 
-test('createGenerateDeviceKeyReq should create valid signature that can be verified with publicKey', async () => {
+test('createGetExistedDevicePublicKeyReq should create valid signature that can be verified with publicKey', async () => {
   const requestId = '123e4567-e89b-12d3-a456-426614174003';
   const deviceId = 'test-device-id';
   const sessionId = 'test-session-id';
 
-  const request = await createGenerateDeviceKeyReq({
+  const request = await createGetExistedDevicePublicKeyReq({
     requestId,
     deviceId,
     keyPair,
@@ -81,20 +81,20 @@ test('createGenerateDeviceKeyReq should create valid signature that can be verif
   expect(request.signature.length).toBeGreaterThan(0);
 });
 
-test('createGenerateDeviceKeyReq should create different signatures for different deviceIds', async () => {
+test('createGetExistedDevicePublicKeyReq should create different signatures for different deviceIds', async () => {
   const requestId = '123e4567-e89b-12d3-a456-426614174004';
   const sessionId = 'test-session-id';
 
-  const request1 = await createGenerateDeviceKeyReq({
+  const request1 = await createGetExistedDevicePublicKeyReq({
     requestId,
     deviceId: 'device-id-1',
     keyPair,
     sessionId,
   });
 
-  const request2 = await createGenerateDeviceKeyReq({
+  const request2 = await createGetExistedDevicePublicKeyReq({
     requestId,
-    deviceId: 'device-id-2',
+    deviceId: 'device-id-2', // Different deviceId
     keyPair,
     sessionId,
   });
@@ -104,10 +104,10 @@ test('createGenerateDeviceKeyReq should create different signatures for differen
   expect(request1.nonce).not.toBe(request2.nonce);
 });
 
-test('createGenerateDeviceKeyReq signature should fail verification with wrong public key', async () => {
+test('createGetExistedDevicePublicKeyReq signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
 
-  const request = await createGenerateDeviceKeyReq({
+  const request = await createGetExistedDevicePublicKeyReq({
     requestId: '123e4567-e89b-12d3-a456-426614174006',
     deviceId: 'test-device-id',
     keyPair,

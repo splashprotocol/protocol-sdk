@@ -7,7 +7,7 @@ export const generateDeviceKeyResValidator =
     type: 'safety-response',
     operation: 'GENERATE_DEVICE_KEY',
     isSchemaInvalid: (payload: DeviceKeyResult) => {
-      if (typeof payload.storageAccess !== 'string') {
+      if (!payload) {
         return true;
       }
       if (
@@ -20,16 +20,18 @@ export const generateDeviceKeyResValidator =
         return true;
       }
 
-      if (payload.storageAccess === 'restricted') {
-        if (!(payload.privateKey instanceof Uint8Array)) {
-          return true;
-        }
-      } else if (payload.storageAccess === 'allowed') {
-        if ('privateKey' in payload) {
-          return true;
-        }
+      switch (payload.storageAccess) {
+        case 'allowed':
+          return 'privateKey' in payload;
+        case 'restricted':
+          const privateKey = payload.privateKey;
+          return !(
+            privateKey &&
+            typeof privateKey === 'object' &&
+            privateKey.iv instanceof Uint8Array &&
+            privateKey.salt instanceof Uint8Array &&
+            privateKey.ciphertext instanceof Uint8Array
+          );
       }
-
-      return false;
     },
   });

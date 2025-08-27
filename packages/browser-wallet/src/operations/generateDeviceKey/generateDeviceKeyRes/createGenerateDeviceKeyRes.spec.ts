@@ -48,7 +48,11 @@ test('createGenerateDeviceKeyRes should create valid response with restricted st
   const payload: DeviceKeyResult = {
     storageAccess: 'restricted',
     publicKey: new Uint8Array([1, 2, 3, 4, 5]),
-    privateKey: new Uint8Array([6, 7, 8, 9, 10]),
+    privateKey: {
+      iv: new Uint8Array([6, 7, 8, 9]),
+      salt: new Uint8Array([10, 11, 12, 13]),
+      ciphertext: new Uint8Array([14, 15, 16, 17]),
+    },
   };
 
   const response = await createGenerateDeviceKeyRes({
@@ -182,4 +186,81 @@ test('createGenerateDeviceKeyRes signature should fail verification with wrong p
   expect(isSignatureValid).toBe(false);
 
   await wrongKeyPair.destroy();
+});
+
+test('createGenerateDeviceKeyRes should handle invalid storageAccess value', async () => {
+  const invalidPayload = {
+    storageAccess: 'invalid',
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+  } as any;
+
+  const response = await createGenerateDeviceKeyRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174005',
+    session: mockSession,
+    payload: invalidPayload,
+  });
+
+  expect(response.type).toBe('GENERATE_DEVICE_KEY');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(invalidPayload);
+});
+
+test('createGenerateDeviceKeyRes should handle restricted payload with invalid privateKey structure', async () => {
+  const invalidPayload = {
+    storageAccess: 'restricted',
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+    privateKey: new Uint8Array([6, 7, 8, 9, 10]), // Wrong type - should be object
+  } as any;
+
+  const response = await createGenerateDeviceKeyRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174006',
+    session: mockSession,
+    payload: invalidPayload,
+  });
+
+  expect(response.type).toBe('GENERATE_DEVICE_KEY');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(invalidPayload);
+});
+
+test('createGenerateDeviceKeyRes should handle restricted payload with missing privateKey fields', async () => {
+  const invalidPayload = {
+    storageAccess: 'restricted',
+    publicKey: new Uint8Array([1, 2, 3, 4, 5]),
+    privateKey: {
+      iv: new Uint8Array([6, 7, 8, 9]),
+      // missing salt and ciphertext
+    },
+  } as any;
+
+  const response = await createGenerateDeviceKeyRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174007',
+    session: mockSession,
+    payload: invalidPayload,
+  });
+
+  expect(response.type).toBe('GENERATE_DEVICE_KEY');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(invalidPayload);
+});
+
+test('createGenerateDeviceKeyRes should handle payload with missing publicKey', async () => {
+  const invalidPayload = {
+    storageAccess: 'allowed',
+    // missing publicKey
+  } as any;
+
+  const response = await createGenerateDeviceKeyRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174008',
+    session: mockSession,
+    payload: invalidPayload,
+  });
+
+  expect(response.type).toBe('GENERATE_DEVICE_KEY');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(invalidPayload);
 });

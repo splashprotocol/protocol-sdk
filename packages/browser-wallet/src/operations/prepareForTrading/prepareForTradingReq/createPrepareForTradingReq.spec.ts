@@ -169,3 +169,34 @@ test('createPrepareForTradingReq signature should fail verification with wrong p
 
   await wrongKeyPair.destroy();
 });
+
+test('createPrepareForTradingReq should create valid request with sandbox deviceKeys', async () => {
+  const payload: PrepareForTradingRequestPayload = {
+    seed: {
+      iv: new Uint8Array([1, 2, 3, 4]),
+      salt: new Uint8Array([5, 6, 7, 8]),
+      ciphertext: new Uint8Array([9, 10, 11, 12]),
+    },
+    deviceKeys: 'sandbox',
+  };
+
+  const request = await createPrepareForTradingReq({
+    requestId: '123e4567-e89b-12d3-a456-426614174004',
+    deviceId: 'test-device-id',
+    keyPair,
+    sessionId: 'test-session-id',
+    payload,
+  });
+
+  expect(request.type).toBe('PREPARE_FOR_TRADING');
+  expect(request.payload).toEqual(payload);
+  expect(request.payload.deviceKeys).toBe('sandbox');
+  expect(request.requestId).toBe('123e4567-e89b-12d3-a456-426614174004');
+  expect(request.deviceId).toBe('test-device-id');
+  expect(request.sessionId).toBe('test-session-id');
+  expect(request.signature).toBeInstanceOf(Uint8Array);
+  expect(request.timestamp).toBeGreaterThan(0);
+  expect(request.nonce).toBeDefined();
+});
+
+

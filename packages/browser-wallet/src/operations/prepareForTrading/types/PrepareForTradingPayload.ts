@@ -18,5 +18,5 @@ export interface DeviceKeys {
 export interface PrepareForTradingRequestPayload {
   readonly seed?: SeedData;
   readonly session?: SessionData;
-  readonly deviceKeys: DeviceKeys;
+  readonly deviceKeys: 'sandbox' | DeviceKeys;
 }

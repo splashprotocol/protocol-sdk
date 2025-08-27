@@ -5,4 +5,5 @@ export type OperationType =
   | 'SET_THEME'
   | 'SIGN_TRANSACTION'
   | 'SIGN_DATA'
-  | 'GENERATE_DEVICE_KEY';
+  | 'GENERATE_DEVICE_KEY'
+  | 'GET_EXISTED_DEVICE_PUBLIC_KEY';

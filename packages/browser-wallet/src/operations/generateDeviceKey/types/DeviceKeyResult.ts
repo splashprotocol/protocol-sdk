@@ -6,7 +6,11 @@ export interface DeviceKeyAllowed {
 export interface DeviceKeyRestricted {
   readonly storageAccess: 'restricted';
   readonly publicKey: Uint8Array;
-  readonly privateKey: Uint8Array;
+  readonly privateKey: {
+    readonly iv: Uint8Array;
+    readonly salt: Uint8Array;
+    readonly ciphertext: Uint8Array;
+  };
 }
 
 export type DeviceKeyResult = DeviceKeyAllowed | DeviceKeyRestricted;
