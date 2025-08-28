@@ -16,7 +16,6 @@ const validateEncryptedContainer = (container: any): boolean => {
   );
 };
 
-// Helper function to validate WalletInfo
 const validateWalletInfo = (info: any): boolean => {
   return (
     info &&
