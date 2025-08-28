@@ -4,7 +4,13 @@ import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPai
 import { generateNonce } from '../../../common/utils/generateNonce/generateNonce.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
-import { PrepareForTradingRequestPayload } from '../types/PrepareForTradingPayload.ts';
+import {
+  PFTReq_NoSeedPayload,
+  PFTReq_MasterPasswordPayload,
+  PFTReq_TradingSessionPayload,
+  PFTReq_TemporaryContainerPayload,
+  PrepareForTradingRequestPayload,
+} from '../types/PrepareForTradingRequestPayload.ts';
 import { Session } from '../../../common/models/Session/Session.ts';
 
 let keyPair: CommunicationKeyPair;
@@ -60,21 +66,120 @@ const createMockEvent = (
     source: {} as MessageEventSource,
   }) as MessageEvent<PrepareForTradingReq>;
 
-test('prepareForTradingReqValidator should pass validation with DeviceKeys object', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    seed: {
-      iv: new Uint8Array([1, 2, 3, 4]),
-      salt: new Uint8Array([5, 6, 7, 8]),
-      ciphertext: new Uint8Array([9, 10, 11, 12]),
+// Tests for NoSeedPayload
+test('prepareForTradingReqValidator should pass validation with NoSeedPayload', async () => {
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
+  };
+
+  const request = await createPrepareForTradingReq(payload);
+  const mockEvent = createMockEvent(request);
+
+  await expect(
+    prepareForTradingReqValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      session: mockSession,
+    }),
+  ).resolves.toBe(true);
+});
+
+// Tests for MasterPasswordPayload
+test('prepareForTradingReqValidator should pass validation with MasterPasswordPayload', async () => {
+  const payload: PFTReq_MasterPasswordPayload = {
+    type: 'master-password',
+    ciphertext: new Uint8Array([1, 2, 3, 4]),
+    iv: new Uint8Array([5, 6, 7, 8]),
+    salt: new Uint8Array([9, 10, 11, 12]),
+  };
+
+  const request = await createPrepareForTradingReq(payload);
+  const mockEvent = createMockEvent(request);
+
+  await expect(
+    prepareForTradingReqValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      session: mockSession,
+    }),
+  ).resolves.toBe(true);
+});
+
+test('prepareForTradingReqValidator should fail validation with MasterPasswordPayload missing fields', async () => {
+  const payload = {
+    payload: {
+      type: 'master-password',
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      // Missing iv and salt
     },
-    session: {
-      iv: new Uint8Array([13, 14, 15, 16]),
-      ciphertext: new Uint8Array([17, 18, 19, 20]),
-      ephemeralPublicKey: new Uint8Array([21, 22, 23, 24]),
+  };
+
+  const request = await createPrepareForTradingReq(payload as any);
+  const mockEvent = createMockEvent(request);
+
+  await expect(
+    prepareForTradingReqValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      session: mockSession,
+    }),
+  ).rejects.toThrow();
+});
+
+// Tests for TradingSessionPayload
+test('prepareForTradingReqValidator should pass validation with TradingSessionPayload (sandbox)', async () => {
+  const payload: PFTReq_TradingSessionPayload = {
+    type: 'session',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
     },
-    deviceKeys: {
-      publicKey: new Uint8Array([25, 26, 27, 28]),
-      privateKey: new Uint8Array([29, 30, 31, 32]),
+    sessionContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+    },
+    sessionPassword: 'sandbox',
+  };
+
+  const request = await createPrepareForTradingReq(payload);
+  const mockEvent = createMockEvent(request);
+
+  await expect(
+    prepareForTradingReqValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      session: mockSession,
+    }),
+  ).resolves.toBe(true);
+});
+
+test('prepareForTradingReqValidator should pass validation with TradingSessionPayload (encrypted password)', async () => {
+  const payload: PFTReq_TradingSessionPayload = {
+    type: 'session',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
+    },
+    sessionContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+    },
+    sessionPassword: {
+      ciphertext: new Uint8Array([25, 26, 27, 28]),
+      iv: new Uint8Array([29, 30, 31, 32]),
+      salt: new Uint8Array([33, 34, 35, 36]),
     },
   };
 
@@ -92,14 +197,51 @@ test('prepareForTradingReqValidator should pass validation with DeviceKeys objec
   ).resolves.toBe(true);
 });
 
-test('prepareForTradingReqValidator should pass validation with sandbox deviceKeys', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    seed: {
-      iv: new Uint8Array([1, 2, 3, 4]),
-      salt: new Uint8Array([5, 6, 7, 8]),
-      ciphertext: new Uint8Array([9, 10, 11, 12]),
+test('prepareForTradingReqValidator should fail validation with TradingSessionPayload invalid container', async () => {
+  const payload: PFTReq_TradingSessionPayload = {
+    type: 'session',
+    masterPasswordContainer: {
+      ciphertext: 'not-uint8array' as any, // Invalid type
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
     },
-    deviceKeys: 'sandbox',
+    sessionContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+    },
+    sessionPassword: 'sandbox',
+  };
+
+  const request = await createPrepareForTradingReq(payload as any);
+  const mockEvent = createMockEvent(request);
+
+  await expect(
+    prepareForTradingReqValidator({
+      event: mockEvent,
+      deviceId: 'test-device-id',
+      validOrigins: ['https://trusted.com'],
+      expectedSource: mockEvent.source,
+      session: mockSession,
+    }),
+  ).rejects.toThrow();
+});
+
+// Tests for TemporaryContainerPayload
+test('prepareForTradingReqValidator should pass validation with TemporaryContainerPayload', async () => {
+  const payload: PFTReq_TemporaryContainerPayload = {
+    type: 'tmp-container',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
+    },
+    temporaryContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+      temporaryPassword: 'temp-password',
+    },
   };
 
   const request = await createPrepareForTradingReq(payload);
@@ -116,51 +258,21 @@ test('prepareForTradingReqValidator should pass validation with sandbox deviceKe
   ).resolves.toBe(true);
 });
 
-test('prepareForTradingReqValidator should pass validation with DeviceKeys without privateKey', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: {
-      publicKey: new Uint8Array([25, 26, 27, 28]),
-      // privateKey is undefined
-    },
-  };
-
-  const request = await createPrepareForTradingReq(payload);
-  const mockEvent = createMockEvent(request);
-
-  await expect(
-    prepareForTradingReqValidator({
-      event: mockEvent,
-      deviceId: 'test-device-id',
-      validOrigins: ['https://trusted.com'],
-      expectedSource: mockEvent.source,
-      session: mockSession,
-    }),
-  ).resolves.toBe(true);
-});
-
-test('prepareForTradingReqValidator should fail validation with invalid deviceKeys string', async () => {
+test('prepareForTradingReqValidator should fail validation with TemporaryContainerPayload missing temporaryPassword', async () => {
   const payload = {
-    deviceKeys: 'invalid-string', // Not 'sandbox'
-  };
-
-  const request = await createPrepareForTradingReq(payload as any);
-  const mockEvent = createMockEvent(request);
-
-  await expect(
-    prepareForTradingReqValidator({
-      event: mockEvent,
-      deviceId: 'test-device-id',
-      validOrigins: ['https://trusted.com'],
-      expectedSource: mockEvent.source,
-      session: mockSession,
-    }),
-  ).rejects.toThrow();
-});
-
-test('prepareForTradingReqValidator should fail validation with invalid deviceKeys object', async () => {
-  const payload = {
-    deviceKeys: {
-      publicKey: 'not-uint8array', // Invalid type
+    payload: {
+      type: 'tmp-container',
+      masterPasswordContainer: {
+        ciphertext: new Uint8Array([1, 2, 3, 4]),
+        iv: new Uint8Array([5, 6, 7, 8]),
+        salt: new Uint8Array([9, 10, 11, 12]),
+      },
+      temporaryContainer: {
+        ciphertext: new Uint8Array([13, 14, 15, 16]),
+        iv: new Uint8Array([17, 18, 19, 20]),
+        salt: new Uint8Array([21, 22, 23, 24]),
+        // Missing temporaryPassword
+      },
     },
   };
 
@@ -178,11 +290,11 @@ test('prepareForTradingReqValidator should fail validation with invalid deviceKe
   ).rejects.toThrow();
 });
 
-test('prepareForTradingReqValidator should fail validation with invalid privateKey in deviceKeys', async () => {
+// General validation tests
+test('prepareForTradingReqValidator should fail validation with invalid payload type', async () => {
   const payload = {
-    deviceKeys: {
-      publicKey: new Uint8Array([25, 26, 27, 28]),
-      privateKey: 'not-uint8array', // Invalid type
+    payload: {
+      type: 'invalid-type',
     },
   };
 
@@ -200,38 +312,9 @@ test('prepareForTradingReqValidator should fail validation with invalid privateK
   ).rejects.toThrow();
 });
 
-test('prepareForTradingReqValidator should fail validation with invalid seed data', async () => {
+test('prepareForTradingReqValidator should fail validation with missing payload', async () => {
   const payload = {
-    seed: {
-      iv: 'not-uint8array', // Invalid type
-      salt: new Uint8Array([5, 6, 7, 8]),
-      ciphertext: new Uint8Array([9, 10, 11, 12]),
-    },
-    deviceKeys: 'sandbox',
-  };
-
-  const request = await createPrepareForTradingReq(payload as any);
-  const mockEvent = createMockEvent(request);
-
-  await expect(
-    prepareForTradingReqValidator({
-      event: mockEvent,
-      deviceId: 'test-device-id',
-      validOrigins: ['https://trusted.com'],
-      expectedSource: mockEvent.source,
-      session: mockSession,
-    }),
-  ).rejects.toThrow();
-});
-
-test('prepareForTradingReqValidator should fail validation with invalid session data', async () => {
-  const payload = {
-    session: {
-      iv: new Uint8Array([13, 14, 15, 16]),
-      ciphertext: 'not-uint8array', // Invalid type
-      ephemeralPublicKey: new Uint8Array([21, 22, 23, 24]),
-    },
-    deviceKeys: 'sandbox',
+    // Missing payload field
   };
 
   const request = await createPrepareForTradingReq(payload as any);
@@ -249,8 +332,8 @@ test('prepareForTradingReqValidator should fail validation with invalid session 
 });
 
 test('prepareForTradingReqValidator should fail validation from invalid origin', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: 'sandbox',
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request = await createPrepareForTradingReq(payload);

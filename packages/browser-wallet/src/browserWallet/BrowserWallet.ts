@@ -9,7 +9,7 @@ import {
   uint,
 } from '@splashprotocol/core';
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
-import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingRequestPayload.ts';
 import { PrepareForTradingResult } from '../operations/prepareForTrading/types/PrepareForTradingResult.ts';
 import { BrowserWalletConfig } from './types/BrowserWalletConfig.ts';
 
@@ -42,19 +42,13 @@ export class BrowserWallet {
       prepareForTradingPayload,
     );
 
-    return new BrowserWallet(
-      config,
-      iframeConnector,
-      prepareForTradingResult,
-      prepareForTradingPayload,
-    );
+    return new BrowserWallet(config, iframeConnector, prepareForTradingResult);
   }
 
   private constructor(
     private config: BrowserWalletConfig,
     private iFrameConnector: IFrameConnectorResponse,
     private prepareForTradingResult: PrepareForTradingResult,
-    private prepareForTradingPayload: PrepareForTradingRequestPayload,
   ) {}
 
   async getBalance(): Promise<Currencies> {
@@ -119,7 +113,9 @@ export class BrowserWallet {
         });
     };
 
-    const result = getUtxOsFromMonitor(this.prepareForTradingResult.pkh)
+    const result = getUtxOsFromMonitor(
+      this.prepareForTradingResult.payload.info.pkh,
+    )
       .then((uTxOs) => {
         delete this.cache.GET_UTXO;
 
@@ -141,10 +137,6 @@ export class BrowserWallet {
 
   async signData(data: Uint8Array): Promise<DataSignature> {
     return this.iFrameConnector.signData(data);
-  }
-
-  async getExistedDevicePublicKey(): Promise<Uint8Array | undefined> {
-    return this.iFrameConnector.getExistedDevicePublicKey();
   }
 
   async destroy() {

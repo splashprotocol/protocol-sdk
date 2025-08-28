@@ -16,13 +16,7 @@ import { SetThemeRes } from './setTheme/types/SetThemeRes.ts';
 import { SetThemeReq } from './setTheme/types/SetThemeReq.ts';
 import { SetThemeErr } from './setTheme/types/SetThemeErr.ts';
 
-import { GenerateDeviceKeyRes } from './generateDeviceKey/types/GenerateDeviceKeyRes.ts';
-import { GenerateDeviceKeyReq } from './generateDeviceKey/types/GenerateDeviceKeyReq.ts';
-import { GenerateDeviceKeyErr } from './generateDeviceKey/types/GenerateDeviceKeyErr.ts';
 
-import { GetExistedDevicePublicKeyRes } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
-import { GetExistedDevicePublicKeyReq } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyReq.ts';
-import { GetExistedDevicePublicKeyErr } from './getExistedDevicePublicKey/types/GetExistedDevicePublicKeyErr.ts';
 
 export type AnyRes =
   | StartSessionRes
@@ -30,24 +24,18 @@ export type AnyRes =
   | PrepareForTradingRes
   | SignDataRes
   | SignTxRes
-  | SetThemeRes
-  | GenerateDeviceKeyRes
-  | GetExistedDevicePublicKeyRes;
+  | SetThemeRes;
 
 export type AnyReq =
   | StartSessionReq
   | PrepareForTradingReq
   | SignDataReq
   | SignTxReq
-  | SetThemeReq
-  | GenerateDeviceKeyReq
-  | GetExistedDevicePublicKeyReq;
+  | SetThemeReq;
 
 export type AnyErr =
   | StartSessionErr
   | PrepareForTradingErr
   | SignDataErr
   | SignTxErr
-  | SetThemeErr
-  | GenerateDeviceKeyErr
-  | GetExistedDevicePublicKeyErr;
+  | SetThemeErr;

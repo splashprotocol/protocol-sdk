@@ -2,7 +2,7 @@ import { generateNonce } from '../../../common/utils/generateNonce/generateNonce
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
 import { PrepareForTradingReq } from '../types/PrepareForTradingReq.ts';
-import { PrepareForTradingRequestPayload } from '../types/PrepareForTradingPayload.ts';
+import { PrepareForTradingRequestPayload } from '../types/PrepareForTradingRequestPayload.ts';
 
 export interface CreatePrepareForTradingReqParams {
   readonly requestId: string;

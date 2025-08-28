@@ -1,8 +1,17 @@
-import {
-  DeviceKeyAllowed,
-  DeviceKeyRestricted,
-  DeviceKeyResult,
-} from '../../operations/generateDeviceKey/types/DeviceKeyResult.ts';
+// Types moved inline after removing generateDeviceKey operation
+
+interface DeviceKeyAllowed {
+  readonly storageAccess: 'allowed';
+  readonly publicKey: Uint8Array;
+}
+
+interface DeviceKeyRestricted {
+  readonly storageAccess: 'restricted';
+  readonly publicKey: Uint8Array;
+  readonly privateKey: Uint8Array;
+}
+
+export type DeviceKeyResult = DeviceKeyAllowed | DeviceKeyRestricted;
 
 const DB_NAME = 'DEVICE_KEY_DB';
 const STORE_NAME = 'DEVICE_KEY_STORE';
@@ -24,8 +33,8 @@ const getDeviceKeyBaseBase = async (): Promise<IDBDatabase> => {
 };
 
 export type DevicePublicKeyStorageResult =
-  | Omit<DeviceKeyAllowed, 'publicKey'>
-  | Omit<DeviceKeyRestricted, 'privateKey'>
+  | (Omit<DeviceKeyAllowed, 'publicKey'> & { publicKey: Uint8Array })
+  | (Omit<DeviceKeyRestricted, 'privateKey'> & { publicKey: Uint8Array })
   | undefined;
 
 export type DevicePrivateKeyStorageResult =

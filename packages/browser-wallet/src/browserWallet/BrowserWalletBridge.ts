@@ -2,13 +2,9 @@ import { BrowserWalletConfig } from './types/BrowserWalletConfig.ts';
 import { BrowserWallet } from './BrowserWallet.ts';
 import { Theme } from '../operations/setTheme/types/Theme.ts';
 import { IFrameConnector, IFrameConnectorResponse } from './IFrameConnector.ts';
-import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingRequestPayload.ts';
 import { DeviceKeyStorage } from './services/DeviceKeysStorage.ts';
 import { bytesToHex } from '@splashprotocol/core';
-import {
-  DeviceKeyAllowed,
-  DeviceKeyResult,
-} from '../operations/generateDeviceKey/types/DeviceKeyResult.ts';
 
 export class NoDeviceKeyError extends Error {}
 
@@ -44,16 +40,17 @@ export class BrowserWalletBridge {
       throw new NoDeviceKeyError('No public key found.');
     }
 
-    const storedPublicKey =
-      storedPublicKeyData.storageAccess === 'restricted'
-        ? storedPublicKeyData.publicKey
-        : await iframeConnector.getExistedDevicePublicKey();
+    const storedPublicKey = storedPublicKeyData.publicKey;
 
     if (!storedPublicKey) {
       throw new NoDeviceKeyError('No public key found.');
     }
 
-    // need to return publicKey
+    const privateKey = await DeviceKeyStorage.getPrivateKey();
+    if (storedPublicKeyData.storageAccess === 'restricted' && !privateKey) {
+      throw new NoDeviceKeyError('No private key found.');
+    }
+
     BrowserWalletBridge.bwBridgeInstance = {
       publicKey: bytesToHex(storedPublicKey),
       bridge: new BrowserWalletBridge(config, iframeConnector),
@@ -73,41 +70,24 @@ export class BrowserWalletBridge {
     if (BrowserWalletBridge.theme) {
       await iframeConnector.setTheme(BrowserWalletBridge.theme);
     }
-    const newKeysData = await iframeConnector.generateDeviceKey();
-    await DeviceKeyStorage.saveKeyData(newKeysData);
-
-    BrowserWalletBridge.bwBridgeInstance = {
-      publicKey: bytesToHex(newKeysData.publicKey),
-      bridge: new BrowserWalletBridge(
-        config,
-        iframeConnector,
-        newKeysData.storageAccess === 'allowed'
-          ? 'sandbox'
-          : {
-              privateKey: newKeysData.privateKey,
-              publicKey: newKeysData.publicKey,
-            },
-      ),
-    };
-
-    return BrowserWalletBridge.bwBridgeInstance;
+    // Device key generation removed - operation no longer available
+    throw new Error('Device key generation is no longer supported');
   }
 
   private browserWallet:
     | undefined
     | {
-        payload: Omit<PrepareForTradingRequestPayload, 'deviceKeys'>;
+        payload: PrepareForTradingRequestPayload;
         instance: BrowserWallet;
       };
 
   private constructor(
     private readonly config: BrowserWalletConfig,
-    private iframeConnector: IFrameConnectorResponse,
-    private deviceKeys: PrepareForTradingRequestPayload['deviceKeys'],
+    private readonly iframeConnector: IFrameConnectorResponse,
   ) {}
 
   async enable(
-    payload: Omit<PrepareForTradingRequestPayload, 'deviceKeys'>,
+    payload: PrepareForTradingRequestPayload,
   ): Promise<BrowserWallet> {
     if (this.browserWallet) {
       this.assertPayload(payload);
@@ -116,8 +96,14 @@ export class BrowserWalletBridge {
 
     this.browserWallet = {
       payload,
-      instance: await BrowserWallet.create(this.config, this.iframeConnector),
+      instance: await BrowserWallet.create(
+        this.config,
+        this.iframeConnector,
+        payload,
+      ),
     };
+
+    return this.browserWallet.instance;
   }
 
   destroy(): Promise<void> {
@@ -127,20 +113,15 @@ export class BrowserWalletBridge {
     return Promise.resolve();
   }
 
-  private assertPayload(
-    payload: Omit<PrepareForTradingRequestPayload, 'deviceKeys'>,
-  ) {
-    if (payload.seed?.iv !== this.browserWallet?.payload!.seed?.iv) {
+  private assertPayload(payload: PrepareForTradingRequestPayload) {
+    // Simple deep comparison for payload equality
+    const currentPayload = JSON.stringify(this.browserWallet?.payload);
+    const newPayload = JSON.stringify(payload);
+
+    if (currentPayload !== newPayload) {
       throw new Error('Different payload');
     }
-    if (
-      payload.seed?.ciphertext !== this.browserWallet?.payload!.seed?.ciphertext
-    ) {
-      throw new Error('Different payload');
-    }
-    if (payload.seed?.salt !== this.browserWallet?.payload!.seed?.salt) {
-      throw new Error('Different payload');
-    }
+
     return true;
   }
 }

@@ -25,16 +25,9 @@ import { OperationType } from '../common/types/OperationType.ts';
 import { generateRequestId } from '../common/utils/generateRequestId/generateRequestId.ts';
 import { PrepareForTradingRes } from '../operations/prepareForTrading/types/PrepareForTradingRes.ts';
 import { prepareForTradingResValidator } from '../operations/prepareForTrading/prepareForTradingRes/prepareForTradingResValidator.ts';
-import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+import { PrepareForTradingRequestPayload } from '../operations/prepareForTrading/types/PrepareForTradingRequestPayload.ts';
 import { PrepareForTradingResult } from '../operations/prepareForTrading/types/PrepareForTradingResult.ts';
 import { createPrepareForTradingReq } from '../operations/prepareForTrading/prepareForTradingReq/createPrepareForTradingReq.ts';
-import { DeviceKeyResult } from '../operations/generateDeviceKey/types/DeviceKeyResult.ts';
-import { GenerateDeviceKeyRes } from '../operations/generateDeviceKey/types/GenerateDeviceKeyRes.ts';
-import { createGenerateDeviceKeyReq } from '../operations/generateDeviceKey/generateDeviceKeyReq/createGenerateDeviceKeyReq.ts';
-import { generateDeviceKeyResValidator } from '../operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
-import { GetExistedDevicePublicKeyRes } from '../operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
-import { createGetExistedDevicePublicKeyReq } from '../operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/createGetExistedDevicePublicKeyReq.ts';
-import { getExistedDevicePublicKeyResValidator } from '../operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/getExistedDevicePublicKeyResValidator.ts';
 
 import { DataSignature } from '../operations/signData/types/DataSignature.ts';
 import { SignDataRes } from '../operations/signData/types/SignDataRes.ts';
@@ -66,8 +59,6 @@ export interface IFrameConnectorResponse {
   prepareForTrading(
     payload: PrepareForTradingRequestPayload,
   ): Promise<PrepareForTradingResult>;
-  generateDeviceKey(): Promise<DeviceKeyResult>;
-  getExistedDevicePublicKey(): Promise<Uint8Array | undefined>;
   signData(payload: Uint8Array): Promise<DataSignature>;
   signTx(TxCbor: CborHexString): Promise<CborHexString>;
 }
@@ -440,60 +431,6 @@ export const IFrameConnector = (iframeUrl: string): IFrameConnectorResponse => {
           hideIframe();
           throw err;
         });
-    },
-    async generateDeviceKey(): Promise<DeviceKeyResult> {
-      return new Promise<GenerateDeviceKeyRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) => {
-            return createGenerateDeviceKeyReq({
-              requestId,
-              deviceId: await getDeviceId(),
-              keyPair: communicationKeyPair,
-              sessionId,
-            });
-          },
-          resolve,
-          reject,
-          requestId,
-          operationType: 'GENERATE_DEVICE_KEY',
-          validator: (event, deviceId) =>
-            generateDeviceKeyResValidator({
-              event: event as unknown as MessageEvent<GenerateDeviceKeyRes>,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow!,
-              publicKey: iframePublicKey,
-            }),
-        });
-      }).then((res) => res.payload);
-    },
-    async getExistedDevicePublicKey(): Promise<Uint8Array | undefined> {
-      return new Promise<GetExistedDevicePublicKeyRes>(async (resolve, reject) => {
-        const requestId = generateRequestId();
-        registerRequest({
-          request: async (requestId) => {
-            return createGetExistedDevicePublicKeyReq({
-              requestId,
-              deviceId: await getDeviceId(),
-              keyPair: communicationKeyPair,
-              sessionId,
-            });
-          },
-          resolve,
-          reject,
-          requestId,
-          operationType: 'GET_EXISTED_DEVICE_PUBLIC_KEY',
-          validator: (event, deviceId) =>
-            getExistedDevicePublicKeyResValidator({
-              event: event as unknown as MessageEvent<GetExistedDevicePublicKeyRes>,
-              deviceId,
-              validOrigins: [iframeUrl],
-              expectedSource: iFrame!.contentWindow!,
-              publicKey: iframePublicKey,
-            }),
-        });
-      }).then((res) => res.payload);
     },
   };
 };

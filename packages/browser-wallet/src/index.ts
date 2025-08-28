@@ -39,29 +39,12 @@ export * from './operations/startSession/startSessionRes/createStartSessionRes.t
 export * from './operations/prepareForTrading/types/PrepareForTradingReq.ts';
 export * from './operations/prepareForTrading/types/PrepareForTradingRes.ts';
 export * from './operations/prepareForTrading/types/PrepareForTradingErr.ts';
-export * from './operations/prepareForTrading/types/PrepareForTradingPayload.ts';
+export * from './operations/prepareForTrading/types/PrepareForTradingRequestPayload.ts';
 export * from './operations/prepareForTrading/types/PrepareForTradingResult.ts';
 export * from './operations/prepareForTrading/prepareForTradingReq/prepareForTradingReqValidator.ts';
 export * from './operations/prepareForTrading/prepareForTradingReq/createPrepareForTradingReq.ts';
 export * from './operations/prepareForTrading/prepareForTradingRes/prepareForTradingResValidator.ts';
 export * from './operations/prepareForTrading/prepareForTradingRes/createPrepareForTradingRes.ts';
-
-export * from './operations/generateDeviceKey/types/GenerateDeviceKeyReq.ts';
-export * from './operations/generateDeviceKey/types/GenerateDeviceKeyRes.ts';
-export * from './operations/generateDeviceKey/types/GenerateDeviceKeyErr.ts';
-export * from './operations/generateDeviceKey/types/DeviceKeyResult.ts';
-export * from './operations/generateDeviceKey/generateDeviceKeyReq/generateDeviceKeyReqValidator.ts';
-export * from './operations/generateDeviceKey/generateDeviceKeyReq/createGenerateDeviceKeyReq.ts';
-export * from './operations/generateDeviceKey/generateDeviceKeyRes/generateDeviceKeyResValidator.ts';
-export * from './operations/generateDeviceKey/generateDeviceKeyRes/createGenerateDeviceKeyRes.ts';
-
-export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyReq.ts';
-export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyRes.ts';
-export * from './operations/getExistedDevicePublicKey/types/GetExistedDevicePublicKeyErr.ts';
-export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/getExistedDevicePublicKeyReqValidator.ts';
-export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyReq/createGetExistedDevicePublicKeyReq.ts';
-export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/getExistedDevicePublicKeyResValidator.ts';
-export * from './operations/getExistedDevicePublicKey/getExistedDevicePublicKeyRes/createGetExistedDevicePublicKeyRes.ts';
 
 export * from './operations/signData/types/SignDataErr.ts';
 export * from './operations/signData/types/SignDataReq.ts';

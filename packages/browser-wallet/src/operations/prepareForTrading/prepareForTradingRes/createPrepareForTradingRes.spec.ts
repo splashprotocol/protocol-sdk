@@ -1,7 +1,11 @@
 import { createPrepareForTradingRes } from './createPrepareForTradingRes.ts';
 import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
 import { Session } from '../../../common/models/Session/Session.ts';
-import { PrepareForTradingResult } from '../types/PrepareForTradingResult.ts';
+import {
+  PFTRes_ExistedSessionPayload,
+  PFTRes_NewSessionPayload,
+  WalletInfo,
+} from '../types/PrepareForTradingResponsePayload.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
 
@@ -21,11 +25,22 @@ afterEach(async () => {
   await keyPair.destroy();
 });
 
-test('createPrepareForTradingRes should create valid response with correct structure', async () => {
-  const payload: PrepareForTradingResult = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash',
+const createWalletInfo = (): WalletInfo => ({
+  pk: 'test-public-key-hex',
+  pkh: 'test-payment-key-hash',
+  skh: 'test-stake-key-hash',
+});
+
+test('createPrepareForTradingRes should create valid response with NewSession (sandbox)', async () => {
+  const payload: PFTRes_NewSessionPayload = {
+    type: 'new-session',
+    info: createWalletInfo(),
+    sessionContainer: {
+      salt: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      ciphertext: new Uint8Array([9, 10, 11, 12]),
+    },
+    sessionPassword: 'sandbox',
   };
 
   const response = await createPrepareForTradingRes({
@@ -45,11 +60,62 @@ test('createPrepareForTradingRes should create valid response with correct struc
   expect(response.nonce).toBeDefined();
 });
 
+test('createPrepareForTradingRes should create valid response with NewSession (encrypted password)', async () => {
+  const payload: PFTRes_NewSessionPayload = {
+    type: 'new-session',
+    info: createWalletInfo(),
+    sessionContainer: {
+      salt: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      ciphertext: new Uint8Array([9, 10, 11, 12]),
+    },
+    sessionPassword: {
+      salt: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      ciphertext: new Uint8Array([21, 22, 23, 24]),
+    },
+  };
+
+  const response = await createPrepareForTradingRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174001',
+    session: mockSession,
+    payload,
+  });
+
+  expect(response.type).toBe('PREPARE_FOR_TRADING');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(payload);
+  expect(response.payload.type).toBe('new-session');
+  expect(
+    (response.payload as PFTRes_NewSessionPayload).sessionPassword,
+  ).not.toBe('sandbox');
+});
+
+test('createPrepareForTradingRes should create valid response with ExistedSession', async () => {
+  const payload: PFTRes_ExistedSessionPayload = {
+    type: 'existed-session',
+    info: createWalletInfo(),
+  };
+
+  const response = await createPrepareForTradingRes({
+    deviceId: 'test-device-id',
+    requestId: '123e4567-e89b-12d3-a456-426614174002',
+    session: mockSession,
+    payload,
+  });
+
+  expect(response.type).toBe('PREPARE_FOR_TRADING');
+  expect(response.kind).toBe('success');
+  expect(response.payload).toEqual(payload);
+  expect(response.payload.type).toBe('existed-session');
+  expect(response.requestId).toBe('123e4567-e89b-12d3-a456-426614174002');
+});
+
 test('createPrepareForTradingRes should create responses with unique nonces and requestIds', async () => {
-  const payload: PrepareForTradingResult = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash',
+  const payload: PFTRes_ExistedSessionPayload = {
+    type: 'existed-session',
+    info: createWalletInfo(),
   };
 
   const response1 = await createPrepareForTradingRes({
@@ -72,12 +138,11 @@ test('createPrepareForTradingRes should create responses with unique nonces and 
 });
 
 test('createPrepareForTradingRes should create valid signature that can be verified with publicKey', async () => {
-  const requestId = '123e4567-e89b-12d3-a456-426614174001';
+  const requestId = '123e4567-e89b-12d3-a456-426614174003';
   const deviceId = 'test-device-id';
-  const payload: PrepareForTradingResult = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash',
+  const payload: PFTRes_ExistedSessionPayload = {
+    type: 'existed-session',
+    info: createWalletInfo(),
   };
 
   const response = await createPrepareForTradingRes({
@@ -106,11 +171,10 @@ test('createPrepareForTradingRes should create valid signature that can be verif
 });
 
 test('createPrepareForTradingRes should create different signatures for different deviceIds', async () => {
-  const requestId = '123e4567-e89b-12d3-a456-426614174002';
-  const payload: PrepareForTradingResult = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash',
+  const requestId = '123e4567-e89b-12d3-a456-426614174004';
+  const payload: PFTRes_ExistedSessionPayload = {
+    type: 'existed-session',
+    info: createWalletInfo(),
   };
 
   const response1 = await createPrepareForTradingRes({
@@ -134,14 +198,13 @@ test('createPrepareForTradingRes should create different signatures for differen
 
 test('createPrepareForTradingRes signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
-  const payload: PrepareForTradingResult = {
-    pk: 'test-public-key-hex',
-    pkh: 'test-payment-key-hash',
-    skh: 'test-stake-key-hash',
+  const payload: PFTRes_ExistedSessionPayload = {
+    type: 'existed-session',
+    info: createWalletInfo(),
   };
 
   const response = await createPrepareForTradingRes({
-    requestId: '123e4567-e89b-12d3-a456-426614174003',
+    requestId: '123e4567-e89b-12d3-a456-426614174005',
     deviceId: 'test-device-id',
     session: mockSession,
     payload,
@@ -151,7 +214,7 @@ test('createPrepareForTradingRes signature should fail verification with wrong p
     response.payload,
     response.timestamp,
     'test-device-id',
-    '123e4567-e89b-12d3-a456-426614174003',
+    '123e4567-e89b-12d3-a456-426614174005',
     response.nonce,
   );
 

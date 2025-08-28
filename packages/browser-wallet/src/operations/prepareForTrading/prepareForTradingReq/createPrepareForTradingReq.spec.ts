@@ -1,6 +1,11 @@
 import { createPrepareForTradingReq } from './createPrepareForTradingReq.ts';
 import { CommunicationKeyPair } from '../../../common/models/CommunicationKeyPair/CommunicationKeyPair.ts';
-import { PrepareForTradingRequestPayload } from '../types/PrepareForTradingPayload.ts';
+import {
+  PFTReq_NoSeedPayload,
+  PFTReq_MasterPasswordPayload,
+  PFTReq_TradingSessionPayload,
+  PFTReq_TemporaryContainerPayload,
+} from '../types/PrepareForTradingRequestPayload.ts';
 import { generateMessageForSign } from '../../../common/utils/generateMessageForSign/generateMessageForSign.ts';
 import { generateRequestId } from '../../../common/utils/generateRequestId/generateRequestId.ts';
 
@@ -14,22 +19,9 @@ afterEach(async () => {
   await keyPair.destroy();
 });
 
-test('createPrepareForTradingReq should create valid request with full payload', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    seed: {
-      iv: new Uint8Array([1, 2, 3, 4]),
-      salt: new Uint8Array([5, 6, 7, 8]),
-      ciphertext: new Uint8Array([9, 10, 11, 12]),
-    },
-    session: {
-      iv: new Uint8Array([13, 14, 15, 16]),
-      ciphertext: new Uint8Array([17, 18, 19, 20]),
-      ephemeralPublicKey: new Uint8Array([21, 22, 23, 24]),
-    },
-    deviceKeys: {
-      publicKey: new Uint8Array([25, 26, 27, 28]),
-      privateKey: new Uint8Array([29, 30, 31, 32]),
-    },
+test('createPrepareForTradingReq should create valid request with NoSeedPayload', async () => {
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request = await createPrepareForTradingReq({
@@ -50,14 +42,134 @@ test('createPrepareForTradingReq should create valid request with full payload',
   expect(request.nonce).toBeDefined();
 });
 
+test('createPrepareForTradingReq should create valid request with MasterPasswordPayload', async () => {
+  const payload: PFTReq_MasterPasswordPayload = {
+    type: 'master-password',
+    ciphertext: new Uint8Array([1, 2, 3, 4]),
+    iv: new Uint8Array([5, 6, 7, 8]),
+    salt: new Uint8Array([9, 10, 11, 12]),
+  };
+
+  const request = await createPrepareForTradingReq({
+    requestId: '123e4567-e89b-12d3-a456-426614174001',
+    deviceId: 'test-device-id',
+    keyPair,
+    sessionId: 'test-session-id',
+    payload,
+  });
+
+  expect(request.type).toBe('PREPARE_FOR_TRADING');
+  expect(request.payload).toEqual(payload);
+  expect(request.payload.type).toBe('master-password');
+});
+
+test('createPrepareForTradingReq should create valid request with TradingSessionPayload (sandbox)', async () => {
+  const payload: PFTReq_TradingSessionPayload = {
+    type: 'session',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
+    },
+    sessionContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+    },
+    sessionPassword: 'sandbox',
+  };
+
+  const request = await createPrepareForTradingReq({
+    requestId: '123e4567-e89b-12d3-a456-426614174002',
+    deviceId: 'test-device-id',
+    keyPair,
+    sessionId: 'test-session-id',
+    payload,
+  });
+
+  expect(request.type).toBe('PREPARE_FOR_TRADING');
+  expect(request.payload).toEqual(payload);
+  expect(request.payload.type).toBe('session');
+  expect(
+    (request.payload as PFTReq_TradingSessionPayload).sessionPassword,
+  ).toBe('sandbox');
+});
+
+test('createPrepareForTradingReq should create valid request with TradingSessionPayload (encrypted password)', async () => {
+  const payload: PFTReq_TradingSessionPayload = {
+    type: 'session',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
+    },
+    sessionContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+    },
+    sessionPassword: {
+      ciphertext: new Uint8Array([25, 26, 27, 28]),
+      iv: new Uint8Array([29, 30, 31, 32]),
+      salt: new Uint8Array([33, 34, 35, 36]),
+    },
+  };
+
+  const request = await createPrepareForTradingReq({
+    requestId: '123e4567-e89b-12d3-a456-426614174003',
+    deviceId: 'test-device-id',
+    keyPair,
+    sessionId: 'test-session-id',
+    payload,
+  });
+
+  expect(request.type).toBe('PREPARE_FOR_TRADING');
+  expect(request.payload).toEqual(payload);
+  expect(request.payload.type).toBe('session');
+  expect(
+    typeof (request.payload as PFTReq_TradingSessionPayload).sessionPassword,
+  ).toBe('object');
+});
+
+test('createPrepareForTradingReq should create valid request with TemporaryContainerPayload', async () => {
+  const payload: PFTReq_TemporaryContainerPayload = {
+    type: 'tmp-container',
+    masterPasswordContainer: {
+      ciphertext: new Uint8Array([1, 2, 3, 4]),
+      iv: new Uint8Array([5, 6, 7, 8]),
+      salt: new Uint8Array([9, 10, 11, 12]),
+    },
+    temporaryContainer: {
+      ciphertext: new Uint8Array([13, 14, 15, 16]),
+      iv: new Uint8Array([17, 18, 19, 20]),
+      salt: new Uint8Array([21, 22, 23, 24]),
+      temporaryPassword: 'temp-password',
+    },
+  };
+
+  const request = await createPrepareForTradingReq({
+    requestId: '123e4567-e89b-12d3-a456-426614174004',
+    deviceId: 'test-device-id',
+    keyPair,
+    sessionId: 'test-session-id',
+    payload,
+  });
+
+  expect(request.type).toBe('PREPARE_FOR_TRADING');
+  expect(request.payload).toEqual(payload);
+  expect(request.payload.type).toBe('tmp-container');
+  expect(
+    (request.payload as PFTReq_TemporaryContainerPayload).temporaryContainer
+      .temporaryPassword,
+  ).toBe('temp-password');
+});
+
 test('createPrepareForTradingReq should create valid signature that can be verified with publicKey', async () => {
-  const requestId = '123e4567-e89b-12d3-a456-426614174001';
+  const requestId = '123e4567-e89b-12d3-a456-426614174005';
   const deviceId = 'test-device-id';
   const sessionId = 'test-session-id';
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: {
-      publicKey: new Uint8Array([1, 2, 3, 4]),
-    },
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request = await createPrepareForTradingReq({
@@ -85,8 +197,8 @@ test('createPrepareForTradingReq should create valid signature that can be verif
 });
 
 test('createPrepareForTradingReq should create requests with unique nonces and requestIds', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: { publicKey: new Uint8Array([1, 2, 3, 4]) },
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request1 = await createPrepareForTradingReq({
@@ -111,10 +223,10 @@ test('createPrepareForTradingReq should create requests with unique nonces and r
 });
 
 test('createPrepareForTradingReq should create different signatures for different deviceIds', async () => {
-  const requestId = '123e4567-e89b-12d3-a456-426614174002';
+  const requestId = '123e4567-e89b-12d3-a456-426614174006';
   const sessionId = 'test-session-id';
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: { publicKey: new Uint8Array([1, 2, 3, 4]) },
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request1 = await createPrepareForTradingReq({
@@ -140,12 +252,12 @@ test('createPrepareForTradingReq should create different signatures for differen
 
 test('createPrepareForTradingReq signature should fail verification with wrong public key', async () => {
   const wrongKeyPair = await CommunicationKeyPair.create();
-  const payload: PrepareForTradingRequestPayload = {
-    deviceKeys: { publicKey: new Uint8Array([1, 2, 3, 4]) },
+  const payload: PFTReq_NoSeedPayload = {
+    type: 'no-seed',
   };
 
   const request = await createPrepareForTradingReq({
-    requestId: '123e4567-e89b-12d3-a456-426614174003',
+    requestId: '123e4567-e89b-12d3-a456-426614174007',
     deviceId: 'test-device-id',
     keyPair,
     sessionId: 'test-session-id',
@@ -156,7 +268,7 @@ test('createPrepareForTradingReq signature should fail verification with wrong p
     request.payload,
     request.timestamp,
     'test-device-id',
-    '123e4567-e89b-12d3-a456-426614174003',
+    '123e4567-e89b-12d3-a456-426614174007',
     request.nonce,
   );
 
@@ -169,34 +281,3 @@ test('createPrepareForTradingReq signature should fail verification with wrong p
 
   await wrongKeyPair.destroy();
 });
-
-test('createPrepareForTradingReq should create valid request with sandbox deviceKeys', async () => {
-  const payload: PrepareForTradingRequestPayload = {
-    seed: {
-      iv: new Uint8Array([1, 2, 3, 4]),
-      salt: new Uint8Array([5, 6, 7, 8]),
-      ciphertext: new Uint8Array([9, 10, 11, 12]),
-    },
-    deviceKeys: 'sandbox',
-  };
-
-  const request = await createPrepareForTradingReq({
-    requestId: '123e4567-e89b-12d3-a456-426614174004',
-    deviceId: 'test-device-id',
-    keyPair,
-    sessionId: 'test-session-id',
-    payload,
-  });
-
-  expect(request.type).toBe('PREPARE_FOR_TRADING');
-  expect(request.payload).toEqual(payload);
-  expect(request.payload.deviceKeys).toBe('sandbox');
-  expect(request.requestId).toBe('123e4567-e89b-12d3-a456-426614174004');
-  expect(request.deviceId).toBe('test-device-id');
-  expect(request.sessionId).toBe('test-session-id');
-  expect(request.signature).toBeInstanceOf(Uint8Array);
-  expect(request.timestamp).toBeGreaterThan(0);
-  expect(request.nonce).toBeDefined();
-});
-
-
