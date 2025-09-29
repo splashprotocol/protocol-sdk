@@ -39,7 +39,6 @@ import { Transaction } from './models/Transaction/Transaction.ts';
 import { SignedTransaction } from './models/SignedTransaction/SignedTransaction.ts';
 import { RemoteCollateralsConfig } from './legacyUtils/remoteCollaterals/RemoteCollateralsConfig.ts';
 import { NetworkContext } from './types/NetworkContext.ts';
-import { BrowserWallet } from '@splashprotocol/browser-wallet';
 
 export interface NewTransactionConfig {
   readonly changeAddress?: Bech32String;
@@ -145,10 +144,6 @@ export class BuilderLegacy<
     );
 
     return this.api.getWalletContext().then((ctx) => {
-      // TODO: FIX
-      if (ctx instanceof BrowserWallet) {
-        return Promise.resolve('');
-      }
       return ctx.submitTx(wasmTx.to_cbor_hex());
     });
   }
@@ -216,9 +211,6 @@ export class BuilderLegacy<
           : this.api
               .getWalletContext()
               .then((ctx) => {
-                if (ctx instanceof BrowserWallet) {
-                  return [];
-                }
                 return ctx.getUtxos();
               })
               .then((utxoCbors) => {
@@ -242,9 +234,6 @@ export class BuilderLegacy<
           : this.api
               .getWalletContext()
               .then((ctx) => {
-                if (ctx instanceof BrowserWallet) {
-                  return [];
-                }
                 return ctx.getCollateral
                   ? ctx.getCollateral()
                   : ctx.experimental?.getCollateral
@@ -608,10 +597,24 @@ export class BuilderLegacy<
             C.TransactionMetadatum.new_text(mint.cip25.name),
           );
 
-          metadatumMap.set(
-            C.TransactionMetadatum.new_text('image'),
-            C.TransactionMetadatum.new_text(mint.cip25.image),
-          );
+          if (mint.cip25.image.length > 64) {
+            const imageList = C.MetadatumList.new();
+            imageList.add(C.TransactionMetadatum.new_text('ipfs://'));
+            imageList.add(
+              C.TransactionMetadatum.new_text(
+                mint.cip25.image.split('ipfs://')[1],
+              ),
+            );
+            metadatumMap.set(
+              C.TransactionMetadatum.new_text('image'),
+              C.TransactionMetadatum.new_list(imageList),
+            );
+          } else {
+            metadatumMap.set(
+              C.TransactionMetadatum.new_text('image'),
+              C.TransactionMetadatum.new_text(mint.cip25.image),
+            );
+          }
           if (mint.cip25.ticker) {
             metadatumMap.set(
               C.TransactionMetadatum.new_text('ticker'),

@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/remote-builder",
-  "version": "2.0.0-beta.81",
+  "version": "2.0.0-beta.82",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {
@@ -33,8 +33,7 @@
     ]
   },
   "peerDependencies": {
-    "@splashprotocol/api": "2.0.0-beta.58",
-    "@splashprotocol/core": "2.0.0-beta.19",
-    "@splashprotocol/browser-wallet": "1.0.0-beta.22"
+    "@splashprotocol/api": "2.0.0-beta.59",
+    "@splashprotocol/core": "2.0.0-beta.19"
   }
 }

@@ -3,7 +3,6 @@ import {
   CardanoCIP30WalletBridge,
   CardanoCIP30WalletContext,
 } from '../../types/CardanoCIP30WalletBridge.ts';
-import { BrowserWallet } from '@splashprotocol/browser-wallet';
 
 export interface BasicApi {
   readonly network: Network;
@@ -15,8 +14,7 @@ export interface BasicApi {
   selectWallet(
     walletFactory?:
       | (() => Promise<CardanoCIP30WalletContext> | CardanoCIP30WalletContext)
-      | CardanoCIP30WalletBridge
-      | BrowserWallet,
+      | CardanoCIP30WalletBridge,
   ): void;
 
   /**
@@ -46,17 +44,11 @@ export interface BasicApi {
   /**
    * Returns cip30 context
    */
-  getWalletContext(): Promise<CardanoCIP30WalletContext | BrowserWallet>;
+  getWalletContext(): Promise<CardanoCIP30WalletContext>;
 
   /**
    * Utility method for error handling
    * @param promise
    */
   handleCIP30WalletError<T>(promise: Promise<T>): Promise<T>;
-
-  /**
-   * Utility method for browser error handling
-   * @param promise
-   */
-  handleBrowserWalletError<T>(promise: Promise<T>): Promise<T>;
 }

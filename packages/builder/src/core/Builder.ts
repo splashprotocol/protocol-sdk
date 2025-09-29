@@ -28,7 +28,6 @@ import { InsufficientFundsErrorForChange } from './errors/InsufficientFundsError
 import { SignedTransaction } from './models/SignedTransaction/SignedTransaction.ts';
 import { addRequiredSigners } from './operations/addRequiredSigners/addRequiredSigners.ts';
 import { selectUTxO } from './operations/selectUTxO/selectUTxO.ts';
-import { BrowserWallet } from '@splashprotocol/browser-wallet';
 
 export const defaultOperations: {
   payToAddress: typeof payToAddress;
@@ -143,9 +142,6 @@ export class Builder<
     const uTxOs = await this.api
       .getWalletContext()
       .then((ctx) => {
-        if (ctx instanceof BrowserWallet) {
-          return [];
-        }
         return ctx.getUtxos();
       })
       .then((utxoCbors) => {
@@ -164,9 +160,6 @@ export class Builder<
       uTxOs: await this.api
         .getWalletContext()
         .then((ctx) => {
-          if (ctx instanceof BrowserWallet) {
-            return [];
-          }
           return ctx.getCollateral
             ? ctx.getCollateral()
             : ctx.experimental?.getCollateral
