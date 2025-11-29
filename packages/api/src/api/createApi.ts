@@ -14,7 +14,6 @@ import {
 } from './errors/UserDeclinedSignError.ts';
 import { WalletApiError } from './errors/WalletApiError.ts';
 import { AddressUtils, CredentialType, Currencies } from '@splashprotocol/core';
-import { BrowserWallet, DisconnectError } from '@splashprotocol/browser-wallet';
 
 enum WalletNetworkId {
   TESTNET = 0,
@@ -37,7 +36,6 @@ export type Api<B extends Backend<{}>> = BasicApi & {
 
 export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
   let selectedWallet:
-    | BrowserWallet
     | undefined
     | (() => Promise<CardanoCIP30WalletContext>)
     | (() => CardanoCIP30WalletContext)
@@ -49,18 +47,10 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
       contextP = undefined;
     }
   };
-  const getContext = (): Promise<CardanoCIP30WalletContext | BrowserWallet> => {
+  const getContext = (): Promise<CardanoCIP30WalletContext> => {
     if (!selectedWallet) {
       clearCache();
       return Promise.reject(new NoWalletError('please, provide wallet to sdk'));
-    }
-    if (selectedWallet instanceof BrowserWallet) {
-      if (backend.network !== 'mainnet') {
-        return Promise.reject(
-          new InvalidWalletNetworkError(`Expected mainnet`),
-        );
-      }
-      return Promise.resolve(selectedWallet);
     }
     if (!contextP) {
       let timerId: any = undefined;
@@ -113,20 +103,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
     return contextP!;
   };
 
-  const handleBrowserWalletError = async <T>(
-    promise: Promise<T>,
-  ): Promise<T> => {
-    return promise.catch((err) => {
-      if (err instanceof DisconnectError) {
-        throw err;
-      }
-      console.log(err);
-      throw new WalletAccountError(
-        err instanceof Error ? err.message : err?.toString(),
-      );
-    });
-  };
-
   const handleCIP30WalletError = async <T>(promise: Promise<T>): Promise<T> => {
     return promise.catch((err) => {
       clearCache();
@@ -158,8 +134,7 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
   const selectWallet = (
     walletFactory?:
       | (() => Promise<CardanoCIP30WalletContext>)
-      | (() => CardanoCIP30WalletContext)
-      | BrowserWallet,
+      | (() => CardanoCIP30WalletContext),
   ) => {
     clearCache();
     selectedWallet = walletFactory;
@@ -167,11 +142,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
 
   const getAddresses = () => {
     return getContext().then((ctx) => {
-      if (ctx instanceof BrowserWallet) {
-        return handleBrowserWalletError(ctx.getAddress()).then((address) => [
-          address,
-        ]);
-      }
       return Promise.all([
         handleCIP30WalletError(ctx.getUnusedAddresses()),
         handleCIP30WalletError(ctx.getUsedAddresses()),
@@ -190,11 +160,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
 
   const getPaymentKeysHashes = (): Promise<string[]> => {
     return getContext().then((ctx) => {
-      if (ctx instanceof BrowserWallet) {
-        return handleBrowserWalletError(ctx.getPaymentKeyHash()).then((pkh) => [
-          pkh,
-        ]);
-      }
       return Promise.all([
         handleCIP30WalletError(ctx.getUnusedAddresses()),
         handleCIP30WalletError(ctx.getUsedAddresses()),
@@ -222,9 +187,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
 
   const getActiveAddress = (): Promise<string> => {
     return getContext().then((ctx) => {
-      if (ctx instanceof BrowserWallet) {
-        return handleBrowserWalletError(ctx.getAddress());
-      }
       return handleCIP30WalletError(ctx.getChangeAddress()).then(
         (cborAddressHex) => AddressUtils.fromHex(cborAddressHex).toBech32(),
       );
@@ -233,9 +195,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
 
   const getBalanceInner = async (): Promise<Currencies | string> => {
     return getContext().then((ctx): Promise<Currencies | string> => {
-      if (ctx instanceof BrowserWallet) {
-        return handleBrowserWalletError(ctx.getBalance());
-      }
       return handleCIP30WalletError(ctx.getBalance());
     });
   };
@@ -248,7 +207,6 @@ export const createApi = <B extends Backend<{}>>(backend: B): Api<B> => {
     getBalanceInner,
     getWalletContext: getContext,
     handleCIP30WalletError: handleCIP30WalletError,
-    handleBrowserWalletError,
   };
 
   const backendCache = {};

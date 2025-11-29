@@ -21,6 +21,7 @@ export interface InputExtraBase {
 
 export interface ScriptReferenceInputExtra extends InputExtraBase {
   readonly script: CborHexString;
+  readonly type?: 'plutusV2' | 'plutusV3';
 }
 
 export interface ScriptHashReferenceInputExtra extends InputExtraBase {
