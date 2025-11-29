@@ -540,10 +540,16 @@ export class BuilderLegacy<
       const partialPlutusWitness = C.PartialPlutusWitness.new(
         // PlutusScriptWitness.new_ref(ScriptHash.from_hex(input.extra.script)),
         C.PlutusScriptWitness.new_script(
-          C.PlutusScript.from_v2(
-            //   @ts-ignore
-            C.PlutusV2Script.from_cbor_hex(input.extra.script),
-          ),
+          //   @ts-ignore
+          input.extra.type === 'plutusV3'
+            ? C.PlutusScript.from_v3(
+                //   @ts-ignore
+                C.PlutusV3Script.from_cbor_hex(input.extra.script),
+              )
+            : C.PlutusScript.from_v2(
+                //   @ts-ignore
+                C.PlutusV2Script.from_cbor_hex(input.extra.script),
+              ),
         ),
         // @ts-ignore
         C.PlutusData.from_cbor_hex(input.extra.redeemer),
