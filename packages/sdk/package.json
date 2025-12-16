@@ -1,6 +1,6 @@
 {
   "name": "@splashprotocol/sdk",
-  "version": "2.0.0-beta.132",
+  "version": "2.0.0-beta.140",
   "type": "module",
   "description": "Api client of splash protocol",
   "scripts": {

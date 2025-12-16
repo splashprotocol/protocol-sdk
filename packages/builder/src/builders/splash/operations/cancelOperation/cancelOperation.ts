@@ -5,6 +5,7 @@ import { Operation } from '../../../../core/types/Operation.ts';
 import {
   Bech32String,
   CborHexString,
+  Dictionary,
   HexString,
   Network,
   OutputReference,
@@ -13,7 +14,10 @@ import {
 import { Output } from '../../../../core/models/Output/Output.ts';
 import { BasicApi } from '@splashprotocol/api';
 import { getSplashOperationConfig } from '../common/getSplashOperationConfig.ts';
-import { SplashOperationsConfig } from '../common/SplashOperationsConfig.ts';
+import {
+  SplashOperation,
+  SplashOperationsConfig,
+} from '../common/SplashOperationsConfig.ts';
 import { spectrumSwapDatum } from './legacyDatums/spectrumSwapDatum/spectrumSwapDatum.ts';
 
 import { credentialsToBech32Address } from '../../../../core/utils/credentialsToBech32Address/credentialsToBech32Address.ts';
@@ -181,13 +185,17 @@ export type OperationDatumDeserializer = (
 export const cancelOperation: Operation<
   [
     OutputReference | OutputReferenceHash,
-    OperationDatumDeserializer?,
+    Dictionary<
+      SplashOperation & {
+        deserializer: OperationDatumDeserializer;
+      }
+    >?,
     boolean?,
   ],
   BasicApi,
   Output
 > =
-  (outputReferenceOrHash, deserializer, needTtl) =>
+  (outputReferenceOrHash, operations, needTtl) =>
   async ({ network, transactionCandidate, explorer, pParams, C, nContext }) => {
     const operationsConfig = await getSplashOperationConfig();
     let outputReference: OutputReference;
@@ -207,7 +215,9 @@ export const cancelOperation: Operation<
       );
     }
 
-    const supportedOperations = Object.entries(operationsConfig.operations);
+    const supportedOperations = Object.entries(
+      operations || operationsConfig.operations,
+    );
     const operationConfigKeyValue = supportedOperations.find(
       (op) => op[1].script === uTxOToCancel.paymentCredentials,
     );
@@ -225,8 +235,8 @@ export const cancelOperation: Operation<
 
     const [operationConfigKey, operationConfig] = operationConfigKeyValue;
 
-    const creds = deserializer
-      ? await deserializer(
+    const creds = operations
+      ? await operations[operationConfigKey].deserializer(
           network,
           uTxOToCancel.wasmOutput.datum()?.as_datum()?.to_cbor_hex()!,
         )
