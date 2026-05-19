@@ -20,14 +20,13 @@ import {
 import { getBasePrice } from './getBasePrice/getBasePrice.ts';
 import { getMinMarginalOutput } from './getMinMarginalOutput/getMinMarginalOutput.ts';
 import { DEFAULT_BATCHER_KEY, MINIMUM_COLLATERAL_ADA } from './constants.ts';
-import { getExecutorFee } from './getExecutorFee/getExecutorFee.ts';
 
 export interface SpotOrderConfig {
   readonly input: Currency;
   readonly outputAsset: AssetInfo;
   readonly price?: Price;
   readonly maxStepCount?: bigint;
-  readonly slippage?: number;
+  readonly slippage?: number | 'infinity';
   readonly batcherPkh?: HexString;
 }
 
@@ -40,16 +39,9 @@ export const spotOrder: Operation<[SpotOrderConfig], SplashApiType, Output> =
     const orderStepCost = Currency.ada(
       BigInt(operationsConfig.operations.spotOrderV3.settings.orderStepCost),
     );
-    const executorFeeFromTable = await getExecutorFee(
-      context.network === 'mainnet' ? 'mainnet' : 'staging',
-      input,
-      outputAsset,
-    );
     const executorFee = Currency.ada(
       BigInt(
-        executorFeeFromTable !== undefined
-          ? executorFeeFromTable
-          : operationsConfig.operations.spotOrderV3.settings.executorFee || 0n,
+        operationsConfig.operations.spotOrderV3.settings.executorFee || 0n,
       ),
     );
 
@@ -70,10 +62,12 @@ export const spotOrder: Operation<[SpotOrderConfig], SplashApiType, Output> =
         outputAsset,
         input,
         slippage:
-          slippage !== undefined
-            ? slippage
-            : operationsConfig.operations.spotOrderV3.settings
-                .marketOrderPriceSlippage,
+          slippage === 'infinity'
+            ? 1
+            : slippage !== undefined
+              ? slippage
+              : operationsConfig.operations.spotOrderV3.settings
+                  .marketOrderPriceSlippage,
       },
       context.api,
     );
@@ -100,12 +94,16 @@ export const spotOrder: Operation<[SpotOrderConfig], SplashApiType, Output> =
       },
       inputAmount: input.amount,
       costPerExStep: worstOrderStepCost.amount,
-      minMarginalOutput: minMarginalOutput.amount,
+      minMarginalOutput:
+        slippage === 'infinity' ? 1n : minMarginalOutput.amount,
       outputAsset: {
         policyId: outputAsset.policyId,
         name: outputAsset.nameBase16,
       },
-      price: basePrice.rational,
+      price:
+        slippage === 'infinity'
+          ? { numerator: 1n, denominator: input.amount }
+          : basePrice.rational,
       executorFee: executorFee.amount,
       address: {
         paymentCredentials: {
